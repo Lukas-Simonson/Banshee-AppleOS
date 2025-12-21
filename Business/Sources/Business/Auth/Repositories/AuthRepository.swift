@@ -79,7 +79,7 @@ public final class AuthRepository: AuthRepositoryContract {
         Task {
             do {
                 let session = try await local.getSession()
-                logger.info("Loading existing session for: \(session.user.username)")
+                logger.info("Loading existing session for: \(session?.user.username)")
                 
                 await sessionFlow.emit(session)
             } catch {

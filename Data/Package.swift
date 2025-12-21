@@ -16,7 +16,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "../Business")
+        .package(path: "../Business"),
+        .package(url: "https://github.com/Lukas-Simonson/Swift-Cobweb", from: "1.1.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -24,7 +25,8 @@ let package = Package(
         .target(
             name: "Data",
             dependencies: [
-                .product(name: "Business", package: "Business")
+                .product(name: "Business", package: "Business"),
+                .product(name: "Cobweb", package: "Swift-Cobweb")
             ]
         ),
         .testTarget(

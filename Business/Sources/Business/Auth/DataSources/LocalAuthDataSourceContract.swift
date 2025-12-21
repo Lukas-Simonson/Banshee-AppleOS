@@ -4,7 +4,7 @@ import Foundation
 /// Contract for secure local secret storage. (Keychain)
 public protocol LocalAuthDataSourceContract: Sendable {
     
-    func getSession() async throws(LocalAuthDataSourceError) -> AuthSession
+    func getSession() async throws(LocalAuthDataSourceError) -> AuthSession?
     
     func saveSession(_ session: AuthSession) async throws(LocalAuthDataSourceError)
     
@@ -12,7 +12,13 @@ public protocol LocalAuthDataSourceContract: Sendable {
 }
 
 public enum LocalAuthDataSourceError: String, LocalizedError {
-    case someError = "Something occurred"
+    case unableToSaveToken = "Unable to save data to local keychain"
+    case unableToRetrieveToken = "Unable to retrieve token from local keychain"
+    
+    case unableToDecodeSession = "Login session data corrupted"
+    case unableToEncodeSession = "Login session in an unexpected format"
+    
+    case unknownError = "An unexpected error happened"
     
     var errorDescription: String { self.rawValue }
 }

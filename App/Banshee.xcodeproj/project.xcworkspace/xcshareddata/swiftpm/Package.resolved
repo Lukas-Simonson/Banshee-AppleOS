@@ -20,6 +20,15 @@
       }
     },
     {
+      "identity" : "swift-cobweb",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Lukas-Simonson/Swift-Cobweb",
+      "state" : {
+        "revision" : "4c9e4d225ed7a0cb0801decabeb38aadb3fdc9ae",
+        "version" : "1.2.0"
+      }
+    },
+    {
       "identity" : "swift-log",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log",

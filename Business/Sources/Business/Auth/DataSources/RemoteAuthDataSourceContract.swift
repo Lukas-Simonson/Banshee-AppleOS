@@ -10,7 +10,9 @@ public protocol RemoteAuthDataSourceContract: Sendable {
 }
 
 public enum RemoteAuthDataSourceError: String, LocalizedError {
-    case someError = "Something occurred"
+    case urlError = "Unable to validate server url"
+    case unexpectedResponse = "Unexpected response from server"
+    case unknownError = "Unknown Erorr"
     
     var errorDescription: String { self.rawValue }
 }
