@@ -1,5 +1,5 @@
 {
-  "originHash" : "aef3a6082f5f5afa4d307ec53a7b2ce7b0c358470580c2aca2da1c9bc6ba3a3b",
+  "originHash" : "23054b910f2594ddff019280762077ef140a6a7e5bf6894155c10051e49b9e2d",
   "pins" : [
     {
       "identity" : "brute",
@@ -11,12 +11,30 @@
       }
     },
     {
+      "identity" : "noticeme",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Lukas-Simonson/NoticeMe",
+      "state" : {
+        "revision" : "54d41e6c0732aa753d88887b5a2a9a04b211203d",
+        "version" : "1.1.2"
+      }
+    },
+    {
       "identity" : "overflow",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Lukas-Simonson/Overflow",
       "state" : {
         "revision" : "ace04f3e40b01fde9bde5c27d55935812fb2c0f5",
         "version" : "1.1.1"
+      }
+    },
+    {
+      "identity" : "scaffold",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Lukas-Simonson/Scaffold.git",
+      "state" : {
+        "revision" : "c383565dfa6ee48400f9fe94cadd5458bf237386",
+        "version" : "0.3.0"
       }
     },
     {
@@ -35,6 +53,15 @@
       "state" : {
         "revision" : "bc386b95f2a16ccd0150a8235e7c69eab2b866ca",
         "version" : "1.8.0"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-syntax",
+      "state" : {
+        "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
+        "version" : "602.0.0"
       }
     },
     {

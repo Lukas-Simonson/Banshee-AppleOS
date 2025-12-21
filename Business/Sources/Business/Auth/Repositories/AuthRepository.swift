@@ -67,6 +67,9 @@ public final class AuthRepository: AuthRepositoryContract {
     public func logout() async throws(AuthRepositoryError) {
         do {
             try await local.clearSession()
+            
+            // Update Subscribers
+            await sessionFlow.emit(nil)
         }
         catch let error as LocalAuthDataSourceError {
             logger.error("Unable to clear session", for: error)

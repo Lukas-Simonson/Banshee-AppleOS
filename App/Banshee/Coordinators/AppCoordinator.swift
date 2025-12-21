@@ -1,0 +1,39 @@
+import Auth
+import Core
+import Foundation
+import NoticeMe
+import Observation
+
+@Observable
+final class AppCoordinator: Sendable {
+    static let shared = AppCoordinator()
+    
+    let scaffold = AppScaffold()
+    let notices = NoticeManager()
+    
+    private(set) var session: AuthSession?
+    private(set) var isCheckingSession = true
+    
+    init() {
+        observeSession()
+    }
+    
+    private func observeSession() {
+        Task {
+            for await session in scaffold.auth().repository().sessionStream {
+                self.session = session
+                isCheckingSession = false
+            }
+        }
+    }
+}
+
+extension AppCoordinator: AuthNavigationContract {
+    func navigateHome() {
+        // Handled Automatically By Watching Stream
+    }
+    
+    func showError(_ error: LocalizedError) {
+        notices.queueNotice(ErrorNotice(error: error))
+    }
+}

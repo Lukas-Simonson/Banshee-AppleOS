@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6C444E122EF88F0A00C85736 /* Scaffold in Frameworks */ = {isa = PBXBuildFile; productRef = 6C444E112EF88F0A00C85736 /* Scaffold */; };
+		6C444E1C2EF8925400C85736 /* NoticeMe in Frameworks */ = {isa = PBXBuildFile; productRef = 6C444E1B2EF8925400C85736 /* NoticeMe */; };
 		6CC079E82EF7BF8C0081C716 /* Data in Frameworks */ = {isa = PBXBuildFile; productRef = 6CC079E72EF7BF8C0081C716 /* Data */; };
 		6CC079EB2EF7BF9B0081C716 /* Feature in Frameworks */ = {isa = PBXBuildFile; productRef = 6CC079EA2EF7BF9B0081C716 /* Feature */; };
 /* End PBXBuildFile section */
@@ -34,9 +36,22 @@
 		6CC079C72EF7BF1F0081C716 /* BansheeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BansheeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6C444E262EF8975700C85736 /* Exceptions for "Banshee" folder in "Banshee" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 6CC079AF2EF7BF1E0081C716 /* Banshee */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		6CC079B22EF7BF1E0081C716 /* Banshee */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6C444E262EF8975700C85736 /* Exceptions for "Banshee" folder in "Banshee" target */,
+			);
 			path = Banshee;
 			sourceTree = "<group>";
 		};
@@ -57,7 +72,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C444E1C2EF8925400C85736 /* NoticeMe in Frameworks */,
 				6CC079E82EF7BF8C0081C716 /* Data in Frameworks */,
+				6C444E122EF88F0A00C85736 /* Scaffold in Frameworks */,
 				6CC079EB2EF7BF9B0081C716 /* Feature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -121,6 +138,8 @@
 			packageProductDependencies = (
 				6CC079E72EF7BF8C0081C716 /* Data */,
 				6CC079EA2EF7BF9B0081C716 /* Feature */,
+				6C444E112EF88F0A00C85736 /* Scaffold */,
+				6C444E1B2EF8925400C85736 /* NoticeMe */,
 			);
 			productName = Banshee;
 			productReference = 6CC079B02EF7BF1E0081C716 /* Banshee.app */;
@@ -207,6 +226,8 @@
 			packageReferences = (
 				6CC079E62EF7BF8C0081C716 /* XCLocalSwiftPackageReference "../Data" */,
 				6CC079E92EF7BF9B0081C716 /* XCLocalSwiftPackageReference "../Feature" */,
+				6C444E102EF88F0A00C85736 /* XCRemoteSwiftPackageReference "Scaffold" */,
+				6C444E1A2EF8925400C85736 /* XCRemoteSwiftPackageReference "NoticeMe" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6CC079B12EF7BF1E0081C716 /* Products */;
@@ -407,6 +428,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Banshee/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -449,6 +471,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Banshee/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -630,7 +653,36 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		6C444E102EF88F0A00C85736 /* XCRemoteSwiftPackageReference "Scaffold" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Lukas-Simonson/Scaffold.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.0;
+			};
+		};
+		6C444E1A2EF8925400C85736 /* XCRemoteSwiftPackageReference "NoticeMe" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Lukas-Simonson/NoticeMe";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		6C444E112EF88F0A00C85736 /* Scaffold */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6C444E102EF88F0A00C85736 /* XCRemoteSwiftPackageReference "Scaffold" */;
+			productName = Scaffold;
+		};
+		6C444E1B2EF8925400C85736 /* NoticeMe */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6C444E1A2EF8925400C85736 /* XCRemoteSwiftPackageReference "NoticeMe" */;
+			productName = NoticeMe;
+		};
 		6CC079E72EF7BF8C0081C716 /* Data */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Data;
