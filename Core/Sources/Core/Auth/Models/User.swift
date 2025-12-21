@@ -1,6 +1,6 @@
 import Foundation
 
-public struct User: Equatable, Sendable {
+public struct User: Equatable, Identifiable, Sendable {
     public let id: UUID
     public let serverURL: String
     public let username: String
