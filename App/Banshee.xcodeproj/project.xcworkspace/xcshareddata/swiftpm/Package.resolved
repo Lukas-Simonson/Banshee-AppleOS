@@ -1,0 +1,24 @@
+{
+  "originHash" : "aef3a6082f5f5afa4d307ec53a7b2ce7b0c358470580c2aca2da1c9bc6ba3a3b",
+  "pins" : [
+    {
+      "identity" : "brute",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Lukas-Simonson/Brute.git",
+      "state" : {
+        "revision" : "d3dbd954fad1507542ca3eafca4b2e1e021e3260",
+        "version" : "1.2.2"
+      }
+    },
+    {
+      "identity" : "swiftui-flow",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tevelee/SwiftUI-Flow.git",
+      "state" : {
+        "revision" : "d227f999b2894ab737ef5786d9b14d02d3e5362e",
+        "version" : "3.1.1"
+      }
+    }
+  ],
+  "version" : 3
+}
