@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../Core"),
-        .package(url: "https://github.com/Lukas-Simonson/Brute.git", from: "1.2.0")
+        .package(url: "https://github.com/Lukas-Simonson/Brute", from: "1.2.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
