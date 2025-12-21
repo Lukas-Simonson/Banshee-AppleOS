@@ -11,6 +11,15 @@
       }
     },
     {
+      "identity" : "overflow",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Lukas-Simonson/Overflow",
+      "state" : {
+        "revision" : "ace04f3e40b01fde9bde5c27d55935812fb2c0f5",
+        "version" : "1.1.1"
+      }
+    },
+    {
       "identity" : "swift-log",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log",

@@ -13,7 +13,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "../Core")
+        .package(path: "../Core"),
+        .package(url: "https://github.com/Lukas-Simonson/Overflow", from: "1.1.1")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -21,7 +22,8 @@ let package = Package(
         .target(
             name: "Business",
             dependencies: [
-                .product(name: "Core", package: "Core")
+                .product(name: "Core", package: "Core"),
+                .product(name: "Overflow", package: "Overflow")
             ]
         ),
         .testTarget(
