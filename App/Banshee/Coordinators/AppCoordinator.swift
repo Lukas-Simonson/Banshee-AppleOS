@@ -37,3 +37,13 @@ extension AppCoordinator: AuthNavigationContract {
         notices.queueNotice(ErrorNotice(error: error))
     }
 }
+
+extension AppCoordinator: ServerProviderContract {
+    var server: String? {
+        get async { session?.user.serverURL }
+    }
+    
+    var token: AuthToken? {
+        get async { session?.token }
+    }
+}

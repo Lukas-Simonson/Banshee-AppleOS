@@ -7,27 +7,32 @@ struct PodcastCard: View {
     @Environment(\.bruteContext) private var context
     
     let podcast: Podcast
+    let onTap: () -> Void
     
     var body: some View {
-        BruteCard {
-            AsyncImage(
-                url: podcast.imageURL,
-                content: { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                },
-                placeholder: {
-                    placeholderImage
-                }
-            )
-            // .frame(minHeight: 150)
-            .clipShape(RoundedRectangle(cornerRadius: context.dimen.cornerRadius))
-            .bruteStroked()
-            
-            Text(podcast.title)
-                .font(context.font.header)
+        // BruteCard {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: context.dimen.paddingMedium) {
+                AsyncImage(
+                    url: podcast.imageURL,
+                    content: { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    },
+                    placeholder: {
+                        placeholderImage
+                    }
+                )
+                .clipShape(RoundedRectangle(cornerRadius: context.dimen.cornerRadius))
+                .bruteStroked()
+                
+                Text(podcast.title)
+                    .font(context.font.header)
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
         }
+        .buttonStyle(.brute(fill: context.color.background))
     }
     
     private var placeholderImage: some View {
@@ -53,7 +58,8 @@ struct PodcastCard: View {
                 language: "en",
                 imageURL: nil,
                 description: "Haha funny"
-            )
+            ),
+            onTap: { }
         )
     }
 }

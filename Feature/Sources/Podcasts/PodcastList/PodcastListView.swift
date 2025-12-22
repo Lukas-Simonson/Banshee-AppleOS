@@ -9,11 +9,16 @@ struct PodcastListView: View {
     let podcasts: [Podcast]
     let isLoading: Bool
     
+    let onTapPodcast: (Podcast) -> Void
     let onRefresh: () async -> Void
     
     var body: some View {
         BruteStyle {
-            podcastGrid
+            if isLoading {
+                ProgressView()
+            } else {
+                podcastGrid
+            }
         }
     }
     
@@ -26,7 +31,10 @@ struct PodcastListView: View {
                 spacing: context.dimen.paddingMedium
             ) {
                 ForEach(podcasts) { podcast in
-                    PodcastCard(podcast: podcast)
+                    PodcastCard(
+                        podcast: podcast,
+                        onTap: { onTapPodcast(podcast) }
+                    )
                 }
             }
             .padding(context.dimen.paddingMedium)
@@ -55,6 +63,7 @@ struct PodcastListView: View {
             ),
         ],
         isLoading: false,
+        onTapPodcast: { _ in },
         onRefresh: { }
     )
 }

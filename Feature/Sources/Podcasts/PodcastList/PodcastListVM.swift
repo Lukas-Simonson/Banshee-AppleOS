@@ -23,6 +23,10 @@ final class PodcastListVM {
     }
     
     // MARK: - Actions
+    public func selectPodcast(_ podcast: Podcast) {
+        navigator.navigateToDetail(for: podcast)
+    }
+    
     public func refresh() async {
         do {
             try await repository.refresh()
@@ -34,12 +38,30 @@ final class PodcastListVM {
     // MARK: - Private Methods
     private func observePodcasts() {
         Task { [weak self] in
+            self?.loadPodcasts()
             guard let stream = self?.repository.podcastsStream else { return }
             
             for await podcasts in stream {
                 guard let self else { break }
                 self.podcasts = podcasts
             }
+        }
+    }
+    
+    private func loadPodcasts() {
+        Task {
+            guard await repository.podcasts.isEmpty
+            else { return }
+            logger.info("Fetching")
+            isLoading = true
+            
+            do {
+                try await self.repository.refresh()
+            } catch let error as PodcastRepositoryError {
+                navigator.showError(error)
+            }
+            
+            isLoading = false
         }
     }
 }

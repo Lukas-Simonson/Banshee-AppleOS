@@ -8,6 +8,6 @@ public protocol PodcastRepositoryContract: Sendable {
     func refresh() async throws(PodcastRepositoryError)
 }
 
-public enum PodcastRepositoryError: LocalizedError {
-    
+public enum PodcastRepositoryError: String, LocalizedError {
+    case missingAuthorization = "User is unauthorized, token is missing."
 }
