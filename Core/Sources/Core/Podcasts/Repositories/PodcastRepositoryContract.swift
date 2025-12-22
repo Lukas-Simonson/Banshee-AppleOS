@@ -6,6 +6,9 @@ public protocol PodcastRepositoryContract: Sendable {
     var podcastsStream: AsyncSequence<[Podcast], Never> { get }
     
     func refresh() async throws(PodcastRepositoryError)
+    
+    /// Fetches extra details about a podcast, including its episodes.
+    func details(for podcast: Podcast) async throws -> Podcast
 }
 
 public enum PodcastRepositoryError: String, LocalizedError {
