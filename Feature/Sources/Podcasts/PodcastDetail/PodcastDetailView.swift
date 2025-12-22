@@ -9,7 +9,7 @@ struct PodcastDetailView: View {
     let podcast: Podcast
     let isLoading: Bool
     
-    let onRefresh: () async -> Void
+    let onRefresh: @Sendable () async -> Void
     
     var body: some View {
         BruteStyle {
@@ -31,8 +31,9 @@ struct PodcastDetailView: View {
                         EpisodeCard(episode: episode, fallbackImageURL: podcast.imageURL)
                     }
                 }
-                .padding()
+                .padding(context.dimen.paddingMedium)
             }
+            .refreshable(action: onRefresh)
         }
     }
 }

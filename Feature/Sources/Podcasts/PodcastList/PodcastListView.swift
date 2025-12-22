@@ -10,7 +10,7 @@ struct PodcastListView: View {
     let isLoading: Bool
     
     let onTapPodcast: (Podcast) -> Void
-    let onRefresh: () async -> Void
+    let onRefresh: @Sendable () async -> Void
     
     var body: some View {
         BruteStyle {
@@ -39,6 +39,7 @@ struct PodcastListView: View {
             }
             .padding(context.dimen.paddingMedium)
         }
+        .refreshable(action: onRefresh)
     }
 }
 
