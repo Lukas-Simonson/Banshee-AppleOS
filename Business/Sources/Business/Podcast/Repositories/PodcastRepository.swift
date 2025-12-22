@@ -47,4 +47,17 @@ public final class PodcastRepository: PodcastRepositoryContract {
             fatalError()
         }
     }
+    
+    public func details(for podcast: Podcast) async throws(PodcastRepositoryError) -> Podcast {
+        guard let token = await serverProvider.token,
+              let server = await serverProvider.server
+        else { throw PodcastRepositoryError.missingAuthorization }
+        
+        do {
+            return try await remote.getPodcast(with: podcast.id, baseURL: server, token: token.token)
+        } catch let error as RemotePodcastDataSourceError {
+            logger.error("Failed to get podcast information", for: error)
+            throw PodcastRepositoryError.couldntGetPodcast
+        }
+    }
 }

@@ -3,6 +3,8 @@ import Foundation
 
 public protocol RemotePodcastDataSourceContract: Sendable {
     func getPodcasts(baseURL: String, token: String) async throws(RemotePodcastDataSourceError) -> [Podcast]
+    
+    func getPodcast(with id: UUID, baseURL: String, token: String) async throws(RemotePodcastDataSourceError) -> Podcast
 }
 
 public enum RemotePodcastDataSourceError: String, LocalizedError {

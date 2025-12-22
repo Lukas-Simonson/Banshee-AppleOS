@@ -22,4 +22,8 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
             throw RemotePodcastDataSourceError.unexpected
         }
     }
+    
+    public func getPodcast(with id: UUID, baseURL: String, token: String) async throws(RemotePodcastDataSourceError) -> Podcast {
+        fatalError("getPodcast not implemented.")
+    }
 }

@@ -8,9 +8,10 @@ public protocol PodcastRepositoryContract: Sendable {
     func refresh() async throws(PodcastRepositoryError)
     
     /// Fetches extra details about a podcast, including its episodes.
-    func details(for podcast: Podcast) async throws -> Podcast
+    func details(for podcast: Podcast) async throws(PodcastRepositoryError) -> Podcast
 }
 
 public enum PodcastRepositoryError: String, LocalizedError {
     case missingAuthorization = "User is unauthorized, token is missing."
+    case couldntGetPodcast = "Failed to retrieve podcast information from server."
 }
