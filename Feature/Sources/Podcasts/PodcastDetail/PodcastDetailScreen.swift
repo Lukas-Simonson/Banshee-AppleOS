@@ -1,0 +1,19 @@
+import Core
+import SwiftUI
+
+public struct PodcastDetailScreen: View {
+    
+    @State private var viewModel: PodcastDetailVM
+    
+    init(_ scaffold: PodcastScaffoldContract, podcast: Podcast) {
+        self.viewModel = PodcastDetailVM(scaffold, podcast: podcast)
+    }
+    
+    public var body: some View {
+        PodcastDetailView(
+            podcast: viewModel.podcast,
+            isLoading: viewModel.isLoading,
+            onRefresh: viewModel.refresh
+        )
+    }
+}

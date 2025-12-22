@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Episode: Sendable {
+public struct Episode: Identifiable, Sendable {
     public let id: UUID
     public let title: String
     public let pubDate: Date
