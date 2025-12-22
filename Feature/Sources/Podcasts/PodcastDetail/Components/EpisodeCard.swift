@@ -1,5 +1,6 @@
 import Brute
 import Core
+import SharedUI
 import SwiftUI
 
 struct EpisodeCard: View {
@@ -12,20 +13,11 @@ struct EpisodeCard: View {
     var body: some View {
         BruteCard {
             HStack(alignment: .top, spacing: context.dimen.paddingSmall) {
-                AsyncImage(
-                    url: episode.imageURL ?? fallbackImageURL,
-                    content: { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    },
-                    placeholder: {
-                        placeholderImage
-                    }
-                )
-                .frame(maxWidth: 75)
-                .clipShape(RoundedRectangle(cornerRadius: context.dimen.cornerRadius))
-                .bruteStroked()
+
+                CachedImage(for: episode.imageURL ?? fallbackImageURL)
+                    .frame(maxWidth: 75)
+                    .clipShape(RoundedRectangle(cornerRadius: context.dimen.cornerRadius))
+                    .bruteStroked()
                 
                 VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
                     Text(episode.title)
@@ -36,18 +28,6 @@ struct EpisodeCard: View {
                 }
             }
         }
-    }
-    
-    private var placeholderImage: some View {
-        ZStack {
-            Rectangle()
-                .fill(context.color.accentBackground)
-            
-            Image(systemName: "mic.fill")
-                .font(.system(size: 32))
-                .foregroundStyle(context.color.accentForeground)
-        }
-        .aspectRatio(1, contentMode: .fit)
     }
 }
 

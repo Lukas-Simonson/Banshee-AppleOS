@@ -39,7 +39,7 @@ extension PodcastCoordinator {
             NavigationStack(path: $coordinator.path) {
                 PodcastListScreen(app.scaffold.podcast())
                     .navigationDestination(for: PodcastDetailDestination.self) { destination in
-                        Text(destination.podcast.title)
+                        PodcastDetailScreen(app.scaffold.podcast(), podcast: destination.podcast)
                     }
             }
         }

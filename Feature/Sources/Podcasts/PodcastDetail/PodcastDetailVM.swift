@@ -20,6 +20,8 @@ final class PodcastDetailVM {
         self.repository = scaffold.repository()
         
         self.podcast = podcast
+        
+        Task { await refresh() }
     }
     
     // MARK: - Actions

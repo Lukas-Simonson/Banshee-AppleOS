@@ -5,7 +5,7 @@ public struct PodcastDetailScreen: View {
     
     @State private var viewModel: PodcastDetailVM
     
-    init(_ scaffold: PodcastScaffoldContract, podcast: Podcast) {
+    public init(_ scaffold: PodcastScaffoldContract, podcast: Podcast) {
         self.viewModel = PodcastDetailVM(scaffold, podcast: podcast)
     }
     

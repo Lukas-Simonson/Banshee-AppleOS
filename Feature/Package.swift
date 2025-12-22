@@ -26,11 +26,20 @@ let package = Package(
             name: "Auth",
             dependencies: [
                 .product(name: "Core", package: "Core"),
-                .product(name: "Brute", package: "Brute")
+                .product(name: "Brute", package: "Brute"),
+                .target(name: "SharedUI")
             ]
         ),
         .target(
             name: "Podcasts",
+            dependencies: [
+                .product(name: "Core", package: "Core"),
+                .product(name: "Brute", package: "Brute"),
+                .target(name: "SharedUI")
+            ]
+        ),
+        .target(
+            name: "SharedUI",
             dependencies: [
                 .product(name: "Core", package: "Core"),
                 .product(name: "Brute", package: "Brute")

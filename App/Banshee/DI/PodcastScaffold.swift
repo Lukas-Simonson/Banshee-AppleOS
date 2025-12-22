@@ -28,7 +28,7 @@ final class PodcastScaffold: PodcastScaffoldContract {
         PodcastRepository(
             logger: logger(),
             serverProvider: AppCoordinator.shared,
-            remote: CobwebRemotePodcastDataSource()
+            remote: CobwebRemotePodcastDataSource(logger: logger())
         )
     }
 }
