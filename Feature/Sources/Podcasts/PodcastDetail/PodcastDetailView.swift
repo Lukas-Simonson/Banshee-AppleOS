@@ -24,7 +24,7 @@ struct PodcastDetailView: View {
                         Text("\(podcast.episodes?.count ?? 0) episodes")
                             .font(context.font.caption)
                         
-                        Text(podcast.description)
+                        Text(podcast.description.htmlStripped)
                     }
                     
                     ForEach(podcast.episodes ?? []) { episode in

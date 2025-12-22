@@ -17,6 +17,7 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
             return try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/podcasts")
                 .get()
+                .also { logger.info("Sending Request to GET /api/podcasts") }
                 .withHeaders(.bearer(token))
                 .responseBody(as: [PodcastDTO].self)
                 .map { $0.toCore() }
@@ -34,6 +35,7 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
             return try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/podcasts/\(id)")
                 .get()
+                .also { logger.info("Sending Request to GET /api/podcasts/\(id)") }
                 .withHeaders(.bearer(token))
                 .responseBody(as: PodcastDTO.self, using: JSONDecoder().withISO8601())
                 .toCore()

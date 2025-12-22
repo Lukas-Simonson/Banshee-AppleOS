@@ -23,7 +23,7 @@ struct EpisodeCard: View {
                     Text(episode.title)
                         .font(context.font.header)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    Text(episode.description)
+                    Text(episode.description.htmlStripped)
                         .lineLimit(2)
                 }
             }
