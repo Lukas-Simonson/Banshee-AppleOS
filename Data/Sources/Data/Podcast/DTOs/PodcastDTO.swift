@@ -8,6 +8,8 @@ struct PodcastDTO: Codable {
     let language: String
     let imageURL: URL?
     let description: String
+    
+    let episodes: [EpisodeDTO]?
 }
 
 extension PodcastDTO {
@@ -18,7 +20,8 @@ extension PodcastDTO {
             link: link,
             language: language,
             imageURL: imageURL,
-            description: description
+            description: description,
+            episodes: episodes?.map { $0.toCore() }
         )
     }
 }
