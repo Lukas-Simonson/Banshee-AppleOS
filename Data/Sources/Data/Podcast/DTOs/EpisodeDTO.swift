@@ -20,7 +20,9 @@ extension EpisodeDTO {
             description: description,
             imageURL: imageURL,
             season: season,
-            episode: episode
+            episode: episode,
+            duration: nil,
+            progress: nil
         )
     }
 }

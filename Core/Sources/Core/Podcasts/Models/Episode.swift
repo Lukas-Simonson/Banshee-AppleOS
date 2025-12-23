@@ -8,8 +8,20 @@ public struct Episode: Identifiable, Sendable {
     public let imageURL: URL?
     public let season: String?
     public let episode: Int?
+    public let duration: Int?
+    public let progress: AudioProgress?
     
-    public init(id: UUID, title: String, pubDate: Date, description: String, imageURL: URL?, season: String?, episode: Int?) {
+    public init(
+        id: UUID,
+        title: String,
+        pubDate: Date,
+        description: String,
+        imageURL: URL?,
+        season: String?,
+        episode: Int?,
+        duration: Int?,
+        progress: AudioProgress?
+    ) {
         self.id = id
         self.title = title
         self.pubDate = pubDate
@@ -17,5 +29,7 @@ public struct Episode: Identifiable, Sendable {
         self.imageURL = imageURL
         self.season = season
         self.episode = episode
+        self.duration = duration
+        self.progress = progress
     }
 }

@@ -41,7 +41,9 @@ struct EpisodeCard: View {
                 description: "The dads do a thing",
                 imageURL: nil,
                 season: "1",
-                episode: 1
+                episode: 1,
+                duration: nil,
+                progress: nil
             ),
             fallbackImageURL: nil
         )
