@@ -34,6 +34,7 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
         do {
             return try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/podcasts/\(id)")
+                .query(.item(key: "includeEpisodeProgress", value: true))
                 .get()
                 .also { logger.info("Sending Request to GET /api/podcasts/\(id)") }
                 .withHeaders(.bearer(token))
