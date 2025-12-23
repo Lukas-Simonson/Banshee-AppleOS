@@ -1,10 +1,10 @@
 import Foundation
 
 public struct AudioProgress: Sendable {
-    let isCompleted: Bool
-    let duration: Int
-    let startedOn: Date
-    let lastUpdated: Date
+    public let isCompleted: Bool
+    public let duration: Int
+    public let startedOn: Date
+    public let lastUpdated: Date
     
     public init(isCompleted: Bool, duration: Int, startedOn: Date, lastUpdated: Date) {
         self.isCompleted = isCompleted

@@ -27,8 +27,9 @@ public struct CachedImage: View {
                 .fill(context.color.accentBackground)
             
             Image(systemName: "mic.fill")
-                .font(.system(size: 48))
+                .font(.system(size: 32))
                 .foregroundStyle(context.color.accentForeground)
         }
+        .aspectRatio(1, contentMode: .fit)
     }
 }

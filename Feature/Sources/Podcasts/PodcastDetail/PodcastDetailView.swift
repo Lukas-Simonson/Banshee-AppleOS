@@ -15,17 +15,19 @@ struct PodcastDetailView: View {
         BruteStyle {
             ScrollView {
                 LazyVStack(spacing: context.dimen.paddingMedium) {
-                    
-                    BruteCard {
-                        Text(podcast.title)
-                            .font(context.font.title)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Text("\(podcast.episodes?.count ?? 0) episodes")
-                            .font(context.font.caption)
-                        
-                        Text(podcast.description.htmlStripped)
-                    }
+                    DisclosureGroup(
+                        content: {
+                            Text(podcast.description.htmlStripped)
+                        },
+                        label: {
+                            VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
+                                Text(podcast.title)
+                                    .font(context.font.title)
+                                Text("\(podcast.episodes?.count ?? 0) episodes")
+                                    .font(context.font.caption)
+                            }
+                        }
+                    )
                     
                     ForEach(podcast.episodes ?? []) { episode in
                         EpisodeCard(episode: episode, fallbackImageURL: podcast.imageURL)
