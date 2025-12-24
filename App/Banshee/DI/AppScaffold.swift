@@ -24,6 +24,16 @@ final class AppScaffold {
     func auth() -> AuthScaffold {
         AuthScaffold(app: self)
     }
+    
+    @Single
+    func podcast() -> PodcastScaffold {
+        PodcastScaffold(app: self)
+    }
+    
+    @Single
+    func podcastCoordinator() -> PodcastCoordinator {
+        PodcastCoordinator()
+    }
 }
 
 extension UserDefaults: @retroactive @unchecked Sendable {}

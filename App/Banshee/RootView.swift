@@ -1,6 +1,8 @@
 import Auth
+import Brute
 import Core
 import NoticeMe
+import Podcasts
 import SwiftUI
 
 struct RootView: View {
@@ -12,20 +14,15 @@ struct RootView: View {
             Group {
                 if app.isCheckingSession {
                     
-                } else if let session = app.session {
-                    VStack {
-                        Text("Welcome to Banshee")
-                        Text("\(session.user.username)")
-                        Button("Logout") {
-                            Task {
-                                try await app.scaffold.auth().repository().logout()
-                            }
-                        }
-                    }
+                } else if app.session != nil {
+                    // PodcastListScreen(app.scaffold.podcast())
+                    PodcastCoordinator.Root(coordinator: app.scaffold.podcastCoordinator())
                 } else {
                     LoginScreen(app.scaffold.auth())
                 }
             }
+            .bruteTheme(.violet)
+            .environment(app)
         }
     }
 }

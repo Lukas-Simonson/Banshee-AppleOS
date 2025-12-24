@@ -31,7 +31,9 @@ final class AuthScaffold: AuthScaffoldContract {
                 defaults: app.defaults(),
                 logger: logger()
             ),
-            remote: CobwebRemoteAuthDataSource(),
+            remote: CobwebRemoteAuthDataSource(
+                logger: logger()
+            ),
             logger: logger()
         )
     }

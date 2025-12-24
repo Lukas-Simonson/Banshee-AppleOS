@@ -12,18 +12,34 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "Feature",
-            targets: ["Auth"]
+            targets: ["Auth", "Podcasts"]
         ),
     ],
     dependencies: [
         .package(path: "../Core"),
-        .package(url: "https://github.com/Lukas-Simonson/Brute", from: "1.2.0")
+        .package(url: "https://github.com/Lukas-Simonson/Brute", branch: "main")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "Auth",
+            dependencies: [
+                .product(name: "Core", package: "Core"),
+                .product(name: "Brute", package: "Brute"),
+                .target(name: "SharedUI")
+            ]
+        ),
+        .target(
+            name: "Podcasts",
+            dependencies: [
+                .product(name: "Core", package: "Core"),
+                .product(name: "Brute", package: "Brute"),
+                .target(name: "SharedUI")
+            ]
+        ),
+        .target(
+            name: "SharedUI",
             dependencies: [
                 .product(name: "Core", package: "Core"),
                 .product(name: "Brute", package: "Brute")
