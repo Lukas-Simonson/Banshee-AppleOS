@@ -36,7 +36,8 @@ struct EpisodeCard: View {
             }
             
             Text(episode.description.htmlStripped)
-                .lineLimit(2)
+                .lineLimit(3)
+                .font(Font.caption)
             
             HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
                 Button("Play", systemImage: "play.fill") {
