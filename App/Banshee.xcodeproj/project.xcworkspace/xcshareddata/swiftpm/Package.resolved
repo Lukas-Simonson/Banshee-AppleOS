@@ -65,6 +65,15 @@
       }
     },
     {
+      "identity" : "swiftaudioplayer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tanhakabir/SwiftAudioPlayer",
+      "state" : {
+        "branch" : "master",
+        "revision" : "2fdfc62ce9f5d8b818ee1b2a9ac061fce4f64af9"
+      }
+    },
+    {
       "identity" : "swiftui-flow",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tevelee/SwiftUI-Flow.git",
