@@ -22,13 +22,31 @@ final class PodcastScaffold: PodcastScaffoldContract {
     func navigator() -> PodcastNavigationContract {
         app.podcastCoordinator()
     }
-    
+
+    @Single
+    func databaseManager() -> DatabaseManager {
+        do {
+            return try DatabaseManager()
+        } catch {
+            fatalError("Failed to initialize database: \(error)")
+        }
+    }
+
+    @Single
+    func localDataSource() -> LocalPodcastDataSourceContract {
+        GRDBLocalPodcastDataSource(
+            dbManager: databaseManager(),
+            logger: logger()
+        )
+    }
+
     @Single
     func repository() -> PodcastRepositoryContract {
         PodcastRepository(
             logger: logger(),
             serverProvider: AppCoordinator.shared,
-            remote: CobwebRemotePodcastDataSource(logger: logger())
+            remote: CobwebRemotePodcastDataSource(logger: logger()),
+            local: localDataSource()
         )
     }
     

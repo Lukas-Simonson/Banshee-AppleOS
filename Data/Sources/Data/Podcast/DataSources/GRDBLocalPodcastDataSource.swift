@@ -1,0 +1,230 @@
+import Business
+import Core
+import Foundation
+import GRDB
+import Logging
+
+/// GRDB implementation of LocalPodcastDataSourceContract.
+public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @unchecked Sendable {
+
+    private let dbManager: DatabaseManager
+    private let logger: Logger
+
+    public init(dbManager: DatabaseManager, logger: Logger) {
+        self.dbManager = dbManager
+        self.logger = logger
+    }
+
+    // MARK: - Podcasts
+
+    public func getCachedPodcasts() async throws(LocalPodcastDataSourceError) -> [Podcast]? {
+        do {
+            return try await dbManager.dbQueue.read { db in
+                let records = try PodcastRecord.fetchAll(db)
+                guard !records.isEmpty else { return nil }
+
+                // Convert to Business DTOs to check expiration
+                let cachedPodcasts = records.map { $0.toCached() }
+
+                // Check expiration using first item (bulk expiration strategy)
+                if cachedPodcasts.first?.isExpired() == true {
+                    return nil
+                }
+
+                // Convert to Core models
+                return cachedPodcasts.map { $0.toCore() }
+            }
+        } catch {
+            logger.error("Failed to fetch cached podcasts", for: error)
+            throw LocalPodcastDataSourceError.databaseError
+        }
+    }
+
+    public func savePodcasts(_ podcasts: [Podcast]) async throws(LocalPodcastDataSourceError) {
+        do {
+            let cachedAt = Date()
+            try await dbManager.dbQueue.write { db in
+                // Clear existing podcasts first (but preserve episodes and progress)
+                try PodcastRecord.deleteAll(db)
+
+                // Insert new podcasts
+                for podcast in podcasts {
+                    let cachedPodcast = CachedPodcast(podcast: podcast, cachedAt: cachedAt)
+                    let record = PodcastRecord(from: cachedPodcast)
+                    try record.insert(db)
+                }
+            }
+            logger.info("Saved \(podcasts.count) podcasts to cache")
+        } catch {
+            logger.error("Failed to save podcasts to cache", for: error)
+            throw LocalPodcastDataSourceError.databaseError
+        }
+    }
+
+    public func isPodcastCacheExpired() async throws(LocalPodcastDataSourceError) -> Bool {
+        do {
+            return try await dbManager.dbQueue.read { db in
+                guard let firstRecord = try PodcastRecord.fetchOne(db) else {
+                    return true // No cache means "expired"
+                }
+                return firstRecord.toCached().isExpired()
+            }
+        } catch {
+            logger.error("Failed to check cache expiration", for: error)
+            throw LocalPodcastDataSourceError.databaseError
+        }
+    }
+
+    // MARK: - Podcast Details with Episodes
+
+    public func getCachedPodcast(id: UUID) async throws(LocalPodcastDataSourceError) -> Podcast? {
+        do {
+            return try await dbManager.dbQueue.read { db in
+                guard let podcastRecord = try PodcastRecord.fetchOne(db, key: id.uuidString) else {
+                    return nil
+                }
+
+                let cachedPodcast = podcastRecord.toCached()
+
+                // Check expiration
+                if cachedPodcast.isExpired() {
+                    return nil
+                }
+
+                // Fetch episodes with their progress
+                let episodeRecords = try EpisodeRecord
+                    .filter(Column("podcastId") == id.uuidString)
+                    .fetchAll(db)
+
+                // Fetch progress for each episode
+                var cachedEpisodes: [CachedEpisode] = []
+                for episodeRecord in episodeRecords {
+                    let progressRecord = try AudioProgressRecord.fetchOne(db, key: episodeRecord.id)
+                    let cachedProgress = progressRecord?.toCached()
+                    cachedEpisodes.append(episodeRecord.toCached(with: cachedProgress))
+                }
+
+                // Convert to Core model with episodes
+                let podcast = cachedPodcast.podcast
+                return Podcast(
+                    id: podcast.id,
+                    title: podcast.title,
+                    link: podcast.link,
+                    language: podcast.language,
+                    imageURL: podcast.imageURL,
+                    description: podcast.description,
+                    episodes: cachedEpisodes.map { $0.toCore() }
+                )
+            }
+        } catch {
+            logger.error("Failed to fetch cached podcast \(id)", for: error)
+            throw LocalPodcastDataSourceError.databaseError
+        }
+    }
+
+    public func savePodcastWithEpisodes(_ podcast: Podcast) async throws(LocalPodcastDataSourceError) {
+        do {
+            let cachedAt = Date()
+            try await dbManager.dbQueue.write { db in
+                // Save/update podcast
+                let cachedPodcast = CachedPodcast(podcast: podcast, cachedAt: cachedAt)
+                let podcastRecord = PodcastRecord(from: cachedPodcast)
+                try podcastRecord.save(db)
+
+                // Save episodes if present
+                if let episodes = podcast.episodes {
+                    // Delete old episodes for this podcast
+                    try EpisodeRecord
+                        .filter(Column("podcastId") == podcast.id.uuidString)
+                        .deleteAll(db)
+
+                    // Insert new episodes
+                    for episode in episodes {
+                        let cachedEpisode = CachedEpisode(episode: episode, cachedAt: cachedAt)
+                        let episodeRecord = EpisodeRecord(from: cachedEpisode, podcastId: podcast.id)
+                        try episodeRecord.insert(db)
+
+                        // Save progress if present
+                        if let progress = episode.progress {
+                            let cachedProgress = CachedAudioProgress(progress: progress, cachedAt: cachedAt)
+                            let progressRecord = AudioProgressRecord(from: cachedProgress, episodeId: episode.id)
+                            try progressRecord.save(db)
+                        }
+                    }
+                }
+            }
+            logger.info("Saved podcast \(podcast.id) with \(podcast.episodes?.count ?? 0) episodes")
+        } catch {
+            logger.error("Failed to save podcast with episodes", for: error)
+            throw LocalPodcastDataSourceError.databaseError
+        }
+    }
+
+    // MARK: - Audio Progress
+
+    public func getCachedProgress(for episodeId: UUID) async throws(LocalPodcastDataSourceError) -> AudioProgress? {
+        do {
+            return try await dbManager.dbQueue.read { db in
+                guard let record = try AudioProgressRecord.fetchOne(db, key: episodeId.uuidString) else {
+                    return nil
+                }
+
+                let cachedProgress = record.toCached()
+
+                // Check expiration
+                if cachedProgress.isExpired() {
+                    return nil
+                }
+
+                return cachedProgress.toCore()
+            }
+        } catch {
+            logger.error("Failed to fetch cached progress for episode \(episodeId)", for: error)
+            throw LocalPodcastDataSourceError.databaseError
+        }
+    }
+
+    public func saveProgress(_ progress: AudioProgress, for episodeId: UUID) async throws(LocalPodcastDataSourceError) {
+        do {
+            try await dbManager.dbQueue.write { db in
+                let cachedProgress = CachedAudioProgress(progress: progress, cachedAt: Date())
+                let record = AudioProgressRecord(from: cachedProgress, episodeId: episodeId)
+                try record.save(db)
+            }
+            logger.info("Saved progress for episode \(episodeId)")
+        } catch {
+            logger.error("Failed to save progress for episode \(episodeId)", for: error)
+            throw LocalPodcastDataSourceError.databaseError
+        }
+    }
+
+    // MARK: - Cache Management
+
+    public func clearCache() async throws(LocalPodcastDataSourceError) {
+        do {
+            try await dbManager.dbQueue.write { db in
+                // Delete in order to respect foreign key constraints
+                try AudioProgressRecord.deleteAll(db)
+                try EpisodeRecord.deleteAll(db)
+                try PodcastRecord.deleteAll(db)
+            }
+            logger.info("Cleared all podcast cache")
+        } catch {
+            logger.error("Failed to clear cache", for: error)
+            throw LocalPodcastDataSourceError.databaseError
+        }
+    }
+
+    public func clearPodcastCache(id: UUID) async throws(LocalPodcastDataSourceError) {
+        do {
+            try await dbManager.dbQueue.write { db in
+                // Cascade delete will handle episodes and progress
+                try PodcastRecord.deleteOne(db, key: id.uuidString)
+            }
+            logger.info("Cleared cache for podcast \(id)")
+        } catch {
+            logger.error("Failed to clear cache for podcast \(id)", for: error)
+            throw LocalPodcastDataSourceError.databaseError
+        }
+    }
+}

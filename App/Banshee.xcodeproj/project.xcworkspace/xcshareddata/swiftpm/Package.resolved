@@ -11,6 +11,15 @@
       }
     },
     {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/GRDB.swift",
+      "state" : {
+        "revision" : "aa0079aeb82a4bf00324561a40bffe68c6fe1c26",
+        "version" : "7.9.0"
+      }
+    },
+    {
       "identity" : "noticeme",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Lukas-Simonson/NoticeMe",
@@ -62,15 +71,6 @@
       "state" : {
         "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
         "version" : "602.0.0"
-      }
-    },
-    {
-      "identity" : "swiftaudioplayer",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tanhakabir/SwiftAudioPlayer",
-      "state" : {
-        "branch" : "master",
-        "revision" : "2fdfc62ce9f5d8b818ee1b2a9ac061fce4f64af9"
       }
     },
     {
