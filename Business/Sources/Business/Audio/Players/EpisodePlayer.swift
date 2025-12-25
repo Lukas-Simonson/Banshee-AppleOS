@@ -33,6 +33,8 @@ public actor EpisodePlayer: EpisodePlayerContract {
         self.logger = logger
         self.serverProvider = serverProvider
         self.remote = remote
+        
+        self.audio.delegate = self
     }
     
     // Player Management
@@ -52,6 +54,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
             async let startPlaying = audio.start(url, token: token.token)
             
             do {
+                try await startPlaying
                 let (episode, _) = try await (fetchEpisode, startPlaying)
                 let newState = AudioPlayerState(
                     title: episode.title,
@@ -63,8 +66,9 @@ public actor EpisodePlayer: EpisodePlayerContract {
                     mode: .playing
                 )
                 
-                await audio.setMedia(with: AudioData(image: nil, title: episode.title))
                 await playerStateFlow.emit(newState)
+                await audio.setMedia(with: AudioData(image: nil, title: episode.title))
+                await audio.play()
             } catch {
                 logger.error("Error playing episode", for: error)
             }
@@ -72,7 +76,50 @@ public actor EpisodePlayer: EpisodePlayerContract {
     }
 }
 
-// - MARK: Audio Passthrough Functions
+// MARK: - Audio Player Delegate
+extension EpisodePlayer: AudioServiceDelegateContract {
+    nonisolated public func playerDidUpdateTimePlayed(_ time: Int) {
+        Task {
+            if let state = await self.playerState {
+                await playerStateFlow.emit(state.copy(current: time))
+            }
+        }
+    }
+    
+    nonisolated public func playerDidResume() {
+        Task {
+            if let state = await self.playerState {
+                await playerStateFlow.emit(state.copy(mode: .playing))
+            }
+        }
+    }
+    
+    nonisolated public func playerDidPause() {
+        Task {
+            if let state = await self.playerState {
+                await playerStateFlow.emit(state.copy(mode: .paused))
+            }
+        }
+    }
+    
+    nonisolated public func playerDidStop() {
+        Task {
+            if let state = await self.playerState {
+                await playerStateFlow.emit(nil)
+            }
+        }
+    }
+    
+    nonisolated public func playerDidFinish() {
+        // TODO: Go to next item in queue.
+    }
+    
+    nonisolated public func playerDidEncounterError(_ error: Error?) {
+        // TODO: Handle somehow
+    }
+}
+
+// MARK: - Audio Passthrough Functions
 extension EpisodePlayer {
     public func play() async { await audio.play() }
     
@@ -87,4 +134,22 @@ extension EpisodePlayer {
     public func skipForward() async { await audio.skipForward() }
     
     public func skipBackward() async { await audio.skipBackward() }
+}
+
+extension AudioPlayerState {
+    func copy(
+        current: Int? = nil,
+        duration: Int? = nil,
+        mode: Mode? = nil
+    ) -> AudioPlayerState {
+        AudioPlayerState(
+            title: title,
+            imageURL: imageURL,
+            current: current ?? self.current,
+            duration: duration ?? self.duration,
+            queueSize: queueSize,
+            queuePosition: queuePosition,
+            mode: mode ?? self.mode
+        )
+    }
 }

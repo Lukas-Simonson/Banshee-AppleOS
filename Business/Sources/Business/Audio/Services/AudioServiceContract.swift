@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol AudioServiceContract: Sendable {
+public protocol AudioServiceContract: AnyObject, Sendable {
     var delegate: AudioServiceDelegateContract? { get set }
     
     func start(_ url: URL, token: String) async throws

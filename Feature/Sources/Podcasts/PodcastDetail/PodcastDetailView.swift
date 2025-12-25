@@ -9,6 +9,7 @@ struct PodcastDetailView: View {
     let podcast: Podcast
     let isLoading: Bool
     
+    let onPlay: (Int) -> Void
     let onRefresh: @Sendable () async -> Void
     
     var body: some View {
@@ -29,8 +30,14 @@ struct PodcastDetailView: View {
                         }
                     )
                     
-                    ForEach(podcast.episodes ?? []) { episode in
-                        EpisodeCard(episode: episode, fallbackImageURL: podcast.imageURL)
+                    if let episodes = podcast.episodes {
+                        ForEach(episodes.indices) { index in
+                            EpisodeCard(
+                                episode: episodes[index],
+                                fallbackImageURL: podcast.imageURL,
+                                onPlay: { onPlay(index) }
+                            ).id(episodes[index].id)
+                        }
                     }
                 }
                 .padding(context.dimen.paddingMedium)
@@ -64,6 +71,7 @@ struct PodcastDetailView: View {
             ]
         ),
         isLoading: false,
+        onPlay: { _ in },
         onRefresh: {  }
     )
 }

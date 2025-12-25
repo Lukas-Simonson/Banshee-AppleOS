@@ -13,6 +13,7 @@ public struct PodcastDetailScreen: View {
         PodcastDetailView(
             podcast: viewModel.podcast,
             isLoading: viewModel.isLoading,
+            onPlay: viewModel.play,
             onRefresh: viewModel.refresh
         )
     }

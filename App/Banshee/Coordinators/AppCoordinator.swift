@@ -11,6 +11,7 @@ final class AppCoordinator: Sendable {
     let scaffold = AppScaffold()
     let notices = NoticeManager()
     
+    var mainTab: MainTab = .podcasts
     private(set) var session: AuthSession?
     private(set) var isCheckingSession = true
     
@@ -25,6 +26,13 @@ final class AppCoordinator: Sendable {
                 isCheckingSession = false
             }
         }
+    }
+}
+
+extension AppCoordinator {
+    enum MainTab {
+        case podcasts
+        case settings
     }
 }
 

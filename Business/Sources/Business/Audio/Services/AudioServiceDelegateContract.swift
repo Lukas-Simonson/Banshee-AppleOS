@@ -1,5 +1,5 @@
 public protocol AudioServiceDelegateContract {
-    func playerDidUpdateDuration(_ newDuration: Int)
+    func playerDidUpdateTimePlayed(_ time: Int)
     func playerDidResume()
     func playerDidPause()
     func playerDidStop()

@@ -10,6 +10,8 @@ struct EpisodeCard: View {
     let episode: Episode
     let fallbackImageURL: URL?
     
+    let onPlay: () -> Void
+    
     private var isCompleted: Bool {
         episode.progress?.isCompleted ?? false
     }
@@ -40,9 +42,7 @@ struct EpisodeCard: View {
                 .font(Font.caption)
             
             HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
-                Button("Play", systemImage: "play.fill") {
-                    // TODO
-                }
+                Button("Play", systemImage: "play.fill", action: onPlay)
                 
                 Button("isCompleted", systemImage: isCompleted ? "checkmark" : "checkmark") {
                     // TODO
@@ -56,20 +56,6 @@ struct EpisodeCard: View {
                 ProgressView(value: Double(progress) / Double(duration))
             }
         }
-    }
-}
-
-extension FormatStyle where Self == HoursMinutesSecondsTimeIntervalFormatter {
-    static var timeInterval: Self { HoursMinutesSecondsTimeIntervalFormatter() }
-}
-
-struct HoursMinutesSecondsTimeIntervalFormatter: FormatStyle {
-    func format(_ value: Int) -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .positional
-        formatter.allowedUnits = [.hour, .minute, .second]
-        
-        return formatter.string(from: TimeInterval(value)) ?? "00:00:00"
     }
 }
 
@@ -93,7 +79,8 @@ struct HoursMinutesSecondsTimeIntervalFormatter: FormatStyle {
                         lastUpdated: .now
                     )
                 ),
-                fallbackImageURL: nil
+                fallbackImageURL: nil,
+                onPlay: { }
             )
             .padding()
         }

@@ -31,4 +31,8 @@ final class PodcastScaffold: PodcastScaffoldContract {
             remote: CobwebRemotePodcastDataSource(logger: logger())
         )
     }
+    
+    func player() -> any EpisodePlayerContract {
+        app.player()
+    }
 }

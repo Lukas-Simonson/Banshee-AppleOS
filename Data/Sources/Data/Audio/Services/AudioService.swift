@@ -75,7 +75,7 @@ final public class AudioService: NSObject, AudioServiceContract, @unchecked Send
             toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1)
         )
         
-        delegate?.playerDidUpdateDuration(Int(player.currentTime().seconds))
+        delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
     }
     
     public func skipBackward() async {
@@ -87,7 +87,7 @@ final public class AudioService: NSObject, AudioServiceContract, @unchecked Send
             toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1)
         )
         
-        delegate?.playerDidUpdateDuration(Int(player.currentTime().seconds))
+        delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
     }
 }
 
@@ -148,7 +148,7 @@ extension AudioService {
             forInterval: CMTime(seconds: 1, preferredTimescale: 1),
             queue: .main,
             using: { [weak self] time in
-                self?.delegate?.playerDidUpdateDuration(Int(time.seconds))
+                self?.delegate?.playerDidUpdateTimePlayed(Int(time.seconds))
             }
         )
     }
