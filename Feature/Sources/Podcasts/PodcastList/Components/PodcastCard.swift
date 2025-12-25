@@ -23,6 +23,7 @@ struct PodcastCard: View {
                     .font(context.font.header)
             }
             .frame(maxHeight: .infinity, alignment: .top)
+            .foregroundStyle(context.color.foreground)
         }
         .buttonStyle(.brute(fill: context.color.background))
     }
