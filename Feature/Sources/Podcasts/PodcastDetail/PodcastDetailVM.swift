@@ -37,7 +37,14 @@ final class PodcastDetailVM {
             defer { isStartingPlayback = false }
             
             do {
-                try await player.enqueue(episodes[position...].map { $0.id })
+                try await player.enqueue(
+                    AudioQueue(
+                        queue: episodes[position...].map { $0.id },
+                        podcastImageURL: podcast.imageURL
+                    ),
+                    startPlaying: true
+                )
+                // try await player.enqueue(episodes[position...].map { $0.id })
             } catch {
                 logger.error("Error", for: error)
             }

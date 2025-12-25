@@ -10,9 +10,10 @@ public actor EpisodePlayer: EpisodePlayerContract {
     private let logger: Logger
     private let serverProvider: ServerProviderContract
     private let remote: RemotePlayerDataSourceContract
+    private let localQueue: LocalQueueDataSourceContract
     
     private let playerStateFlow = MutableStateFlow<AudioPlayerState?>(initial: nil)
-    private var queue = [UUID]()
+    private var queue: AudioQueue?
     
     // Shared State
     public var playerState: AudioPlayerState? {
@@ -28,51 +29,69 @@ public actor EpisodePlayer: EpisodePlayerContract {
         logger: Logger,
         serverProvider: ServerProviderContract,
         remote: RemotePlayerDataSourceContract,
+        localQueue: LocalQueueDataSourceContract
     ) {
         self.audio = audio
         self.logger = logger
         self.serverProvider = serverProvider
         self.remote = remote
+        self.localQueue = localQueue
         
         self.audio.delegate = self
+        
+        Task {
+            if let savedQueue = localQueue.get() {
+                try? await enqueue(savedQueue, startPlaying: false)
+            }
+        }
     }
     
     // Player Management
-    public func enqueue(_ episodeIDs: [UUID]) async throws(EpisodePlayerError) {
-        if self.queue.isEmpty, !episodeIDs.isEmpty {
-            logger.info("Filling empty queue with \(episodeIDs.count) episodes.")
-            self.queue = episodeIDs
+    public func enqueue(_ newQueue: AudioQueue, startPlaying: Bool = true) async throws(EpisodePlayerError) {
+        // if (self.queue == nil || self.queue!.isEmpty) && !newQueue.isEmpty {
+            logger.info("Filling queue with \(newQueue.count) episodes.")
+            self.queue = newQueue
             
             guard let server = await serverProvider.server,
                   let token = await serverProvider.token,
-                  let url = URL(string: "\(server)/api/episodes/\(episodeIDs[0])/audio")
+                  let url = URL(string: "\(server)/api/episodes/\(newQueue.queue[0])/audio")
             else { throw EpisodePlayerError.userNotAuthenticated }
             
-            await playerStateFlow.emit(.loading(size: episodeIDs.count))
+            await playerStateFlow.emit(.loading(size: newQueue.count))
             
-            async let fetchEpisode = remote.episode(with: episodeIDs[0], baseURL: server, token: token.token)
-            async let startPlaying = audio.start(url, token: token.token)
+            async let fetchEpisode = remote.episode(with: newQueue.queue[0], baseURL: server, token: token.token)
+            async let loadAudio = audio.start(url, token: token.token)
             
             do {
                 try await startPlaying
-                let (episode, _) = try await (fetchEpisode, startPlaying)
+                let (episode, _) = try await (fetchEpisode, loadAudio)
                 let newState = AudioPlayerState(
                     title: episode.title,
-                    imageURL: episode.imageURL,
-                    current: 0,
+                    imageURL: episode.imageURL ?? newQueue.podcastImageURL,
+                    current: episode.progress?.duration ?? 0,
                     duration: episode.duration ?? 1,
-                    queueSize: episodeIDs.count,
+                    queueSize: newQueue.count,
                     queuePosition: 1,
-                    mode: .playing
+                    mode: startPlaying ? .playing : .paused
                 )
+                
+                if let progress = episode.progress {
+                    await audio.seek(to: progress.duration)
+                }
+                
+                // Persist queue to local storage.
+                localQueue.save(newQueue)
                 
                 await playerStateFlow.emit(newState)
                 await audio.setMedia(with: AudioData(image: nil, title: episode.title))
-                await audio.play()
+                
+                if startPlaying {
+                    await audio.play()
+                }
             } catch {
                 logger.error("Error playing episode", for: error)
             }
-        }
+        // }
     }
 }
 

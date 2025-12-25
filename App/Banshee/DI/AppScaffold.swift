@@ -29,7 +29,8 @@ final class AppScaffold {
             audio: AudioService(),
             logger: Logger(label: "com.bansheeaudio.playback"),
             serverProvider: AppCoordinator.shared,
-            remote: CobwebRemotePlayerDataSource(logger: Logger(label: "com.bansheeaudio.playback"))
+            remote: CobwebRemotePlayerDataSource(logger: Logger(label: "com.bansheeaudio.playback")),
+            localQueue: UserDefaultsLocalQueueDataSource(defaults: defaults())
         )
     }
     

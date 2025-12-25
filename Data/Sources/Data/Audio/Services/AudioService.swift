@@ -89,6 +89,18 @@ final public class AudioService: NSObject, AudioServiceContract, @unchecked Send
         
         delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
     }
+    
+    public func seek(to time: Int) async {
+        guard let player else { return }
+        
+        await player.seek(
+            to: CMTime(value: Int64(time), timescale: 1),
+            toleranceBefore: CMTime(seconds: 1, preferredTimescale: 1),
+            toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1)
+        )
+        
+        delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
+    }
 }
 
 // TODO: Implement Lockscreen Player

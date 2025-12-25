@@ -23,7 +23,7 @@ struct RootView: View {
                     LoginScreen(app.scaffold.auth())
                 }
             }
-            .bruteTheme(.violet)
+            .bruteTheme(.magenta)
             .environment(app)
         }
     }

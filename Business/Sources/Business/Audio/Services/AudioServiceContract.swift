@@ -11,4 +11,6 @@ public protocol AudioServiceContract: AnyObject, Sendable {
     func stop() async
     func skipForward() async
     func skipBackward() async
+    
+    func seek(to time: Int) async
 }

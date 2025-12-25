@@ -6,7 +6,7 @@ public protocol EpisodePlayerContract: Sendable {
     var playerStateStream: AsyncSequence<AudioPlayerState?, Never> { get }
     
     // Player Controls
-    func enqueue(_ episodeIDs: [UUID]) async throws(EpisodePlayerError)
+    func enqueue(_ audioQueue: AudioQueue, startPlaying: Bool) async throws(EpisodePlayerError)
     
     func play() async
     func pause() async
