@@ -5,7 +5,7 @@ import GRDB
 import Logging
 
 /// GRDB implementation of LocalPodcastDataSourceContract.
-public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @unchecked Sendable {
+public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract {
 
     private let dbManager: DatabaseManager
     private let logger: Logger
@@ -17,26 +17,18 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
 
     // MARK: - Podcasts
 
-    public func getCachedPodcasts() async throws(LocalPodcastDataSourceError) -> [Podcast]? {
+    public func getCachedPodcasts() async throws(LocalPodcastDataSourceError) -> [CachedPodcast]? {
         do {
             return try await dbManager.dbQueue.read { db in
                 let records = try PodcastRecord.fetchAll(db)
                 guard !records.isEmpty else { return nil }
 
-                // Convert to Business DTOs to check expiration
-                let cachedPodcasts = records.map { $0.toCached() }
-
-                // Check expiration using first item (bulk expiration strategy)
-                if cachedPodcasts.first?.isExpired() == true {
-                    return nil
-                }
-
-                // Convert to Core models
-                return cachedPodcasts.map { $0.toCore() }
+                // Convert to Business DTOs (cached podcasts)
+                return records.map { $0.toCached() }
             }
         } catch {
             logger.error("Failed to fetch cached podcasts", for: error)
-            throw LocalPodcastDataSourceError.databaseError
+            throw mapDatabaseError(error)
         }
     }
 
@@ -44,40 +36,21 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
         do {
             let cachedAt = Date()
             try await dbManager.dbQueue.write { db in
-                // Clear existing podcasts first (but preserve episodes and progress)
-                try PodcastRecord.deleteAll(db)
-
-                // Insert new podcasts
                 for podcast in podcasts {
-                    let cachedPodcast = CachedPodcast(podcast: podcast, cachedAt: cachedAt)
-                    let record = PodcastRecord(from: cachedPodcast)
-                    try record.insert(db)
+                    try PodcastRecord(from: CachedPodcast(podcast: podcast, cachedAt: cachedAt))
+                        .upsert(db)
                 }
             }
             logger.info("Saved \(podcasts.count) podcasts to cache")
         } catch {
             logger.error("Failed to save podcasts to cache", for: error)
-            throw LocalPodcastDataSourceError.databaseError
-        }
-    }
-
-    public func isPodcastCacheExpired() async throws(LocalPodcastDataSourceError) -> Bool {
-        do {
-            return try await dbManager.dbQueue.read { db in
-                guard let firstRecord = try PodcastRecord.fetchOne(db) else {
-                    return true // No cache means "expired"
-                }
-                return firstRecord.toCached().isExpired()
-            }
-        } catch {
-            logger.error("Failed to check cache expiration", for: error)
-            throw LocalPodcastDataSourceError.databaseError
+            throw mapDatabaseError(error)
         }
     }
 
     // MARK: - Podcast Details with Episodes
 
-    public func getCachedPodcast(id: UUID) async throws(LocalPodcastDataSourceError) -> Podcast? {
+    public func getCachedPodcast(id: UUID) async throws(LocalPodcastDataSourceError) -> CachedPodcast? {
         do {
             return try await dbManager.dbQueue.read { db in
                 guard let podcastRecord = try PodcastRecord.fetchOne(db, key: id.uuidString) else {
@@ -85,11 +58,6 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
                 }
 
                 let cachedPodcast = podcastRecord.toCached()
-
-                // Check expiration
-                if cachedPodcast.isExpired() {
-                    return nil
-                }
 
                 // Fetch episodes with their progress
                 let episodeRecords = try EpisodeRecord
@@ -104,9 +72,9 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
                     cachedEpisodes.append(episodeRecord.toCached(with: cachedProgress))
                 }
 
-                // Convert to Core model with episodes
+                // Build podcast with episodes
                 let podcast = cachedPodcast.podcast
-                return Podcast(
+                let podcastWithEpisodes = Podcast(
                     id: podcast.id,
                     title: podcast.title,
                     link: podcast.link,
@@ -115,10 +83,13 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
                     description: podcast.description,
                     episodes: cachedEpisodes.map { $0.toCore() }
                 )
+
+                // Return as CachedPodcast with original cached timestamp
+                return CachedPodcast(podcast: podcastWithEpisodes, cachedAt: cachedPodcast.cachedAt)
             }
         } catch {
             logger.error("Failed to fetch cached podcast \(id)", for: error)
-            throw LocalPodcastDataSourceError.databaseError
+            throw mapDatabaseError(error)
         }
     }
 
@@ -156,7 +127,7 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
             logger.info("Saved podcast \(podcast.id) with \(podcast.episodes?.count ?? 0) episodes")
         } catch {
             logger.error("Failed to save podcast with episodes", for: error)
-            throw LocalPodcastDataSourceError.databaseError
+            throw mapDatabaseError(error)
         }
     }
 
@@ -180,7 +151,7 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
             }
         } catch {
             logger.error("Failed to fetch cached progress for episode \(episodeId)", for: error)
-            throw LocalPodcastDataSourceError.databaseError
+            throw mapDatabaseError(error)
         }
     }
 
@@ -194,7 +165,7 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
             logger.info("Saved progress for episode \(episodeId)")
         } catch {
             logger.error("Failed to save progress for episode \(episodeId)", for: error)
-            throw LocalPodcastDataSourceError.databaseError
+            throw mapDatabaseError(error)
         }
     }
 
@@ -211,7 +182,7 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
             logger.info("Cleared all podcast cache")
         } catch {
             logger.error("Failed to clear cache", for: error)
-            throw LocalPodcastDataSourceError.databaseError
+            throw mapDatabaseError(error)
         }
     }
 
@@ -224,7 +195,30 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract, @
             logger.info("Cleared cache for podcast \(id)")
         } catch {
             logger.error("Failed to clear cache for podcast \(id)", for: error)
-            throw LocalPodcastDataSourceError.databaseError
+            throw mapDatabaseError(error)
         }
+    }
+
+    // MARK: - Error Mapping
+
+    /// Maps GRDB errors to specific LocalPodcastDataSourceError cases
+    private func mapDatabaseError(_ error: Error) -> LocalPodcastDataSourceError {
+        if let dbError = error as? DatabaseError {
+            switch dbError.resultCode {
+            case .SQLITE_FULL, .SQLITE_IOERR:
+                return .diskFull
+            case .SQLITE_BUSY, .SQLITE_LOCKED:
+                return .databaseLocked
+            case .SQLITE_CONSTRAINT:
+                return .constraintViolation
+            case .SQLITE_READONLY:
+                return .readOnlyDatabase
+            case .SQLITE_CORRUPT, .SQLITE_NOTADB:
+                return .dataCorruption
+            default:
+                return .databaseError
+            }
+        }
+        return .databaseError
     }
 }

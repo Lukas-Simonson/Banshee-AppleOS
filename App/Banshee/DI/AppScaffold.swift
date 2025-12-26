@@ -24,12 +24,25 @@ final class AppScaffold {
     }
     
     @Single
+    func databaseManager() -> DatabaseManager {
+        do {
+            return try DatabaseManager()
+        } catch {
+            fatalError("Failed to initialize database: \(error)")
+        }
+    }
+    
+    @Single
     func player() -> EpisodePlayerContract {
         EpisodePlayer(
             audio: AudioService(),
             logger: Logger(label: "com.bansheeaudio.playback"),
             serverProvider: AppCoordinator.shared,
             remote: CobwebRemotePlayerDataSource(logger: Logger(label: "com.bansheeaudio.playback")),
+            local: GRDBLocalPlayerDataSource(
+                dbManager: databaseManager(),
+                logger: Logger(label: "com.bansheeaudio.playback")
+            ),
             localQueue: UserDefaultsLocalQueueDataSource(defaults: defaults())
         )
     }

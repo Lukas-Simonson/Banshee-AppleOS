@@ -14,43 +14,63 @@ public struct CobwebRemoteAuthDataSource: RemoteAuthDataSourceContract {
     
     public func login(baseURL: String, username: String, password: String) async throws(RemoteAuthDataSourceError) -> AuthSession {
         do {
-            let user = try await Cobweb.URL.using(baseURL: baseURL)
+            let response = try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/auth/login").post()
                 .also { logger.info("Sending Request to POST /api/auth/login") }
                 .withBody(["username": username, "password": password])
                 .withHeaders(.contentType(value: "application/json"))
                 .response()
-                .verifyStatusCode(is: 200, orThrow: RemoteAuthDataSourceError.unexpectedResponse)
-                .body(as: UserDTO.self)
             
+            switch try response.statusCode {
+                case 200...299: break
+                case 401: throw RemoteAuthDataSourceError.invalidCredentials
+                case 503: throw RemoteAuthDataSourceError.serverUnavailable
+                case 500...599: throw RemoteAuthDataSourceError.serverError
+                default: throw RemoteAuthDataSourceError.unexpectedResponse
+            }
+            
+            let user = try response.body(as: UserDTO.self)
+
             return AuthSession(
                 user: user.toCore(at: baseURL),
                 token: AuthToken(token: user.token, createdAt: .now)
             )
-        } catch let error as Cobweb.URL.URLError {
+        } catch is Cobweb.URL.URLError {
             throw RemoteAuthDataSourceError.urlError
+        } catch let error as Cobweb.HTTP.Request.ResponseError {
+            logger.error("Login failed with response error", for: error)
+            throw RemoteAuthDataSourceError.invalidResponseFormat
         } catch let error as RemoteAuthDataSourceError {
             throw error
         } catch {
+            logger.error("Unknown error during login", for: error)
             throw RemoteAuthDataSourceError.unknownError
         }
     }
     
     public func verifyServer(baseURL: String) async throws(RemoteAuthDataSourceError) {
         do {
-            try await Cobweb.URL.using(baseURL: baseURL)
+            let response = try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/info")
                 .also { logger.info("Sending Request to GET /api/info") }
                 .get()
                 .response()
-                .verifyStatusCode(is: 200, orThrow: RemoteAuthDataSourceError.unexpectedResponse)
+            
+            switch try response.statusCode {
+                case 200: break
+                case 503: throw RemoteAuthDataSourceError.serverUnavailable
+                case 500...599: throw RemoteAuthDataSourceError.serverError
+                default: throw RemoteAuthDataSourceError.unexpectedResponse
+            }
         } catch let error as RemoteAuthDataSourceError {
             throw error
-        } catch let error as Cobweb.URL.URLError {
+        } catch is Cobweb.URL.URLError {
             throw RemoteAuthDataSourceError.urlError
         } catch let error as Cobweb.HTTP.Request.ResponseError {
-            throw RemoteAuthDataSourceError.unexpectedResponse
+            logger.error("Server verification failed", for: error)
+            throw RemoteAuthDataSourceError.invalidResponseFormat
         } catch {
+            logger.error("Unknown error verifying server", for: error)
             throw RemoteAuthDataSourceError.unknownError
         }
     }

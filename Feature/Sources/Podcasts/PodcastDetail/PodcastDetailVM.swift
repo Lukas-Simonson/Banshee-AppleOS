@@ -29,7 +29,7 @@ final class PodcastDetailVM {
     
     // MARK: - Actions
     
-    public func play(at position: Int) {
+    public func play(_ episode: Episode) {
         guard let episodes = podcast.episodes else { return }
         isStartingPlayback = true
         
@@ -37,25 +37,32 @@ final class PodcastDetailVM {
             defer { isStartingPlayback = false }
             
             do {
-                try await player.enqueue(
-                    AudioQueue(
-                        queue: episodes[position...].map { $0.id },
-                        podcastImageURL: podcast.imageURL
-                    ),
-                    startPlaying: true
-                )
-                // try await player.enqueue(episodes[position...].map { $0.id })
-            } catch {
-                logger.error("Error", for: error)
+                guard let index = episodes.firstIndex(where: { $0.id == episode.id })
+                else { return }
+                
+                do {
+                    try await player.enqueue(
+                        AudioQueue(
+                            queue: episodes.map { $0.id },
+                            podcastImageURL: podcast.imageURL,
+                            position: index
+                        ),
+                        startPlaying: true
+                    )
+                } catch let error as EpisodePlayerError {
+                    logger.error("Failed to play episode", for: error)
+                    navigator.showError(error)
+                }
             }
         }
     }
     
     public func refresh() async {
-        do {
-            self.podcast = try await repository.details(for: podcast)
-        } catch let error as PodcastRepositoryError {
-            navigator.showError(error)
+        for await result in repository.details(for: podcast) {
+            switch result {
+                case .success(let podcast): self.podcast = podcast
+                case .failure(let error): self.navigator.showError(error)
+            }
         }
     }
 }

@@ -45,15 +45,17 @@ public final class PodcastRepository: PodcastRepositoryContract {
             // Try to get cached data first
             if let cachedPodcasts = try await local.getCachedPodcasts() {
                 logger.info("Serving \(cachedPodcasts.count) podcasts from cache")
-                await podcastsFlow.emit(cachedPodcasts)
 
-                // Check if cache is expired
-                let isExpired = try await local.isPodcastCacheExpired()
-                if !isExpired {
+                // Check if cache is expired (using first podcast as representative)
+                if let firstCached = cachedPodcasts.first, !firstCached.isExpired() {
                     logger.info("Cache is still valid, skipping network request")
+                    await podcastsFlow.emit(cachedPodcasts.map { $0.toCore() })
                     return
                 }
+
                 logger.info("Cache expired, fetching fresh data from network")
+                // Still emit cached data while fetching fresh
+                await podcastsFlow.emit(cachedPodcasts.map { $0.toCore() })
             }
         } catch {
             logger.warning("Failed to read from cache, falling back to network", for: error)
@@ -79,36 +81,39 @@ public final class PodcastRepository: PodcastRepositoryContract {
         }
     }
     
-    public func details(for podcast: Podcast) async throws(PodcastRepositoryError) -> Podcast {
-        guard let token = await serverProvider.token,
-              let server = await serverProvider.server
-        else { throw PodcastRepositoryError.missingAuthorization }
-
-        do {
-            if let cachedPodcast = try await local.getCachedPodcast(id: podcast.id),
-               let episodes = cachedPodcast.episodes, !episodes.isEmpty {
-                logger.info("Serving podcast details from cache (id: \(podcast.id))")
-                return cachedPodcast
-            }
-        } catch {
-            logger.warning("Failed to read podcast details from cache", for: error)
-        }
-
-        // Fetch from network
-        do {
-            let detailedPodcast = try await remote.getPodcast(with: podcast.id, baseURL: server, token: token.token)
-
-            // Update cache
+    public func details(for podcast: Podcast) -> AsyncResultSequence<Podcast, PodcastRepositoryError> {
+        ColdFlow { [self] emit in
+            guard let token = await serverProvider.token,
+                  let server = await serverProvider.server
+            else { await emit(.failure(.missingAuthorization)); return }
+            
             do {
-                try await local.savePodcastWithEpisodes(detailedPodcast)
+                if let cachedPodcast = try await local.getCachedPodcast(id: podcast.id) {
+                    await emit(.success(cachedPodcast.toCore()))
+                    
+                    if !cachedPodcast.isExpired(), let episodes = cachedPodcast.podcast.episodes, !episodes.isEmpty {
+                        logger.info("Serving podcast details from cache (id: \(podcast.id))")
+                        return
+                    }
+                }
             } catch {
-                logger.warning("Failed to cache podcast details", for: error)
+                logger.warning("Failed to read podcast details from cache", for: error)
             }
-
-            return detailedPodcast
-        } catch let error as RemotePodcastDataSourceError {
-            logger.error("Failed to get podcast information", for: error)
-            throw PodcastRepositoryError.couldntGetPodcast
+            
+            do {
+                let details = try await remote.getPodcast(with: podcast.id, baseURL: server, token: token.token)
+                try await local.savePodcastWithEpisodes(details)
+                await emit(.success(details))
+            } catch let error as RemotePodcastDataSourceError {
+                logger.warning("Failed to get remote podcast information", for: error)
+                await emit(.failure(PodcastRepositoryError.couldntGetPodcast))
+            } catch let error as LocalPodcastDataSourceError {
+                logger.warning("Failed to persist data locally", for: error)
+                await emit(.failure(PodcastRepositoryError.couldntPersistPodcast))
+            } catch {
+                // MARK: Compiler Issue? Should be impossible.
+                logger.critical("Caught an unexpected error that should not be possible. Error: \(error)")
+            }
         }
     }
 }

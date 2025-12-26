@@ -61,4 +61,9 @@ struct PodcastRecord: Codable, FetchableRecord, PersistableRecord, Sendable {
             cachedAt: cachedAt
         )
     }
+    
+    struct PodcastInfo: Decodable, FetchableRecord {
+        let podcast: PodcastRecord
+        let episodes: [EpisodeRecord]
+    }
 }

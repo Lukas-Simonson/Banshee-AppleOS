@@ -9,7 +9,7 @@ struct PodcastDetailView: View {
     let podcast: Podcast
     let isLoading: Bool
     
-    let onPlay: (Int) -> Void
+    let onPlay: (Episode) -> Void
     let onRefresh: @Sendable () async -> Void
     
     var body: some View {
@@ -31,12 +31,12 @@ struct PodcastDetailView: View {
                     )
                     
                     if let episodes = podcast.episodes {
-                        ForEach(episodes.indices) { index in
+                        ForEach(episodes) { episode in
                             EpisodeCard(
-                                episode: episodes[index],
+                                episode: episode,
                                 fallbackImageURL: podcast.imageURL,
-                                onPlay: { onPlay(index) }
-                            ).id(episodes[index].id)
+                                onPlay: { onPlay(episode) }
+                            )
                         }
                     }
                 }

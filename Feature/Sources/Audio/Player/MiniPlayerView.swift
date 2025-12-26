@@ -15,27 +15,36 @@ struct MiniPlayerView: View {
     var body: some View {
         if let state {
             switch state.mode {
-                case .playing, .paused: player(with: state)
+                case .playing, .paused, .loading: player(with: state)
                 default: EmptyView()
             }
         }
     }
     
     private func player(with state: AudioPlayerState) -> some View {
-        VStack(spacing: 0) {
+        wrapper {
             HStack(spacing: context.dimen.paddingSmall) {
                 CachedImage(for: state.imageURL)
                     .frame(maxHeight: 50)
                     .bruteClipped()
                     .bruteStroked()
                 
-                VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
-                    Text(state.title)
-                        .lineLimit(1)
-                    
-                    Text("\(state.current, format: .timeInterval) / \(state.duration, format: .timeInterval)")
-                        .font(context.font.caption)
+                Group {
+                    switch state.mode {
+                        case .playing, .paused:
+                            VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
+                                Text(state.title)
+                                    .lineLimit(1)
+                                Text("\(state.current, format: .timeInterval) / \(state.duration, format: .timeInterval)")
+                                    .font(context.font.caption)
+                            }
+                        case .loading:
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                        default: EmptyView()
+                    }
                 }
+                .animation(.default, value: state.mode)
                 
                 Spacer()
                 
@@ -51,7 +60,12 @@ struct MiniPlayerView: View {
             }
             .labelStyle(.iconOnly)
             .padding(context.dimen.paddingMedium)
-            
+        }
+    }
+    
+    private func wrapper(for content: () -> some View) -> some View {
+        VStack(spacing: 0) {
+            content()
             Rectangle()
                 .fill(context.color.border)
                 .frame(height: context.dimen.borderWidth)

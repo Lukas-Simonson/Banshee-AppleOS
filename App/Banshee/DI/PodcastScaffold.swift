@@ -24,18 +24,9 @@ final class PodcastScaffold: PodcastScaffoldContract {
     }
 
     @Single
-    func databaseManager() -> DatabaseManager {
-        do {
-            return try DatabaseManager()
-        } catch {
-            fatalError("Failed to initialize database: \(error)")
-        }
-    }
-
-    @Single
     func localDataSource() -> LocalPodcastDataSourceContract {
         GRDBLocalPodcastDataSource(
-            dbManager: databaseManager(),
+            dbManager: app.databaseManager(),
             logger: logger()
         )
     }

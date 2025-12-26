@@ -19,6 +19,25 @@ public protocol EpisodePlayerContract: Sendable {
     func skipBackward() async
 }
 
-public enum EpisodePlayerError: String, Error {
-    case userNotAuthenticated = "User is not authenticated, unable to connect to server."
+public enum EpisodePlayerError: CoreError {
+    case userNotAuthenticated
+
+    public var errorCode: UInt16 {
+        switch self {
+        case .userNotAuthenticated: 301
+        }
+    }
+
+    public var localizeableKey: LocalizedStringResource {
+        switch self {
+        case .userNotAuthenticated: "error.audio.userNotAuthenticated"
+        }
+    }
+
+    public var logMessage: String {
+        switch self {
+        case .userNotAuthenticated:
+            "User authentication required to access audio streaming service"
+        }
+    }
 }

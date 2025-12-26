@@ -9,6 +9,7 @@ final class PlayerVM {
     // MARK: - Dependencies
     private let logger: Logger
     private let player: EpisodePlayerContract
+    private let navigator: AudioNavigationContract
     
     // MARK: - State
     private(set) var state: AudioPlayerState?
@@ -18,6 +19,7 @@ final class PlayerVM {
     init(_ scaffold: AudioScaffoldContract) {
         self.logger = scaffold.logger()
         self.player = scaffold.player()
+        self.navigator = scaffold.navigator()
         
         observeState()
     }
@@ -43,6 +45,10 @@ final class PlayerVM {
             for await state in stream {
                 guard let self else { break }
                 self.state = state
+                
+                if let state, case .error(let e) = state.mode {
+                    navigator.showError(e)
+                }
             }
         }
     }

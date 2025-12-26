@@ -10,11 +10,16 @@ public actor EpisodePlayer: EpisodePlayerContract {
     private let logger: Logger
     private let serverProvider: ServerProviderContract
     private let remote: RemotePlayerDataSourceContract
+    private let local: LocalPlayerDataSourceContract
     private let localQueue: LocalQueueDataSourceContract
     
     private let playerStateFlow = MutableStateFlow<AudioPlayerState?>(initial: nil)
     private var queue: AudioQueue?
-    
+
+    // Progress Sync State
+    private var lastSyncTime: Date?
+    private let syncInterval: TimeInterval = 30.0  // 30 seconds
+
     // Shared State
     public var playerState: AudioPlayerState? {
         get async { await playerStateFlow.value }
@@ -29,37 +34,45 @@ public actor EpisodePlayer: EpisodePlayerContract {
         logger: Logger,
         serverProvider: ServerProviderContract,
         remote: RemotePlayerDataSourceContract,
+        local: LocalPlayerDataSourceContract,
         localQueue: LocalQueueDataSourceContract
     ) {
         self.audio = audio
         self.logger = logger
         self.serverProvider = serverProvider
         self.remote = remote
+        self.local = local
         self.localQueue = localQueue
         
         self.audio.delegate = self
         
         Task {
             if let savedQueue = localQueue.get() {
-                try? await enqueue(savedQueue, startPlaying: false)
+                do {
+                    try await enqueue(savedQueue, startPlaying: false)
+                } catch let error as EpisodePlayerError {
+                    await playerStateFlow.emit(.error(error))
+                }
             }
         }
     }
     
     // Player Management
     public func enqueue(_ newQueue: AudioQueue, startPlaying: Bool = true) async throws(EpisodePlayerError) {
-        // if (self.queue == nil || self.queue!.isEmpty) && !newQueue.isEmpty {
             logger.info("Filling queue with \(newQueue.count) episodes.")
             self.queue = newQueue
-            
+
+            // Reset sync tracking for new episode
+            lastSyncTime = nil
+
             guard let server = await serverProvider.server,
                   let token = await serverProvider.token,
-                  let url = URL(string: "\(server)/api/episodes/\(newQueue.queue[0])/audio")
+                  let url = URL(string: "\(server)/api/episodes/\(newQueue.current)/audio")
             else { throw EpisodePlayerError.userNotAuthenticated }
             
             await playerStateFlow.emit(.loading(size: newQueue.count))
             
-            async let fetchEpisode = remote.episode(with: newQueue.queue[0], baseURL: server, token: token.token)
+            async let fetchEpisode = remote.episode(with: newQueue.current, baseURL: server, token: token.token)
             async let loadAudio = audio.start(url, token: token.token)
             
             do {
@@ -90,8 +103,81 @@ public actor EpisodePlayer: EpisodePlayerContract {
                 }
             } catch {
                 logger.error("Error playing episode", for: error)
+
+                if let e = error as? CoreError {
+                    await playerStateFlow.emit(.error(e))
+                } else {
+                    logger.error("Received a non-CoreError when playing audio", for: error)
+                }
             }
-        // }
+    }
+
+    // MARK: - Progress Syncing
+
+    private func syncProgressIfNeeded(currentTime: Int) async {
+        // Check if enough time has elapsed since last sync
+        let now = Date()
+        if let lastSync = lastSyncTime {
+            let timeSinceLastSync = now.timeIntervalSince(lastSync)
+            guard timeSinceLastSync >= syncInterval else { return }
+        }
+
+        // Perform the sync
+        guard let queue = self.queue,
+              let state = await playerState,
+              let server = await serverProvider.server,
+              let token = await serverProvider.token
+        else { return }
+
+        let currentEpisodeId = queue.current
+
+        do {
+            async let updateLocal = local.updateProgress(
+                episodeID: currentEpisodeId,
+                isCompleted: false,
+                duration: currentTime
+            )
+            
+            async let updateRemote = remote.updateProgress(
+                episodeId: currentEpisodeId,
+                baseURL: server,
+                token: token.token,
+                isCompleted: false,
+                duration: currentTime
+            )
+            
+            try await (updateLocal, updateRemote)
+
+            lastSyncTime = now
+            logger.info("Successfully synced progress: \(currentTime)s for episode \(currentEpisodeId)")
+        } catch {
+            // Log and continue - don't interrupt playback
+            logger.warning("Failed to sync progress, will retry next interval", for: error)
+        }
+    }
+
+    private func syncProgressNow(currentTime: Int, isCompleted: Bool) async {
+        guard let queue = self.queue,
+              let server = await serverProvider.server,
+              let token = await serverProvider.token
+        else { return }
+
+        let currentEpisodeId = queue.queue[queue.position]
+
+        do {
+            try await remote.updateProgress(
+                episodeId: currentEpisodeId,
+                baseURL: server,
+                token: token.token,
+                isCompleted: isCompleted,
+                duration: currentTime
+            )
+
+            lastSyncTime = Date()
+            logger.info("Synced progress: \(currentTime)s, completed: \(isCompleted) for episode \(currentEpisodeId)")
+        } catch {
+            logger.warning("Failed to sync progress", for: error)
+        }
     }
 }
 
@@ -101,6 +187,9 @@ extension EpisodePlayer: AudioServiceDelegateContract {
         Task {
             if let state = await self.playerState {
                 await playerStateFlow.emit(state.copy(current: time))
+
+                // Check if we should sync progress
+                await syncProgressIfNeeded(currentTime: time)
             }
         }
     }
@@ -117,6 +206,9 @@ extension EpisodePlayer: AudioServiceDelegateContract {
         Task {
             if let state = await self.playerState {
                 await playerStateFlow.emit(state.copy(mode: .paused))
+
+                // Sync one final time when pausing
+                await syncProgressNow(currentTime: state.current, isCompleted: false)
             }
         }
     }
@@ -124,13 +216,24 @@ extension EpisodePlayer: AudioServiceDelegateContract {
     nonisolated public func playerDidStop() {
         Task {
             if let state = await self.playerState {
+                // Sync before stopping
+                await syncProgressNow(currentTime: state.current, isCompleted: false)
                 await playerStateFlow.emit(nil)
             }
         }
     }
     
     nonisolated public func playerDidFinish() {
-        // TODO: Go to next item in queue.
+        Task {
+            // Sync final progress with isCompleted = true
+            guard let queue = await self.queue,
+                  let state = await playerState
+            else { return }
+
+            await syncProgressNow(currentTime: state.duration, isCompleted: true)
+
+            // TODO: Go to next item in queue.
+        }
     }
     
     nonisolated public func playerDidEncounterError(_ error: Error?) {

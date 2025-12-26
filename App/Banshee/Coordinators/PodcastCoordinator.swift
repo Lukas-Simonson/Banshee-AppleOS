@@ -13,12 +13,12 @@ extension PodcastCoordinator: PodcastNavigationContract {
     func navigateToDetail(for podcast: Podcast) {
         path.append(PodcastDetailDestination(podcast: podcast))
     }
-    
+
     func navigateBack() {
         path.removeLast()
     }
-    
-    func showError(_ error: LocalizedError) {
+
+    func showError(_ error: CoreError) {
         AppCoordinator.shared.showError(error)
     }
     

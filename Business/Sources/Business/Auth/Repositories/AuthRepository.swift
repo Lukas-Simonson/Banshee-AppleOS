@@ -52,16 +52,19 @@ public final class AuthRepository: AuthRepositoryContract {
             
         }
         catch let error as RemoteAuthDataSourceError {
-            
+
             logger.error("Unable to connect to server", for: error)
             throw AuthRepositoryError.unableToReachServer
         }
         catch let error as LocalAuthDataSourceError {
-            
+
             logger.error("Unable to save session locally", for: error)
             throw AuthRepositoryError.unableToSaveSession
         }
-        catch { fatalError() }
+        catch {
+            logger.error("Unexpected error during login", for: error)
+            throw AuthRepositoryError.unexpectedError
+        }
     }
     
     public func logout() async throws(AuthRepositoryError) {
