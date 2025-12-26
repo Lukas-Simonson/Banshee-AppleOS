@@ -76,7 +76,6 @@ public actor EpisodePlayer: EpisodePlayerContract {
             async let loadAudio = audio.start(url, token: token.token)
             
             do {
-                try await startPlaying
                 let (episode, _) = try await (fetchEpisode, loadAudio)
                 let newState = AudioPlayerState(
                     title: episode.title,

@@ -33,6 +33,7 @@ public struct TopAppBar<Leading: View, Trailing: View>: View {
             BruteDivider()
         }
         .background(context.color.background)
+        .bruteThemeLeveled(by: 1)
     }
     
     private var titleOnlyView: some View {
@@ -45,10 +46,10 @@ public struct TopAppBar<Leading: View, Trailing: View>: View {
     private var leadingAndTitleView: some View {
         HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
             leading()
-            Spacer()
             Text(title)
                 .font(context.font.title)
                 .multilineTextAlignment(.trailing)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
     
@@ -57,7 +58,7 @@ public struct TopAppBar<Leading: View, Trailing: View>: View {
             Text(title)
                 .font(context.font.title)
                 .multilineTextAlignment(.leading)
-            Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
             trailing()
         }
     }
@@ -65,11 +66,12 @@ public struct TopAppBar<Leading: View, Trailing: View>: View {
     private var allViews: some View {
         HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
             leading()
-            Spacer()
+            
             Text(title)
                 .font(context.font.header)
                 .multilineTextAlignment(.center)
-            Spacer()
+                .frame(maxWidth: .infinity, alignment: .center)
+            
             trailing()
         }
     }

@@ -15,6 +15,8 @@ public struct NavigateBackButton: View {
             systemImage: "arrowshape.backward.fill",
             action: onNavigateBack
         )
+        .buttonStyle(.icon(size: .medium))
         .labelStyle(.iconOnly)
+        
     }
 }

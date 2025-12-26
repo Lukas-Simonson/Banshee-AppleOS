@@ -51,9 +51,11 @@ struct MiniPlayerView: View {
                 switch state.mode {
                     case .playing:
                         Button("Pause", systemImage: "pause.fill", action: onPause)
+                            .buttonStyle(.icon(size: .medium))
                         
                     case .paused:
                         Button("Play", systemImage: "play.fill", action: onPlay)
+                            .buttonStyle(.icon(size: .medium))
                         
                     default: EmptyView()
                 }
@@ -68,6 +70,7 @@ struct MiniPlayerView: View {
             content()
             BruteDivider()
         }
+        .bruteThemeLeveled(by: 1)
     }
 }
 

@@ -43,11 +43,19 @@ struct EpisodeCard: View {
             
             HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
                 Button("Play", systemImage: "play.fill", action: onPlay)
+                    .buttonStyle(.icon(size: .small))
                 
-                Button("isCompleted", systemImage: isCompleted ? "checkmark" : "checkmark") {
+                Button("Is Completed", systemImage: "checkmark") {
                     // TODO
                 }
-                .buttonStyle(.brute(fill: isCompleted ? .green : .white))
+                .buttonStyle(.icon(size: .small, background: isCompleted ? .green : .white, foreground: .black))
+                
+                Spacer()
+                
+                Button("Options", systemImage: "ellipsis") {
+                    // TODO
+                }
+                .buttonStyle(.icon(size: .small, background: .white, foreground: .black))
             }
             .font(context.font.header)
             .labelStyle(.iconOnly)
