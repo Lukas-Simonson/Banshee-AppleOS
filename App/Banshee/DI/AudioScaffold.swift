@@ -23,4 +23,8 @@ final class AudioScaffold: AudioScaffoldContract {
     func player() -> EpisodePlayerContract {
         app.player()
     }
+    
+    func navigator() -> AudioNavigationContract {
+        AppCoordinator.shared
+    }
 }

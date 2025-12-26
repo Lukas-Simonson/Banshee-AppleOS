@@ -22,13 +22,22 @@ final class PodcastScaffold: PodcastScaffoldContract {
     func navigator() -> PodcastNavigationContract {
         app.podcastCoordinator()
     }
-    
+
+    @Single
+    func localDataSource() -> LocalPodcastDataSourceContract {
+        GRDBLocalPodcastDataSource(
+            dbManager: app.databaseManager(),
+            logger: logger()
+        )
+    }
+
     @Single
     func repository() -> PodcastRepositoryContract {
         PodcastRepository(
             logger: logger(),
             serverProvider: AppCoordinator.shared,
-            remote: CobwebRemotePodcastDataSource(logger: logger())
+            remote: CobwebRemotePodcastDataSource(logger: logger()),
+            local: localDataSource()
         )
     }
     

@@ -32,11 +32,21 @@ public struct AudioPlayerState: Sendable {
 }
 
 extension AudioPlayerState {
-    public enum Mode: Sendable {
+    public enum Mode: Sendable, Equatable {
         case playing
         case paused
         case loading
-        case error(Error)
+        case error(CoreError)
+
+        public static func ==(lhs: Mode, rhs: Mode) -> Bool {
+            switch (lhs, rhs) {
+                case (.playing, .playing): true
+                case (.paused, .paused): true
+                case (.loading, .loading): true
+                case (.error(let lhs), .error(let rhs)): lhs.errorCode == rhs.errorCode
+                default: false
+            }
+        }
     }
 }
 
@@ -51,6 +61,18 @@ public extension AudioPlayerState {
             queueSize: size,
             queuePosition: position,
             mode: .loading
+        )
+    }
+    
+    static func error(_ error: CoreError) -> AudioPlayerState {
+        AudioPlayerState(
+            title: "",
+            imageURL: nil,
+            current: 0,
+            duration: 0,
+            queueSize: 0,
+            queuePosition: 0,
+            mode: .error(error)
         )
     }
 }

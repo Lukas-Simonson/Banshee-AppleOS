@@ -1,3 +1,4 @@
+import Audio
 import Auth
 import Core
 import Foundation
@@ -36,12 +37,12 @@ extension AppCoordinator {
     }
 }
 
-extension AppCoordinator: AuthNavigationContract {
+extension AppCoordinator: AuthNavigationContract, AudioNavigationContract {
     func navigateHome() {
         // Handled Automatically By Watching Stream
     }
-    
-    func showError(_ error: LocalizedError) {
+
+    func showError(_ error: CoreError) {
         notices.queueNotice(ErrorNotice(error: error))
     }
 }

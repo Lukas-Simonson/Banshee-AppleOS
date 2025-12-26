@@ -6,6 +6,7 @@ public struct AudioQueue: Sendable {
     
     public var position: Int = 0
     
+    public var current: UUID { queue[position] }
     public var count: Int { queue.count }
     public var isEmpty: Bool { queue.isEmpty }
     
