@@ -107,6 +107,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
                 if let e = error as? CoreError {
                     await playerStateFlow.emit(.error(e))
                 } else {
+                    await playerStateFlow.emit(.error(EpisodePlayerError.unexpectedError))
                     logger.error("Received a non-CoreError when playing audio", for: error)
                 }
             }

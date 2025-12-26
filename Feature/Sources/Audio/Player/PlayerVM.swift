@@ -47,6 +47,8 @@ final class PlayerVM {
                 self.state = state
                 
                 if let state, case .error(let e) = state.mode {
+                    // Hide Player & Show Error
+                    self.state = nil
                     navigator.showError(e)
                 }
             }

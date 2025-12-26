@@ -4,6 +4,17 @@
     "Error: %u" : {
 
     },
+    "error.audio.unexpected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Received an unexpected error when attempting to play audio."
+          }
+        }
+      }
+    },
     "error.audio.userNotAuthenticated" : {
       "extractionState" : "manual",
       "localizations" : {

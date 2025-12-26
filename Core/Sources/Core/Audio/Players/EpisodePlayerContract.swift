@@ -20,24 +20,29 @@ public protocol EpisodePlayerContract: Sendable {
 }
 
 public enum EpisodePlayerError: CoreError {
+    case unexpectedError
     case userNotAuthenticated
-
+    
     public var errorCode: UInt16 {
         switch self {
-        case .userNotAuthenticated: 301
+            case .unexpectedError: 301
+            case .userNotAuthenticated: 302
         }
     }
 
     public var localizeableKey: LocalizedStringResource {
         switch self {
-        case .userNotAuthenticated: "error.audio.userNotAuthenticated"
+            case .unexpectedError: "error.audio.unexpected"
+            case .userNotAuthenticated: "error.audio.userNotAuthenticated"
         }
     }
 
     public var logMessage: String {
         switch self {
-        case .userNotAuthenticated:
-            "User authentication required to access audio streaming service"
+            case .unexpectedError: 
+                "Recieved an unexpected error that could not be processed."
+            case .userNotAuthenticated:
+                "User authentication required to access audio streaming service"
         }
     }
 }
