@@ -66,9 +66,7 @@ struct MiniPlayerView: View {
     private func wrapper(for content: () -> some View) -> some View {
         VStack(spacing: 0) {
             content()
-            Rectangle()
-                .fill(context.color.border)
-                .frame(height: context.dimen.borderWidth)
+            BruteDivider()
         }
     }
 }

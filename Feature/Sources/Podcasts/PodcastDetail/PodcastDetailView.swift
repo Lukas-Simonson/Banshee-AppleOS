@@ -1,5 +1,6 @@
 import Brute
 import Core
+import SharedUI
 import SwiftUI
 
 struct PodcastDetailView: View {
@@ -11,38 +12,50 @@ struct PodcastDetailView: View {
     
     let onPlay: (Episode) -> Void
     let onRefresh: @Sendable () async -> Void
+    let onNavigateBack: () -> Void
     
     var body: some View {
         BruteStyle {
-            ScrollView {
-                LazyVStack(spacing: context.dimen.paddingMedium) {
-                    DisclosureGroup(
-                        content: {
-                            Text(podcast.description.htmlStripped)
-                        },
-                        label: {
-                            VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
-                                Text(podcast.title)
-                                    .font(context.font.title)
-                                Text("\(podcast.episodes?.count ?? 0) episodes")
-                                    .font(context.font.caption)
+            VStack(spacing: 0) {
+                
+                TopAppBar(
+                    title: podcast.title,
+                    leading: {
+                        NavigateBackButton(onNavigateBack)
+                    }
+                )
+                
+                ScrollView {
+                    LazyVStack(spacing: context.dimen.paddingMedium) {
+                        DisclosureGroup(
+                            content: {
+                                Text(podcast.description.htmlStripped)
+                            },
+                            label: {
+                                VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
+                                    Text(podcast.title)
+                                        .font(context.font.title)
+                                    Text("\(podcast.episodes?.count ?? 0) episodes")
+                                        .font(context.font.caption)
+                                }
+                            }
+                        )
+                        
+                        if let episodes = podcast.episodes {
+                            ForEach(episodes) { episode in
+                                EpisodeCard(
+                                    episode: episode,
+                                    fallbackImageURL: podcast.imageURL,
+                                    onPlay: { onPlay(episode) }
+                                )
                             }
                         }
-                    )
-                    
-                    if let episodes = podcast.episodes {
-                        ForEach(episodes) { episode in
-                            EpisodeCard(
-                                episode: episode,
-                                fallbackImageURL: podcast.imageURL,
-                                onPlay: { onPlay(episode) }
-                            )
-                        }
                     }
+                    .padding(context.dimen.paddingMedium)
                 }
-                .padding(context.dimen.paddingMedium)
+                .refreshable(action: onRefresh)
+                .navigationBarBackButtonHidden()
             }
-            .refreshable(action: onRefresh)
         }
     }
 }
@@ -72,6 +85,7 @@ struct PodcastDetailView: View {
         ),
         isLoading: false,
         onPlay: { _ in },
-        onRefresh: {  }
+        onRefresh: {  },
+        onNavigateBack: {  }
     )
 }

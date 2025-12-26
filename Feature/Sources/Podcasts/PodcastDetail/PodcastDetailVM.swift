@@ -65,4 +65,6 @@ final class PodcastDetailVM {
             }
         }
     }
+    
+    public func navigateBack() { navigator.navigateBack() }
 }

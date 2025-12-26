@@ -1,5 +1,6 @@
 import Audio
 import Brute
+import SharedUI
 import SwiftUI
 
 struct BottomNavigation: View {
@@ -19,9 +20,7 @@ struct BottomNavigation: View {
                 }
             }
             
-            Rectangle()
-                .fill(context.color.border)
-                .frame(height: context.dimen.borderWidth)
+            BruteDivider()
             
             PlayerView(app.scaffold.audio())
             
