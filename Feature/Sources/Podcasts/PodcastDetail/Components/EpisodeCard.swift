@@ -16,6 +16,24 @@ struct EpisodeCard: View {
         episode.progress?.isCompleted ?? false
     }
     
+    private var metadata: String {
+        var components = [String]()
+        
+        if let duration = episode.duration {
+            components.append(duration.formatted(.timeInterval))
+        }
+        
+        if let season = episode.season {
+            components.append("S: \(season)")
+        }
+        
+        if let episode = episode.episode {
+            components.append("E: \(episode)")
+        }
+        
+        return components.joined(separator: " • ")
+    }
+    
     var body: some View {
         BruteCard {
             HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
@@ -27,11 +45,9 @@ struct EpisodeCard: View {
                 VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
                     Text(episode.title)
                         .font(context.font.header)
-                    
-                    if let duration = episode.duration {
-                        Text(duration, format: .timeInterval)
-                            .font(context.font.caption)
-                    }
+
+                    Text(metadata)
+                        .font(context.font.caption)
                 }
                 
                 Spacer()

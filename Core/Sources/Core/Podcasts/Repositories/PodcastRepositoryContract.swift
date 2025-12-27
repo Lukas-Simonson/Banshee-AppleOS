@@ -5,10 +5,10 @@ public protocol PodcastRepositoryContract: Sendable {
     var podcasts: [Podcast] { get async }
     var podcastsStream: AsyncSequence<[Podcast], Never> { get }
     
-    func refresh() async throws(PodcastRepositoryError)
+    func refresh(force: Bool) async throws(PodcastRepositoryError)
     
     /// Fetches extra details about a podcast, including its episodes.
-    func details(for podcast: Podcast) -> AsyncResultSequence<Podcast, PodcastRepositoryError>
+    func details(for podcast: Podcast, refresh: Bool) -> AsyncResultSequence<Podcast, PodcastRepositoryError>
 }
 
 public enum PodcastRepositoryError: CoreError {

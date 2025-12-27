@@ -35,7 +35,7 @@ public final class PodcastRepository: PodcastRepositoryContract {
     }
     
     // MARK: - Podcast Management
-    public func refresh() async throws(PodcastRepositoryError) {
+    public func refresh(force: Bool) async throws(PodcastRepositoryError) {
         guard let token = await serverProvider.token,
               let server = await serverProvider.server
         else { throw PodcastRepositoryError.missingAuthorization }
@@ -43,7 +43,7 @@ public final class PodcastRepository: PodcastRepositoryContract {
         // Cache-first strategy
         do {
             // Try to get cached data first
-            if let cachedPodcasts = try await local.getCachedPodcasts() {
+            if !force, let cachedPodcasts = try await local.getCachedPodcasts() {
                 logger.info("Serving \(cachedPodcasts.count) podcasts from cache")
 
                 // Check if cache is expired (using first podcast as representative)
@@ -81,14 +81,14 @@ public final class PodcastRepository: PodcastRepositoryContract {
         }
     }
     
-    public func details(for podcast: Podcast) -> AsyncResultSequence<Podcast, PodcastRepositoryError> {
+    public func details(for podcast: Podcast, refresh: Bool) -> AsyncResultSequence<Podcast, PodcastRepositoryError> {
         ColdFlow { [self] emit in
             guard let token = await serverProvider.token,
                   let server = await serverProvider.server
             else { await emit(.failure(.missingAuthorization)); return }
             
             do {
-                if let cachedPodcast = try await local.getCachedPodcast(id: podcast.id) {
+                if !refresh, let cachedPodcast = try await local.getCachedPodcast(id: podcast.id) {
                     await emit(.success(cachedPodcast.toCore()))
                     
                     if !cachedPodcast.isExpired(), let episodes = cachedPodcast.podcast.episodes, !episodes.isEmpty {

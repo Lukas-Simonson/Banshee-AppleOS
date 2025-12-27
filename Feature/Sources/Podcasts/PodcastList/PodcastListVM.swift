@@ -29,7 +29,7 @@ final class PodcastListVM {
     
     public func refresh() async {
         do {
-            try await repository.refresh()
+            try await repository.refresh(force: true)
         } catch let error as PodcastRepositoryError {
             navigator.showError(error)
         }
@@ -56,7 +56,7 @@ final class PodcastListVM {
             isLoading = true
             
             do {
-                try await self.repository.refresh()
+                try await self.repository.refresh(force: false)
             } catch let error as PodcastRepositoryError {
                 navigator.showError(error)
             }

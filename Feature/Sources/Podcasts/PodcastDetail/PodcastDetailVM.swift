@@ -24,7 +24,7 @@ final class PodcastDetailVM {
         
         self.podcast = podcast
         
-        Task { await refresh() }
+        Task { await refresh(force: false) }
     }
     
     // MARK: - Actions
@@ -58,8 +58,8 @@ final class PodcastDetailVM {
         }
     }
     
-    public func refresh() async {
-        for await result in repository.details(for: podcast) {
+    public func refresh(force: Bool = false) async {
+        for await result in repository.details(for: podcast, refresh: force) {
             switch result {
                 case .success(let podcast): self.podcast = podcast
                 case .failure(let error): self.navigator.showError(error)

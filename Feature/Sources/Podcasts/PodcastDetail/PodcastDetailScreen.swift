@@ -14,7 +14,7 @@ public struct PodcastDetailScreen: View {
             podcast: viewModel.podcast,
             isLoading: viewModel.isLoading,
             onPlay: viewModel.play,
-            onRefresh: viewModel.refresh,
+            onRefresh: { await viewModel.refresh(force: true) },
             onNavigateBack: viewModel.navigateBack
         )
     }
