@@ -79,6 +79,7 @@ struct MiniPlayerView: View {
         MiniPlayerView(
             state: AudioPlayerState(
                 title: "A Man And His Handshake",
+                author: "Dungeons and Daddies",
                 imageURL: nil,
                 current: 9093,
                 duration: 10000,

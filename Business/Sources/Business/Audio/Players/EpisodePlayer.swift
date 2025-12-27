@@ -79,6 +79,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
                 let (episode, _) = try await (fetchEpisode, loadAudio)
                 let newState = AudioPlayerState(
                     title: episode.title,
+                    author: newQueue.podcastName,
                     imageURL: episode.imageURL ?? newQueue.podcastImageURL,
                     current: episode.progress?.duration ?? 0,
                     duration: episode.duration ?? 1,
@@ -206,7 +207,7 @@ extension EpisodePlayer: AudioServiceDelegateContract {
 
             await syncProgressNow(currentTime: state.duration, isCompleted: true)
 
-            // TODO: Go to next item in queue.
+            await next()
         }
     }
     
@@ -223,9 +224,31 @@ extension EpisodePlayer {
     
     public func stop() async { await audio.stop() }
     
-    public func next() async { fatalError() }
+    public func next() async {
+        do {
+            guard let next = queue?.next() else { return }
+            
+            try await enqueue(
+                next,
+                startPlaying: true
+            )
+        } catch {
+            await playerStateFlow.emit(.error(error))
+        }
+    }
     
-    public func prev() async { fatalError() }
+    public func prev() async {
+        do {
+            guard let prev = queue?.prev() else { return }
+            
+            try await enqueue(
+                prev,
+                startPlaying: true
+            )
+        } catch {
+            await playerStateFlow.emit(.error(error))
+        }
+    }
     
     public func skipForward() async { await audio.skipForward() }
     
@@ -245,6 +268,7 @@ extension AudioPlayerState {
     ) -> AudioPlayerState {
         AudioPlayerState(
             title: title,
+            author: author,
             imageURL: imageURL,
             current: current ?? self.current,
             duration: duration ?? self.duration,

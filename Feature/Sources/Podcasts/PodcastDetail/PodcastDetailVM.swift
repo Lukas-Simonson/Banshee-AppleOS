@@ -44,6 +44,7 @@ final class PodcastDetailVM {
                     try await player.enqueue(
                         AudioQueue(
                             queue: episodes.map { $0.id },
+                            podcastName: podcast.title,
                             podcastImageURL: podcast.imageURL,
                             position: index
                         ),

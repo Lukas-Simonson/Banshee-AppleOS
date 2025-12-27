@@ -2,6 +2,7 @@ import Foundation
 
 public struct AudioPlayerState: Sendable {
     public let title: String
+    public let author: String?
     public let imageURL: URL?
     
     public let current: Int
@@ -10,10 +11,14 @@ public struct AudioPlayerState: Sendable {
     public let queueSize: Int
     public let queuePosition: Int
     
+    public var hasNext: Bool { queuePosition < queueSize }
+    public var hasPrev: Bool { queuePosition > 0 }
+    
     public let mode: Mode
     
     public init(
         title: String,
+        author: String?,
         imageURL: URL?,
         current: Int,
         duration: Int,
@@ -22,6 +27,7 @@ public struct AudioPlayerState: Sendable {
         mode: Mode
     ) {
         self.title = title
+        self.author = author
         self.imageURL = imageURL
         self.current = current
         self.duration = duration
@@ -55,6 +61,7 @@ public extension AudioPlayerState {
     static func loading(size: Int, position: Int = 0) -> AudioPlayerState {
         AudioPlayerState(
             title: "",
+            author: nil,
             imageURL: nil,
             current: 0,
             duration: 0,
@@ -67,6 +74,7 @@ public extension AudioPlayerState {
     static func error(_ error: CoreError) -> AudioPlayerState {
         AudioPlayerState(
             title: "",
+            author: nil,
             imageURL: nil,
             current: 0,
             duration: 0,

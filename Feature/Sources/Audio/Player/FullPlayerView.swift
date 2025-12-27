@@ -24,9 +24,15 @@ struct FullPlayerView: View {
                     .frame(maxWidth: 300)
                     .brutalized()
                 
-                Text(state?.title ?? "")
-                    .font(context.font.title)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: context.dimen.paddingSmall) {
+                    Text(state?.title ?? "")
+                        .font(context.font.title)
+                        .multilineTextAlignment(.center)
+                    
+                    Text(state?.author ?? "")
+                        .font(context.font.header)
+                        .multilineTextAlignment(.center)
+                }
                 
                 VStack(spacing: context.dimen.paddingSmall) {
                     SeekSlider(
@@ -59,6 +65,7 @@ struct FullPlayerView: View {
                     )
                     
                     Button("Previous", systemImage: "backward.end.fill", action: onPrevious)
+                        .disabled(!(state?.hasPrev ?? false))
                     
                     Button(
                         state?.mode == .playing ? "Pause" : "Play",
@@ -67,7 +74,8 @@ struct FullPlayerView: View {
                     )
                     .buttonStyle(.icon(size: .large))
                     
-                    Button("Previous", systemImage: "forward.end.fill", action: onPrevious)
+                    Button("Next", systemImage: "forward.end.fill", action: onNext)
+                        .disabled(!(state?.hasNext ?? false))
                     
                     Button(
                         "Skip Forward",
@@ -99,6 +107,7 @@ struct FullPlayerView: View {
     FullPlayerView(
         state: AudioPlayerState(
             title: "A Man And His Handshake",
+            author: "Dungeons and Daddies",
             imageURL: URL(string: "https://assets.pippa.io/shows/61b7633a16956271a5e9503b/show-cover.jpg"),
             current: 100,
             duration: 5000,
