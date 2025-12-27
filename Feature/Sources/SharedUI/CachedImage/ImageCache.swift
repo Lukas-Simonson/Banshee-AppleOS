@@ -7,7 +7,7 @@ final class ImageCache {
     
     static let shared = ImageCache()
     
-    private let cachedImageSize = CGSize(width: 200, height: 200)
+    private let cachedImageSize = CGSize(width: 300, height: 300)
     private var cache = [URL: UIImage]()
     
     @ObservationIgnored

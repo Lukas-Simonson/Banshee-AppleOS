@@ -1,3 +1,4 @@
+import Audio
 import Auth
 import Brute
 import Core
@@ -7,16 +8,17 @@ import SwiftUI
 
 struct RootView: View {
     
+    @Environment(\.bruteContext) private var context
+    
     @State private var app = AppCoordinator.shared
     
     var body: some View {
         NoticeHandler(app.notices) {
-            Group {
+            BruteStyle {
                 if app.isCheckingSession {
                     
                 } else if app.session != nil {
-                    // PodcastListScreen(app.scaffold.podcast())
-                    PodcastCoordinator.Root(coordinator: app.scaffold.podcastCoordinator())
+                    BottomNavigation(app: app)
                 } else {
                     LoginScreen(app.scaffold.auth())
                 }

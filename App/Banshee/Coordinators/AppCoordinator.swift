@@ -1,3 +1,4 @@
+import Audio
 import Auth
 import Core
 import Foundation
@@ -11,6 +12,7 @@ final class AppCoordinator: Sendable {
     let scaffold = AppScaffold()
     let notices = NoticeManager()
     
+    var mainTab: MainTab = .podcasts
     private(set) var session: AuthSession?
     private(set) var isCheckingSession = true
     
@@ -28,12 +30,19 @@ final class AppCoordinator: Sendable {
     }
 }
 
-extension AppCoordinator: AuthNavigationContract {
+extension AppCoordinator {
+    enum MainTab {
+        case podcasts
+        case settings
+    }
+}
+
+extension AppCoordinator: AuthNavigationContract, AudioNavigationContract {
     func navigateHome() {
         // Handled Automatically By Watching Stream
     }
-    
-    func showError(_ error: LocalizedError) {
+
+    func showError(_ error: CoreError) {
         notices.queueNotice(ErrorNotice(error: error))
     }
 }

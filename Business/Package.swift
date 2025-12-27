@@ -26,7 +26,7 @@ let package = Package(
             name: "Business",
             dependencies: [
                 .product(name: "Core", package: "Core"),
-                .product(name: "Overflow", package: "Overflow")
+                .product(name: "Overflow", package: "Overflow"),
             ]
         ),
         .testTarget(

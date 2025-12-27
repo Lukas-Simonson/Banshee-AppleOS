@@ -7,4 +7,6 @@ public protocol PodcastScaffoldContract {
     func navigator() -> PodcastNavigationContract
     
     func repository() -> PodcastRepositoryContract
+    
+    func player() -> EpisodePlayerContract
 }

@@ -1,0 +1,125 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Error: %u" : {
+
+    },
+    "error.audio.unexpected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Received an unexpected error when attempting to play audio."
+          }
+        }
+      }
+    },
+    "error.audio.userNotAuthenticated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You must be logged in to play audio."
+          }
+        }
+      }
+    },
+    "error.auth.unableToClearSession" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to clear your session. Please try again."
+          }
+        }
+      }
+    },
+    "error.auth.unableToLogin" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to login. Please check your credentials."
+          }
+        }
+      }
+    },
+    "error.auth.unableToReachServer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server is unreachable. Please check the URL and try again."
+          }
+        }
+      }
+    },
+    "error.auth.unableToSaveSession" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to save your session. Please try again."
+          }
+        }
+      }
+    },
+    "error.auth.unexpectedError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred. Please try again."
+          }
+        }
+      }
+    },
+    "error.podcast.couldntGetPodcast" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to update podcast information from server. Please try again."
+          }
+        }
+      }
+    },
+    "error.podcast.couldntPersistPodcast" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to save podcast information locally."
+          }
+        }
+      }
+    },
+    "error.podcast.missingAuthorization" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your session has expired. Please log in again."
+          }
+        }
+      }
+    },
+    "Podcasts" : {
+
+    },
+    "Settings" : {
+
+    }
+  },
+  "version" : "1.1"
+}
