@@ -87,7 +87,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
                 current: episode.progress?.duration ?? 0,
                 duration: episode.duration ?? 1,
                 queueSize: newQueue.count,
-                queuePosition: 1,
+                queuePosition: newQueue.position + 1, // +1 to offset zero indexed
                 mode: startPlaying ? .playing : .paused
             )
             

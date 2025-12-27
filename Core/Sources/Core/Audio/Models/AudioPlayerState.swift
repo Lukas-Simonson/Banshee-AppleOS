@@ -12,7 +12,7 @@ public struct AudioPlayerState: Sendable {
     public let queuePosition: Int
     
     public var hasNext: Bool { queuePosition < queueSize }
-    public var hasPrev: Bool { queuePosition > 0 }
+    public var hasPrev: Bool { queuePosition > 1 } // 1 to offset 0 indexed
     
     public let mode: Mode
     

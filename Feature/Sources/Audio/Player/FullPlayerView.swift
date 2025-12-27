@@ -32,6 +32,9 @@ struct FullPlayerView: View {
                     Text(state?.author ?? "")
                         .font(context.font.header)
                         .multilineTextAlignment(.center)
+                    
+                    Text("\(state?.queuePosition ?? 0) / \(state?.queueSize ?? 0)")
+                        .font(context.font.caption)
                 }
                 
                 VStack(spacing: context.dimen.paddingSmall) {
