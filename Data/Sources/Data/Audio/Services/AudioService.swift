@@ -2,16 +2,19 @@ import AVFoundation
 import Business
 import Foundation
 
-final public class AudioService: NSObject, AudioServiceContract, @unchecked Sendable {
+final public class AudioService: AudioServiceContract, @unchecked Sendable {
 
     // Private State
     private var session: AVAudioSession = .sharedInstance()
     private var player: AVPlayer? = nil
     private var timeObserver: Any? = nil
+    private var endObserver: Any? = nil
     private var interruptionHandler: Any? = nil
     private var lock = NSLock()
     
     public var delegate: AudioServiceDelegateContract?
+    
+    public init() { }
     
     public func start(_ url: URL, token: String) throws {
         
@@ -36,6 +39,7 @@ final public class AudioService: NSObject, AudioServiceContract, @unchecked Send
         try activateAudioSession()
         activateInterruptionHandling()
         enableDurationUpdates()
+        enableDidPlayToEnd()
     }
     
     public func setMedia(with data: AudioData) {
@@ -103,19 +107,6 @@ final public class AudioService: NSObject, AudioServiceContract, @unchecked Send
     }
 }
 
-// TODO: Implement Lockscreen Player
-
-// MARK: - Player Delegate
-extension AudioService: AVAudioPlayerDelegate {
-    public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        delegate?.playerDidFinish()
-    }
-    
-    public func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        delegate?.playerDidEncounterError(error)
-    }
-}
-
 // MARK: - Audio Session Setup
 extension AudioService {
     private func activateAudioSession() throws {
@@ -161,6 +152,23 @@ extension AudioService {
             queue: .main,
             using: { [weak self] time in
                 self?.delegate?.playerDidUpdateTimePlayed(Int(time.seconds))
+            }
+        )
+    }
+    
+    private func enableDidPlayToEnd() {
+        guard endObserver == nil, let item = player?.currentItem else { return }
+        endObserver = NotificationCenter.default.addObserver(
+            forName: AVPlayerItem.didPlayToEndTimeNotification,
+            object: item,
+            queue: .main,
+            using: { [weak self] notification in
+                guard let delegate = self?.delegate,
+                      let player = self?.player
+                else { return }
+                
+                delegate.playerDidFinish(Int(player.currentTime().seconds))
+                self?.endObserver = nil
             }
         )
     }

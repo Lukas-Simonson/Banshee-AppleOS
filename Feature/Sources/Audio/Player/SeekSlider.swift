@@ -24,7 +24,7 @@ struct SeekSlider: View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
                 track
-                activeTrack(width: geometry.size.width)
+                activeTrack(width: max(0, geometry.size.width))
                 // thumb(width: geometry.size.width)
             }
             .gesture(

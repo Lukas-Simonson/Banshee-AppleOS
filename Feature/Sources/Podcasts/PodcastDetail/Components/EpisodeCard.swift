@@ -48,14 +48,26 @@ struct EpisodeCard: View {
                 Button("Is Completed", systemImage: "checkmark") {
                     // TODO
                 }
-                .buttonStyle(.icon(size: .small, background: isCompleted ? .green : .white, foreground: .black))
+                .buttonStyle(
+                    .icon(
+                        size: .small,
+                        background: isCompleted ? .green : context.color.neutralBackground,
+                        foreground: isCompleted ? .black : context.color.neutralForeground
+                    )
+                )
                 
                 Spacer()
                 
                 Button("Options", systemImage: "ellipsis") {
                     // TODO
                 }
-                .buttonStyle(.icon(size: .small, background: .white, foreground: .black))
+                .buttonStyle(
+                    .icon(
+                        size: .small,
+                        background: context.color.neutralBackground,
+                        foreground: context.color.neutralForeground
+                    )
+                )
             }
             .font(context.font.header)
             .labelStyle(.iconOnly)

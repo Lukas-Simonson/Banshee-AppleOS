@@ -7,9 +7,14 @@ public struct AudioQueue: Sendable {
     public let position: Int
     
     public var hasPrev: Bool { position > 0 }
-    public var hasNext: Bool { position < count }
+    public var hasNext: Bool { (position + 1) < count }
     
-    public var current: UUID { queue[position] }
+    public var current: UUID? {
+        guard queue.indices.contains(position)
+        else { return nil }
+        
+        return queue[position]
+    }
     public var count: Int { queue.count }
     public var isEmpty: Bool { queue.isEmpty }
     
