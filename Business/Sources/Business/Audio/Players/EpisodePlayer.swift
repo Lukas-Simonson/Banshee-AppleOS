@@ -122,14 +122,16 @@ public actor EpisodePlayer: EpisodePlayerContract {
             guard timeSinceLastSync >= syncInterval else { return }
         }
 
-        // Perform the sync
+        await syncProgressNow(currentTime: currentTime, isCompleted: false)
+    }
+
+    private func syncProgressNow(currentTime: Int, isCompleted: Bool) async {
         guard let queue = self.queue,
-              let state = await playerState,
               let server = await serverProvider.server,
               let token = await serverProvider.token
         else { return }
 
-        let currentEpisodeId = queue.current
+        let currentEpisodeId = queue.queue[queue.position]
 
         do {
             async let updateLocal = local.updateProgress(
@@ -147,34 +149,9 @@ public actor EpisodePlayer: EpisodePlayerContract {
             )
             
             try await (updateLocal, updateRemote)
-
-            lastSyncTime = now
+            
+            lastSyncTime = .now
             logger.info("Successfully synced progress: \(currentTime)s for episode \(currentEpisodeId)")
-        } catch {
-            // Log and continue - don't interrupt playback
-            logger.warning("Failed to sync progress, will retry next interval", for: error)
-        }
-    }
-
-    private func syncProgressNow(currentTime: Int, isCompleted: Bool) async {
-        guard let queue = self.queue,
-              let server = await serverProvider.server,
-              let token = await serverProvider.token
-        else { return }
-
-        let currentEpisodeId = queue.queue[queue.position]
-
-        do {
-            try await remote.updateProgress(
-                episodeId: currentEpisodeId,
-                baseURL: server,
-                token: token.token,
-                isCompleted: isCompleted,
-                duration: currentTime
-            )
-
-            lastSyncTime = Date()
-            logger.info("Synced progress: \(currentTime)s, completed: \(isCompleted) for episode \(currentEpisodeId)")
         } catch {
             logger.warning("Failed to sync progress", for: error)
         }
@@ -206,9 +183,6 @@ extension EpisodePlayer: AudioServiceDelegateContract {
         Task {
             if let state = await self.playerState {
                 await playerStateFlow.emit(state.copy(mode: .paused))
-
-                // Sync one final time when pausing
-                await syncProgressNow(currentTime: state.current, isCompleted: false)
             }
         }
     }
@@ -256,6 +230,11 @@ extension EpisodePlayer {
     public func skipForward() async { await audio.skipForward() }
     
     public func skipBackward() async { await audio.skipBackward() }
+    
+    public func seek(to seconds: Int) async {
+        await audio.seek(to: seconds)
+        await syncProgressNow(currentTime: seconds, isCompleted: false)
+    }
 }
 
 extension AudioPlayerState {

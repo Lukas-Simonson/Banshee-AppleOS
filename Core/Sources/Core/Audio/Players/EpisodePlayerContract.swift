@@ -17,6 +17,8 @@ public protocol EpisodePlayerContract: Sendable {
     
     func skipForward() async
     func skipBackward() async
+    
+    func seek(to seconds: Int) async
 }
 
 public enum EpisodePlayerError: CoreError {

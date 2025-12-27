@@ -17,5 +17,23 @@ public struct PlayerView: View {
             onPlay: viewModel.play,
             onPause: viewModel.pause
         )
+        .onTapGesture {
+            viewModel.isPlayerExpanded = true
+        }
+        .sheet(isPresented: $viewModel.isPlayerExpanded) {
+            FullPlayerView(
+                state: viewModel.state,
+                current: Binding(
+                    get: { viewModel.state?.current ?? 0 },
+                    set: { viewModel.seek(to: $0) }
+                ),
+                onPause: viewModel.pause,
+                onPlay: viewModel.play,
+                onPrevious: viewModel.prev,
+                onNext: viewModel.next,
+                onSkipBackward: viewModel.skipBackward,
+                onSkipForward: viewModel.skipForward
+            )
+        }
     }
 }

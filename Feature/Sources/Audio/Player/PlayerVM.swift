@@ -25,17 +25,19 @@ final class PlayerVM {
     }
     
     // MARK: - Actions
-    func play() {
-        Task {
-            await player.play()
-        }
-    }
+    func play() { Task { await player.play() } }
     
-    func pause() {
-        Task {
-            await player.pause()
-        }
-    }
+    func pause() { Task { await player.pause() } }
+    
+    func seek(to seconds: Int) { Task { await player.seek(to: seconds) } }
+    
+    func next() { Task { await player.next() } }
+    
+    func prev() { Task { await player.prev() } }
+    
+    func skipBackward() { Task { await player.skipBackward() } }
+    
+    func skipForward() { Task { await player.skipForward() } }
     
     // MARK: - Private Methods
     private func observeState() {

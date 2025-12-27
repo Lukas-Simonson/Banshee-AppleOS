@@ -89,7 +89,5 @@ struct MiniPlayerView: View {
             onPlay: {  },
             onPause: {  }
         )
-        .padding()
-        .background()
     }
 }
