@@ -64,6 +64,11 @@ final class AppScaffold {
         AudioScaffold(app: self)
     }
     
+    @Single
+    func settings() -> SettingsScaffold {
+        SettingsScaffold(app: self)
+    }
+    
     // MARK: - Coordinators
     
     @Single

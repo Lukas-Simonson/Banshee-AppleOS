@@ -14,7 +14,7 @@ final class PodcastListVM {
     private(set) var isLoading = false
     
     // MARK: - Initialization
-    public init(_ scaffold: PodcastScaffoldContract) {
+    init(_ scaffold: PodcastScaffoldContract) {
         self.logger = scaffold.logger()
         self.navigator = scaffold.navigator()
         self.repository = scaffold.repository()
@@ -30,7 +30,7 @@ final class PodcastListVM {
     public func refresh() async {
         do {
             try await repository.refresh(force: true)
-        } catch let error as PodcastRepositoryError {
+        } catch let error {
             navigator.showError(error)
         }
     }
