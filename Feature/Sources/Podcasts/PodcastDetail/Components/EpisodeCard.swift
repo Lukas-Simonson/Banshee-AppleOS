@@ -36,47 +36,57 @@ struct EpisodeCard: View {
     
     var body: some View {
         BruteCard {
-            HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
-                CachedImage(for: episode.imageURL ?? fallbackImageURL)
-                    .frame(maxWidth: 75)
-                    .bruteClipped()
-                    .bruteStroked()
+            imageAndMetadata
+            description
+            controls
+            progress
+        }
+    }
+    
+    private var imageAndMetadata: some View {
+        HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
+            CachedImage(for: episode.imageURL ?? fallbackImageURL)
+                .frame(maxWidth: 75)
+                .bruteClipped()
+                .bruteStroked()
+            
+            VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
+                Text(episode.title)
+                    .font(context.font.header)
                 
-                VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
-                    Text(episode.title)
-                        .font(context.font.header)
-
-                    Text(metadata)
-                        .font(context.font.caption)
-                }
-                
-                Spacer()
+                Text(metadata)
+                    .font(context.font.caption)
             }
             
-            Text(episode.description.htmlStripped)
-                .lineLimit(3)
-                .font(Font.caption)
+            Spacer()
+        }
+    }
+    
+    private var description: some View {
+        Text(episode.description.htmlStripped)
+            .lineLimit(3)
+            .font(Font.caption)
+    }
+    
+    private var controls: some View {
+        HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
+            Button("Play", systemImage: "play.fill", action: onPlay)
+                .buttonStyle(.icon(size: .small))
             
-            HStack(alignment: .center, spacing: context.dimen.paddingSmall) {
-                Button("Play", systemImage: "play.fill", action: onPlay)
-                    .buttonStyle(.icon(size: .small))
-                
-                Button("Is Completed", systemImage: "checkmark") {
-                    // TODO
-                }
-                .buttonStyle(
-                    .icon(
-                        size: .small,
-                        background: isCompleted ? .green : context.color.neutralBackground,
-                        foreground: isCompleted ? .black : context.color.neutralForeground
-                    )
+            Button("Is Completed", systemImage: "checkmark") {
+                // TODO
+            }
+            .buttonStyle(
+                .icon(
+                    size: .small,
+                    background: isCompleted ? .green : context.color.neutralBackground,
+                    foreground: isCompleted ? .black : context.color.neutralForeground
                 )
-                
-                Spacer()
-                
-                Button("Options", systemImage: "ellipsis") {
-                    // TODO
-                }
+            )
+            
+            Spacer()
+            
+            Button("Options", systemImage: "ellipsis", action: {})
                 .buttonStyle(
                     .icon(
                         size: .small,
@@ -84,13 +94,15 @@ struct EpisodeCard: View {
                         foreground: context.color.neutralForeground
                     )
                 )
-            }
-            .font(context.font.header)
-            .labelStyle(.iconOnly)
-            
-            if !isCompleted, let duration = episode.duration, let progress = episode.progress?.duration {
-                ProgressView(value: Double(progress) / Double(duration))
-            }
+        }
+        .font(context.font.header)
+        .labelStyle(.iconOnly)
+    }
+    
+    @ViewBuilder
+    private var progress: some View {
+        if !isCompleted, let duration = episode.duration, let progress = episode.progress?.duration {
+            ProgressView(value: Double(progress) / Double(duration))
         }
     }
 }
