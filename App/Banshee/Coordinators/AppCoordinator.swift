@@ -2,6 +2,7 @@ import Audio
 import Auth
 import Core
 import Foundation
+import Settings
 import NoticeMe
 import Observation
 
@@ -16,8 +17,11 @@ final class AppCoordinator: Sendable {
     private(set) var session: AuthSession?
     private(set) var isCheckingSession = true
     
+    private(set) var settings: Settings = .default
+    
     init() {
         observeSession()
+        observeSettings()
     }
     
     private func observeSession() {
@@ -25,6 +29,17 @@ final class AppCoordinator: Sendable {
             for await session in scaffold.auth().repository().sessionStream {
                 self.session = session
                 isCheckingSession = false
+            }
+        }
+    }
+    
+    private func observeSettings() {
+        Task {
+            let repo = scaffold.settings().repository()
+            self.settings = await repo.settings
+            
+            for await settings in repo.settingsStream {
+                self.settings = settings
             }
         }
     }
@@ -37,7 +52,7 @@ extension AppCoordinator {
     }
 }
 
-extension AppCoordinator: AuthNavigationContract, AudioNavigationContract {
+extension AppCoordinator: AuthNavigationContract, AudioNavigationContract, SettingsNavigationContract {
     func navigateHome() {
         // Handled Automatically By Watching Stream
     }

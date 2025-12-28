@@ -1,13 +1,13 @@
 {
-  "originHash" : "40e841fb88fa11f0f362466dcd4c0dbd90e310c6ecb4ea2b45492e697786f565",
+  "originHash" : "91ee95648184888fb52b20a61b30ce51b164f8067860f850a4242513204a28a3",
   "pins" : [
     {
       "identity" : "brute",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Lukas-Simonson/Brute.git",
+      "location" : "https://github.com/Lukas-Simonson/Brute",
       "state" : {
-        "revision" : "1419e4f2b55319580e534681be8ca34b85e18c04",
-        "version" : "1.2.1"
+        "branch" : "main",
+        "revision" : "0b443aa055eb9b344bc7aa1482c79481b0edd526"
       }
     },
     {

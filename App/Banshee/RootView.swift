@@ -1,9 +1,8 @@
-import Audio
 import Auth
 import Brute
 import Core
 import NoticeMe
-import Podcasts
+import Settings
 import SwiftUI
 
 struct RootView: View {
@@ -23,7 +22,7 @@ struct RootView: View {
                     LoginScreen(app.scaffold.auth())
                 }
             }
-            .bruteTheme(.violet)
+            .themed(with: app.settings.theme)
             .environment(app)
         }
     }

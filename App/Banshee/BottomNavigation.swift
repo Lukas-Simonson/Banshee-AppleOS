@@ -1,5 +1,6 @@
 import Audio
 import Brute
+import Settings
 import SharedUI
 import SwiftUI
 
@@ -18,6 +19,11 @@ struct BottomNavigation: View {
                     )
                     .toolbarVisibility(.hidden, for: .tabBar)
                 }
+                
+                Tab(value: AppCoordinator.MainTab.settings) {
+                    SettingsScreen(app.scaffold.settings())
+                        .toolbarVisibility(.hidden, for: .tabBar)
+                }
             }
             
             BruteDivider()
@@ -31,39 +37,26 @@ struct BottomNavigation: View {
     
     private var tabs: some View {
         HStack {
-            Spacer()
-            Label("Podcasts", systemImage: "microphone.fill")
-                .padding(context.dimen.paddingSmall)
-                .background(context.color.accentBackground)
-                .foregroundStyle(context.color.accentForeground)
-                .bruteClipped()
-                .bruteStroked()
-            Spacer()
-            Label("Settings", systemImage: "gearshape.fill")
-                .padding(context.dimen.paddingSmall)
-                .background(context.color.accentBackground)
-                .foregroundStyle(context.color.accentForeground)
-                .bruteClipped()
-                .bruteStroked()
-            Spacer()
+            tab(.podcasts, title: "Podcasts", systemImage: "microphone.fill")
+            tab(.settings, title: "Settings", systemImage: "gearshape.fill")
         }
-        .padding(context.dimen.paddingMedium)
+        .padding([.horizontal, .top], context.dimen.paddingMedium)
+    }
+    
+    private func tab(_ tab: AppCoordinator.MainTab, title titleKey: LocalizedStringKey, systemImage: String) -> some View {
+        VStack(alignment: .center, spacing: context.dimen.paddingSmall) {
+            Image(systemName: systemImage)
+                .font(.system(size: 24))
+                .foregroundStyle(tab == app.mainTab ? context.color.accentBackground : context.color.foreground)
+            
+            Text(titleKey)
+                .font(.system(size: 12, design: .rounded))
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(context.color.background) // make full width interactable
+        .onTapGesture { app.mainTab = tab }
     }
 }
-
-//VStack(spacing: 0) {
-//    // PodcastListScreen(app.scaffold.podcast())
-//    PodcastCoordinator.Root(coordinator: app.scaffold.podcastCoordinator())
-//
-//    Rectangle()
-//        .fill(context.color.border)
-//        .frame(height: context.dimen.borderWidth)
-//
-//    PlayerView(app.scaffold.audio())
-//        .padding(context.dimen.paddingMedium)
-//        .background(context.color.background)
-//
-//}
 
 #Preview {
     BottomNavigation(app: AppCoordinator())

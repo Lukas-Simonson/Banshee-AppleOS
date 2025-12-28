@@ -45,7 +45,7 @@ struct SeekSlider: View {
             )
         }
         .frame(height: context.dimen.paddingMedium)
-        .onChange(of: value) { newValue in
+        .onChange(of: value) { _, newValue in
             // Update dragValue when binding changes externally
             if !isDragging {
                 dragValue = Double(newValue)
