@@ -17,7 +17,6 @@ struct PodcastDetailView: View {
     var body: some View {
         BruteStyle {
             VStack(spacing: 0) {
-                
                 TopAppBar(
                     title: podcast.title,
                     leading: {
@@ -25,36 +24,48 @@ struct PodcastDetailView: View {
                     }
                 )
                 
-                ScrollView {
-                    LazyVStack(spacing: context.dimen.paddingMedium) {
-                        DisclosureGroup(
-                            content: {
-                                Text(podcast.description.htmlStripped)
-                            },
-                            label: {
-                                VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
-                                    Text(podcast.title)
-                                        .font(context.font.title)
-                                    Text("\(podcast.episodes?.count ?? 0) episodes")
-                                        .font(context.font.caption)
-                                }
-                            }
-                        )
-                        
-                        if let episodes = podcast.episodes {
-                            ForEach(episodes) { episode in
-                                EpisodeCard(
-                                    episode: episode,
-                                    fallbackImageURL: podcast.imageURL,
-                                    onPlay: { onPlay(episode) }
-                                )
-                            }
+                if isLoading {
+                    LoadingIndicator().frame(maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: context.dimen.paddingMedium) {
+                            podcastDetails
+                            episodeDetails
                         }
+                        .padding(context.dimen.paddingMedium)
                     }
-                    .padding(context.dimen.paddingMedium)
+                    .refreshable(action: onRefresh)
+                    .navigationBarBackButtonHidden()
                 }
-                .refreshable(action: onRefresh)
-                .navigationBarBackButtonHidden()
+            }
+        }
+    }
+    
+    private var podcastDetails: some View {
+        DisclosureGroup(
+            content: {
+                Text(podcast.description.htmlStripped)
+            },
+            label: {
+                VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
+                    Text(podcast.title)
+                        .font(context.font.title)
+                    Text("\(podcast.episodes?.count ?? 0) episodes")
+                        .font(context.font.caption)
+                }
+            }
+        )
+    }
+    
+    @ViewBuilder
+    private var episodeDetails: some View {
+        if let episodes = podcast.episodes {
+            ForEach(episodes) { episode in
+                EpisodeCard(
+                    episode: episode,
+                    fallbackImageURL: podcast.imageURL,
+                    onPlay: { onPlay(episode) }
+                )
             }
         }
     }

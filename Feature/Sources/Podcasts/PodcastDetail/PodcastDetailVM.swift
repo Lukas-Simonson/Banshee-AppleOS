@@ -59,11 +59,14 @@ final class PodcastDetailVM {
     }
     
     public func refresh(force: Bool = false) async {
+        isLoading = !force // Only set isLoading on initial load.
+        
         for await result in repository.details(for: podcast, refresh: force) {
             switch result {
                 case .success(let podcast): self.podcast = podcast
                 case .failure(let error): self.navigator.showError(error)
             }
+            isLoading = false
         }
     }
     
