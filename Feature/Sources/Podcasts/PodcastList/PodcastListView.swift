@@ -1,5 +1,6 @@
 import Brute
 import Core
+import SharedUI
 import SwiftUI
 
 struct PodcastListView: View {
@@ -15,11 +16,21 @@ struct PodcastListView: View {
     var body: some View {
         BruteStyle {
             if isLoading {
-                ProgressView()
+                LoadingIndicator()
+            } else if podcasts.isEmpty {
+                noPodcasts
             } else {
                 podcastGrid
             }
         }
+    }
+    
+    private var noPodcasts: some View {
+        ContentUnavailableView(
+            "No Podcasts",
+            systemImage: "microphone.slash.fill",
+            description: Text("No podcasts available")
+        )
     }
     
     private var podcastGrid: some View {
@@ -45,24 +56,25 @@ struct PodcastListView: View {
 
 #Preview {
     PodcastListView(
-        podcasts: [
-            Podcast(
-                id: UUID(),
-                title: "Dungeons and Daddies",
-                link: nil,
-                language: "en",
-                imageURL: URL(string: "https://assets.pippa.io/shows/61b7633a16956271a5e9503b/show-cover.jpg"),
-                description: "Haha funny"
-            ),
-            Podcast(
-                id: UUID(),
-                title: "The Adventure Zone",
-                link: nil,
-                language: "en",
-                imageURL: URL(string: "https://maximumfun.org/wp-content/uploads/2019/03/Adventure-Zone-The-Season-9-Royale-400x400.jpg"),
-                description: "Haha funny"
-            ),
-        ],
+//        podcasts: [
+//            Podcast(
+//                id: UUID(),
+//                title: "Dungeons and Daddies",
+//                link: nil,
+//                language: "en",
+//                imageURL: URL(string: "https://assets.pippa.io/shows/61b7633a16956271a5e9503b/show-cover.jpg"),
+//                description: "Haha funny"
+//            ),
+//            Podcast(
+//                id: UUID(),
+//                title: "The Adventure Zone",
+//                link: nil,
+//                language: "en",
+//                imageURL: URL(string: "https://maximumfun.org/wp-content/uploads/2019/03/Adventure-Zone-The-Season-9-Royale-400x400.jpg"),
+//                description: "Haha funny"
+//            ),
+//        ],
+        podcasts: [],
         isLoading: false,
         onTapPodcast: { _ in },
         onRefresh: { }
