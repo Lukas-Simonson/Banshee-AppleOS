@@ -15,8 +15,8 @@ struct OSLogHandler: LogHandler {
     
     func log(level: Log.Level, message: Log.Message, metadata override: Log.Metadata?, source: String, file: String, function: String, line: UInt) {
         let prettyMetadata = (override ?? self.metadata).pretty()
-        let metadataString = prettyMetadata == nil ? "" : "| \(prettyMetadata!) |"
-        
+        let metadataString = prettyMetadata == nil ? "" : "\n\t[METADATA]:\(prettyMetadata!)"
+
         let finalMessage = "[\(source)] \(message.description) \(metadataString)"
         
         switch level {
@@ -40,6 +40,6 @@ extension OSLogHandler {
 
 extension Log.Metadata {
     func pretty() -> String? {
-        isEmpty ? nil : reduce("") { $0 + " \($1.key) = \($1.value)" }
+        isEmpty ? nil : reduce("") { $0 + "\n\t - \($1.key): \($1.value)" }
     }
 }
