@@ -22,8 +22,8 @@ struct RootView: View {
                     LoginScreen(app.scaffold.auth())
                 }
             }
-            .themed(with: app.settings.theme)
-            .environment(app)
         }
+        .themed(with: app.settings.theme)
+        .environment(app)
     }
 }

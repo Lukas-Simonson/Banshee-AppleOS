@@ -40,7 +40,6 @@ final class SettingsVM {
             
             for await settings in stream {
                 guard let self else { break }
-                logger.info("Recieved update for app settings: \(settings)")
                 self.settings = settings
             }
         }
