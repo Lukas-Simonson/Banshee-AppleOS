@@ -22,7 +22,7 @@ final class SettingsScaffold: SettingsScaffoldContract {
     func navigator() -> SettingsNavigationContract {
         AppCoordinator.shared
     }
-    
+
     @Single
     func repository() -> SettingsRepositoryContract {
         SettingsRepository(
@@ -32,5 +32,9 @@ final class SettingsScaffold: SettingsScaffoldContract {
                 defaults: app.defaults()
             )
         )
+    }
+
+    func auth() -> any AuthRepositoryContract {
+        app.auth().repository()
     }
 }

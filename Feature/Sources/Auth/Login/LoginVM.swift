@@ -42,7 +42,7 @@ final class LoginVM {
                 try await repository.login(baseURL: serverURL, username: username, password: password)
                 logger.info("Login successful, navigating to home!")
                 navigator.navigateHome()
-            } catch let error as AuthRepositoryError {
+            } catch let error as CoreError {
                 navigator.showError(error)
             }
         }

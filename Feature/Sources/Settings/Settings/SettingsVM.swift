@@ -8,7 +8,8 @@ final class SettingsVM {
     private let logger: Logger
     private let navigator: SettingsNavigationContract
     private let repository: SettingsRepositoryContract
-    
+    private let auth: AuthRepositoryContract
+
     // MARK: - State
     private(set) var settings: Settings
     
@@ -17,7 +18,8 @@ final class SettingsVM {
         self.logger = scaffold.logger()
         self.navigator = scaffold.navigator()
         self.repository = scaffold.repository()
-        
+        self.auth = scaffold.auth()
+
         settings = .default
         observeSettings()
     }
@@ -27,12 +29,22 @@ final class SettingsVM {
             do {
                 logger.info("Updating app settings: \(newValue)")
                 try await repository.update(newValue)
-            } catch let error as SettingsRepositoryError {
+            } catch let error as CoreError {
                 navigator.showError(error)
             }
         }
     }
-    
+
+    func logout() {
+        Task {
+            do {
+                try await auth.logout()
+            } catch let error as CoreError {
+                navigator.showError(error)
+            }
+        }
+    }
+
     // MARK: - Private Methods
     private func observeSettings() {
         Task { [weak self] in

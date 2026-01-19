@@ -32,7 +32,7 @@ struct ErrorNotice: Noticeable {
     
     NoticeHandler(manager) {
         Button("Error") {
-            manager.queueNotice(ErrorNotice(error: AuthRepositoryError.unableToClearSession))
+            manager.queueNotice(ErrorNotice(error: CoreError.diskFull(layer: .app, feature: .audio)))
         }
     }
 }

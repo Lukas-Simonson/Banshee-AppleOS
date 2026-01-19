@@ -12,7 +12,7 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
         self.logger = logger
     }
     
-    public func getPodcasts(baseURL: String, token: String) async throws(RemotePodcastDataSourceError) -> [Podcast] {
+    public func getPodcasts(baseURL: String, token: String) async throws(CoreError) -> [Podcast] {
         do {
             let response = try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/podcasts")
@@ -20,30 +20,35 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
                 .also { logger.info("Sending Request to GET /api/podcasts") }
                 .withHeaders(.bearer(token))
                 .response()
-            
+
             switch try response.statusCode {
-                case 200...299: break
-                case 401: throw RemotePodcastDataSourceError.unauthorized
-                case 403: throw RemotePodcastDataSourceError.forbidden
-                case 404: throw RemotePodcastDataSourceError.notFound
-                case 429: throw RemotePodcastDataSourceError.rateLimited
-                case 500...599: throw RemotePodcastDataSourceError.serverError
-                default: throw RemotePodcastDataSourceError.unexpectedResponse
+                case 200: break
+                case 401: throw CoreError.unauthorized(layer: .data, feature: .podcasts)
+                case 404: throw CoreError.resourceNotFound(layer: .data, feature: .podcasts)
+                case 500...599: throw CoreError.serverError(layer: .data, feature: .podcasts)
+                default: throw CoreError.unexpectedResponse(
+                    layer: .data,
+                    feature: .podcasts,
+                    code: try response.statusCode
+                )
             }
-            
+
             return try response.body(as: [PodcastDTO].self).map { $0.toCore() }
-        } catch is Cobweb.URL.URLError {
-            throw RemotePodcastDataSourceError.invalidURL
+        } catch let error as CoreError {
+            throw error
+        } catch let error as Cobweb.URL.URLError {
+            logger.error("Failed to create url for request", for: error)
+            throw CoreError.urlError(layer: .data, feature: .podcasts)
         } catch let error as Cobweb.HTTP.Request.ResponseError {
-            logger.error("Failed to get podcasts", for: error)
-            throw RemotePodcastDataSourceError.invalidResponseFormat
+            logger.error("Failed to get podcasts with a response error", for: error)
+            throw CoreError.invalidResponseFormat(layer: .data, feature: .podcasts)
         } catch {
             logger.error("Unexpected error getting podcasts", for: error)
-            throw RemotePodcastDataSourceError.unexpected
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
     }
     
-    public func getPodcast(with id: UUID, baseURL: String, token: String) async throws(RemotePodcastDataSourceError) -> Podcast {
+    public func getPodcast(with id: UUID, baseURL: String, token: String) async throws(CoreError) -> Podcast {
         do {
             let response = try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/podcasts/\(id)")
@@ -54,24 +59,29 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
                 .response()
             
             switch try response.statusCode {
-                case 200...299: break
-                case 401: throw RemotePodcastDataSourceError.unauthorized
-                case 403: throw RemotePodcastDataSourceError.forbidden
-                case 404: throw RemotePodcastDataSourceError.notFound
-                case 500...599: throw RemotePodcastDataSourceError.serverError
-                default: throw RemotePodcastDataSourceError.unexpectedResponse
+                case 200: break
+                case 401: throw CoreError.unauthorized(layer: .data, feature: .podcasts)
+                case 404: throw CoreError.resourceNotFound(layer: .data, feature: .podcasts)
+                case 500...599: throw CoreError.serverError(layer: .data, feature: .podcasts)
+                default: throw CoreError.unexpectedResponse(
+                    layer: .data,
+                    feature: .podcasts,
+                    code: try response.statusCode
+                )
             }
-            
+
             return try response.body(as: PodcastDTO.self, JSONDecoder().withISO8601()).toCore()            
-        } catch is Cobweb.URL.URLError {
-            logger.error("Created invalid URL")
-            throw RemotePodcastDataSourceError.invalidURL
+        } catch let error as CoreError {
+            throw error
+        } catch let error as Cobweb.URL.URLError {
+            logger.error("Failed to create url for request", for: error)
+            throw CoreError.urlError(layer: .data, feature: .podcasts)
         } catch let error as Cobweb.HTTP.Request.ResponseError {
-            logger.error("Received invalid response", for: error)
-            throw RemotePodcastDataSourceError.invalidResponseFormat
+            logger.error("Failed to get the podcast with a response error", for: error)
+            throw CoreError.invalidResponseFormat(layer: .data, feature: .podcasts)
         } catch {
-            logger.error("Unexpected error received", for: error)
-            throw RemotePodcastDataSourceError.unexpected
+            logger.error("Unexpected error getting podcasts", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
     }
 }

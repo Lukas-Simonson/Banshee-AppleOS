@@ -10,12 +10,15 @@ struct SettingsView: View {
     @State private var sections = Sections()
     
     @Binding var settings: Settings
-    
+
+    let onLogout: () -> Void
+
     var body: some View {
         BruteStyle {
             ScrollView {
                 VStack(spacing: context.dimen.paddingMedium) {
                     themeSelection
+                    userSection
                 }
                 .padding(context.dimen.paddingMedium)
             }
@@ -31,11 +34,22 @@ struct SettingsView: View {
             }
         }
     }
+
+    private var userSection: some View {
+        DisclosureGroup("User", isExpanded: $sections.user) {
+            Button(action: onLogout) {
+                Text("Logout")
+                    .bold()
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
 }
 
 extension SettingsView {
     struct Sections {
         var theme = true
+        var user = true
     }
 }
 
@@ -44,6 +58,7 @@ extension SettingsView {
     @Previewable @State var settings = Settings.default
     
     SettingsView(
-        settings: $settings
+        settings: $settings,
+        onLogout: {}
     )
 }

@@ -17,7 +17,7 @@ public final class LocalAuthDataSource: LocalAuthDataSourceContract, @unchecked 
         self.logger = logger
     }
     
-    public func getSession() async throws(LocalAuthDataSourceError) -> AuthSession? {
+    public func getSession() async throws(CoreError) -> AuthSession? {
         do {
             // Get token from keychain
             guard let token = try keychain.get(key: Keys.token)
@@ -37,19 +37,19 @@ public final class LocalAuthDataSource: LocalAuthDataSourceContract, @unchecked 
         }
         catch let error as KeychainService.KeychainError {
             logger.error("Unable to retrieve token from keychain", for: error)
-            throw LocalAuthDataSourceError.unableToRetrieveToken
+            throw CoreError.unableToRetrieveTokenFromKeychain
         }
         catch let error as DecodingError {
             logger.error("Unable to decode AuthSessionRecord", for: error)
-            throw LocalAuthDataSourceError.unableToDecodeSession
+            throw CoreError.savedSessionDataCorrupted
         }
         catch {
             logger.error("Unexpected error found when getting session", for: error)
-            throw LocalAuthDataSourceError.unknownError
+            throw CoreError.unexpected(layer: .data, feature: .auth)
         }
     }
     
-    public func saveSession(_ session: AuthSession) async throws(LocalAuthDataSourceError) {
+    public func saveSession(_ session: AuthSession) async throws(CoreError) {
         do {
             // Save token to keychain
             try keychain.set(key: Keys.token, value: session.token.token)
@@ -61,25 +61,25 @@ public final class LocalAuthDataSource: LocalAuthDataSourceContract, @unchecked 
         }
         catch let error as KeychainService.KeychainError {
             logger.error("Unable to save token to keychain", for: error)
-            throw LocalAuthDataSourceError.unableToSaveToken
+            throw CoreError.unableToSaveTokenToKeychain
         }
         catch let error as EncodingError {
             logger.error("Unable to encode AuthSessionRecord", for: error)
-            throw LocalAuthDataSourceError.unableToEncodeSession
+            throw CoreError.failedToEncodeKeychainValue
         }
         catch {
             logger.error("Unexpected error found when saving session", for: error)
-            throw LocalAuthDataSourceError.unknownError
+            throw CoreError.unexpected(layer: .data, feature: .auth)
         }
     }
     
-    public func clearSession() async throws(LocalAuthDataSourceError) {
+    public func clearSession() async throws(CoreError) {
         do {
             try keychain.delete(key: Keys.token)
             defaults.removeObject(forKey: Keys.session)
         } catch let error as KeychainService.KeychainError {
             logger.error("Unable to delete token from keychain", for: error)
-            throw LocalAuthDataSourceError.unableToSaveToken
+            throw CoreError.unableToSaveTokenToKeychain
         }
     }
 }
@@ -88,5 +88,47 @@ extension LocalAuthDataSource {
     private enum Keys {
         static let session = "com.bansheeaudio.banshee.session"
         static let token = "com.bansheeaudio.banshee.token"
+    }
+}
+
+extension CoreError {
+    static var unableToSaveTokenToKeychain: CoreError {
+        CoreError(
+            layer: .data,
+            feature: .auth,
+            code: 60,
+            localizedKey: "error.data.keychain.unableToSaveToken",
+            logMessage: "Unable to save data to local keychain"
+        )
+    }
+
+    static var unableToRetrieveTokenFromKeychain: CoreError {
+        CoreError(
+            layer: .data,
+            feature: .auth,
+            code: 61,
+            localizedKey: "error.data.keychain.unableToRetrieveToken",
+            logMessage: "Unable to retrieve data from local keychain"
+        )
+    }
+
+    static var savedSessionDataCorrupted: CoreError {
+        CoreError(
+            layer: .data,
+            feature: .auth,
+            code: 62,
+            localizedKey: "error.data.keychain.savedSessionCorrupted",
+            logMessage: "Saved keychain session data corrupted"
+        )
+    }
+
+    static var failedToEncodeKeychainValue: CoreError {
+        CoreError(
+            layer: .data,
+            feature: .auth,
+            code: 63,
+            localizedKey: "error.data.keychain.failedToEncode",
+            logMessage: "Failed to encode keychain session data"
+        )
     }
 }

@@ -4,112 +4,57 @@
     "Error: %u" : {
 
     },
-    "error.audio.unexpected" : {
+    "error.core.serverUnreachable" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Received an unexpected error when attempting to play audio."
+            "value" : "Unable to connect to the server, are you sure it is up?"
           }
         }
       }
     },
-    "error.audio.userNotAuthenticated" : {
+    "error.core.unauthorized" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You must be logged in to play audio."
+            "value" : "Unable to complete this action, user not authorized."
           }
         }
       }
     },
-    "error.auth.unableToClearSession" : {
+    "error.core.unexpected" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unable to clear your session. Please try again."
+            "value" : "An unexpected error has occurred. Please try again."
           }
         }
       }
     },
-    "error.auth.unableToLogin" : {
+    "error.data.auth.unableToDeleteLocalSession" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unable to login. Please check your credentials."
+            "value" : "An error occurred when logging you out, please try again."
           }
         }
       }
     },
-    "error.auth.unableToReachServer" : {
+    "error.data.auth.unableToSaveLocalSession" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Server is unreachable. Please check the URL and try again."
-          }
-        }
-      }
-    },
-    "error.auth.unableToSaveSession" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to save your session. Please try again."
-          }
-        }
-      }
-    },
-    "error.auth.unexpectedError" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "An unexpected error occurred. Please try again."
-          }
-        }
-      }
-    },
-    "error.podcast.couldntGetPodcast" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to update podcast information from server. Please try again."
-          }
-        }
-      }
-    },
-    "error.podcast.couldntPersistPodcast" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to save podcast information locally."
-          }
-        }
-      }
-    },
-    "error.podcast.missingAuthorization" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your session has expired. Please log in again."
+            "value" : "An error occurred when logging you in, please try again."
           }
         }
       }

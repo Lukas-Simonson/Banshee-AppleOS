@@ -22,7 +22,9 @@ struct EpisodeCard: View {
         if let duration = episode.duration {
             components.append(duration.formatted(.timeInterval))
         }
-        
+
+        components.append(episode.pubDate.formatted(date: .numeric, time: .omitted))
+
         if let season = episode.season {
             components.append("S: \(season)")
         }
@@ -101,7 +103,7 @@ struct EpisodeCard: View {
     
     @ViewBuilder
     private var progress: some View {
-        if !isCompleted, let duration = episode.duration, let progress = episode.progress?.duration {
+        if !isCompleted, let duration = episode.duration, let progress = episode.progress?.watchTime {
             ProgressView(value: Double(progress) / Double(duration))
         }
     }
@@ -122,7 +124,7 @@ struct EpisodeCard: View {
                     duration: 10000,
                     progress: AudioProgress(
                         isCompleted: false,
-                        duration: 1000,
+                        watchTime: 1000,
                         startedOn: .now,
                         lastUpdated: .now
                     )

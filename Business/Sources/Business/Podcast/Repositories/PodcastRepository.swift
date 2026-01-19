@@ -35,10 +35,10 @@ public final class PodcastRepository: PodcastRepositoryContract {
     }
     
     // MARK: - Podcast Management
-    public func refresh(force: Bool) async throws(PodcastRepositoryError) {
+    public func refresh(force: Bool) async throws(CoreError) {
         guard let token = await serverProvider.token,
               let server = await serverProvider.server
-        else { throw PodcastRepositoryError.missingAuthorization }
+        else { throw CoreError.notAuthenticated(layer: .business, feature: .podcasts) }
 
         // Cache-first strategy
         do {
@@ -75,18 +75,18 @@ public final class PodcastRepository: PodcastRepositoryContract {
             }
 
             await podcastsFlow.emit(podcasts)
-        } catch let error as RemotePodcastDataSourceError {
+        } catch let error as CoreError {
             logger.error("Failed to fetch podcasts from remote", for: error)
-            throw PodcastRepositoryError.couldntGetPodcast
+            throw error
         }
     }
     
-    public func details(for podcast: Podcast, refresh: Bool) -> AsyncResultSequence<Podcast, PodcastRepositoryError> {
+    public func details(for podcast: Podcast, refresh: Bool) -> AsyncResultSequence<Podcast, CoreError> {
         ColdFlow { [self] emit in
             guard let token = await serverProvider.token,
                   let server = await serverProvider.server
-            else { await emit(.failure(.missingAuthorization)); return }
-            
+            else { await emit(.failure(.notAuthenticated(layer: .business, feature: .podcasts))); return }
+
             do {
                 if !refresh, let cachedPodcast = try await local.getCachedPodcast(id: podcast.id) {
                     await emit(.success(cachedPodcast.toCore()))
@@ -104,15 +104,10 @@ public final class PodcastRepository: PodcastRepositoryContract {
                 let details = try await remote.getPodcast(with: podcast.id, baseURL: server, token: token.token)
                 try await local.savePodcastWithEpisodes(details)
                 await emit(.success(details))
-            } catch let error as RemotePodcastDataSourceError {
-                logger.warning("Failed to get remote podcast information", for: error)
-                await emit(.failure(PodcastRepositoryError.couldntGetPodcast))
-            } catch let error as LocalPodcastDataSourceError {
-                logger.warning("Failed to persist data locally", for: error)
-                await emit(.failure(PodcastRepositoryError.couldntPersistPodcast))
+            } catch let error as CoreError {
+                await emit(.failure(error))
             } catch {
-                // MARK: Compiler Issue? Should be impossible.
-                logger.critical("Caught an unexpected error that should not be possible. Error: \(error)")
+                await emit(.failure(.unexpected(layer: .business, feature: .podcasts)))
             }
         }
     }

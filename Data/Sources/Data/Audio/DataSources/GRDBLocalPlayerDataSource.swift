@@ -17,8 +17,8 @@ public final class GRDBLocalPlayerDataSource: LocalPlayerDataSourceContract {
     public func updateProgress(
         episodeID: UUID,
         isCompleted: Bool,
-        duration: Int
-    ) async throws(Business.LocalPlayerDataSourceError) {
+        watchTime: Int
+    ) async throws(CoreError) {
         do {
             let cachedAt = Date()
             try await dbManager.dbQueue.write { db in
@@ -29,7 +29,7 @@ public final class GRDBLocalPlayerDataSource: LocalPlayerDataSourceContract {
                 
                 let new = AudioProgress(
                     isCompleted: isCompleted,
-                    duration: duration,
+                    watchTime: watchTime,
                     startedOn: current?.startedOn ?? cachedAt,
                     lastUpdated: cachedAt
                 )
@@ -39,30 +39,12 @@ public final class GRDBLocalPlayerDataSource: LocalPlayerDataSourceContract {
                     episodeId: episodeID
                 ).save(db)
             }
+        } catch let error as DatabaseError {
+            logger.error("Encountered error when updating progress for episode with id: \(episodeID)", for: error)
+            throw error.toCoreError(for: .audio)
         } catch {
-            logger.error("Failed to update progress for episode", for: error)
-            throw mapDatabaseError(error)
+            logger.error("Encountered an unexpected error when updating progress for episode with id: \(episodeID)", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .audio)
         }
-    }
-    
-    /// Maps GRDB errors to specific LocalPodcastDataSourceError cases
-    private func mapDatabaseError(_ error: Error) -> LocalPlayerDataSourceError {
-        if let dbError = error as? DatabaseError {
-            switch dbError.resultCode {
-                case .SQLITE_FULL, .SQLITE_IOERR:
-                    return .diskFull
-                case .SQLITE_BUSY, .SQLITE_LOCKED:
-                    return .databaseLocked
-                case .SQLITE_CONSTRAINT:
-                    return .constraintViolation
-                case .SQLITE_READONLY:
-                    return .readOnlyDatabase
-                case .SQLITE_CORRUPT, .SQLITE_NOTADB:
-                    return .dataCorruption
-                default:
-                    return .databaseError
-            }
-        }
-        return .databaseError
     }
 }

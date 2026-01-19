@@ -3,7 +3,7 @@ import Foundation
 
 public struct AudioProgressDTO: Codable {
     let isCompleted: Bool
-    let duration: Int
+    let watchTime: Int
     let startedOn: Date
     let lastUpdated: Date
 }
@@ -12,7 +12,7 @@ extension AudioProgressDTO {
     func toCore() -> AudioProgress {
         AudioProgress(
             isCompleted: isCompleted,
-            duration: duration,
+            watchTime: watchTime,
             startedOn: startedOn,
             lastUpdated: lastUpdated,
         )

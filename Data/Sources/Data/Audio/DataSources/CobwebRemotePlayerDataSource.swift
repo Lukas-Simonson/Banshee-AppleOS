@@ -12,7 +12,7 @@ public struct CobwebRemotePlayerDataSource: RemotePlayerDataSourceContract {
         self.logger = logger
     }
     
-    public func episode(with id: UUID, baseURL: String, token: String) async throws(RemotePlayerDataSourceError) -> Core.Episode {
+    public func episode(with id: UUID, baseURL: String, token: String) async throws(CoreError) -> Episode {
         do {
             let response = try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/episodes/\(id)")
@@ -20,26 +20,31 @@ public struct CobwebRemotePlayerDataSource: RemotePlayerDataSourceContract {
                 .also { logger.info("Making request to /api/episodes/\(id)") }
                 .withHeaders(.bearer(token))
                 .response()
-            
+
             switch try response.statusCode {
-                case 200...299: break
-                case 401: throw RemotePlayerDataSourceError.unauthorized
-                case 403: throw RemotePlayerDataSourceError.forbidden
-                case 404: throw RemotePlayerDataSourceError.notFound
-                case 500...599: throw RemotePlayerDataSourceError.serverError
-                default: throw RemotePlayerDataSourceError.unexpectedResponse
+                case 200: break
+                case 401: throw CoreError.unauthorized(layer: .data, feature: .audio)
+                case 404: throw CoreError.resourceNotFound(layer: .data, feature: .audio)
+                case 500...599: throw CoreError.serverError(layer: .data, feature: .audio)
+                default: throw CoreError.unexpectedResponse(
+                    layer: .data,
+                    feature: .audio,
+                    code: try response.statusCode
+                )
             }
-            
-            return try response.body(as: EpisodeDTO.self, JSONDecoder().withISO8601())
-                .toCore()
-        } catch is Cobweb.URL.URLError {
-            throw RemotePlayerDataSourceError.invalidURL
+
+            return try response.body(as: EpisodeDTO.self, JSONDecoder().withISO8601()).toCore()
+        } catch let error as CoreError {
+            throw error
+        } catch let error as Cobweb.URL.URLError {
+            logger.error("Unable to create URL", for: error)
+            throw CoreError.urlError(layer: .data, feature: .auth)
         } catch let error as Cobweb.HTTP.Request.ResponseError {
-            logger.error("Failed to get valid response", for: error)
-            throw RemotePlayerDataSourceError.invalidResponseFormat
+            logger.error("Server Verification failed with response error", for: error)
+            throw CoreError.invalidResponseFormat(layer: .data, feature: .auth)
         } catch {
-            logger.error("Unexpected error occurred", for: error)
-            throw RemotePlayerDataSourceError.networkError
+            logger.error("Unknown error found during server verification", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .auth)
         }
     }
 
@@ -48,35 +53,40 @@ public struct CobwebRemotePlayerDataSource: RemotePlayerDataSourceContract {
         baseURL: String,
         token: String,
         isCompleted: Bool,
-        duration: Int
-    ) async throws(RemotePlayerDataSourceError) {
+        watchTime: Int
+    ) async throws(CoreError) {
         do {
             let response = try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/episodes/\(episodeId)/progress")
                 .post()
-                .also { logger.info("Syncing progress for episode \(episodeId): \(duration)s") }
-                .withBody(ProgressUpdateRequest(isCompleted: isCompleted, duration: duration))
+                .also { logger.info("Syncing progress for episode \(episodeId): \(watchTime)s") }
+                .withBody(ProgressUpdateRequest(isCompleted: isCompleted, watchTime: watchTime))
                 .withHeaders(.contentType(value: "application/json"))
                 .withHeaders(.bearer(token))
                 .response()
             
             switch try response.statusCode {
-                case 200...299: break
-                case 401: throw RemotePlayerDataSourceError.unauthorized
-                case 403: throw RemotePlayerDataSourceError.forbidden
-                case 404: throw RemotePlayerDataSourceError.notFound
-                case 500...599: throw RemotePlayerDataSourceError.serverError
-                default: throw RemotePlayerDataSourceError.unexpectedResponse
+                case 202: break
+                case 401: throw CoreError.unauthorized(layer: .data, feature: .audio)
+                case 404: throw CoreError.resourceNotFound(layer: .data, feature: .audio)
+                case 500...599: throw CoreError.serverError(layer: .data, feature: .audio)
+                default: throw CoreError.unexpectedResponse(
+                    layer: .data,
+                    feature: .audio,
+                    code: try response.statusCode
+                )
             }
-        } catch is Cobweb.URL.URLError {
-            logger.warning("Failed to sync progress: Invalid URL")
-            throw RemotePlayerDataSourceError.invalidURL
+        } catch let error as CoreError {
+            throw error
+        } catch let error as Cobweb.URL.URLError {
+            logger.error("Unable to create URL", for: error)
+            throw CoreError.urlError(layer: .data, feature: .auth)
         } catch let error as Cobweb.HTTP.Request.ResponseError {
-            logger.warning("Failed to sync progress", for: error)
-            throw RemotePlayerDataSourceError.invalidResponseFormat
+            logger.error("Server Verification failed with response error", for: error)
+            throw CoreError.invalidResponseFormat(layer: .data, feature: .auth)
         } catch {
-            logger.warning("Failed to sync progress", for: error)
-            throw RemotePlayerDataSourceError.networkError
+            logger.error("Unknown error found during server verification", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .auth)
         }
     }
 }
@@ -84,6 +94,6 @@ public struct CobwebRemotePlayerDataSource: RemotePlayerDataSourceContract {
 extension CobwebRemotePlayerDataSource {
     struct ProgressUpdateRequest: Codable {
         let isCompleted: Bool
-        let duration: Int
+        let watchTime: Int
     }
 }
