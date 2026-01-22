@@ -118,7 +118,7 @@ public extension CoreError {
             feature: feature,
             code: 23,
             localizedKey: "error.network.networkUnavailable",
-            logMessage: "Received a response in an invalid or unexpected format."
+            logMessage: "The network is unavailable"
         )
     }
 
@@ -147,7 +147,7 @@ public extension CoreError {
             layer: layer,
             feature: feature,
             code: 26,
-            localizedKey: "error.network.unauthorized",
+            localizedKey: "error.core.unauthorized",
             logMessage: "User must be authorized to perform this action"
         )
     }
@@ -236,26 +236,3 @@ public extension CoreError {
         )
     }
 }
-
-//public enum SettingsRepositoryError: CoreError {
-//    case unableToSave
-//
-//    public var errorCode: UInt16 {
-//        switch self {
-//            case .unableToSave: 401
-//        }
-//    }
-//
-//    public var localizeableKey: LocalizedStringResource {
-//        switch self {
-//            case .unableToSave: "error.settings.unableToSave"
-//        }
-//    }
-//
-//    public var logMessage: String {
-//        switch self {
-//            case .unableToSave:
-//                "Unable to save settings value locally"
-//        }
-//    }
-//}

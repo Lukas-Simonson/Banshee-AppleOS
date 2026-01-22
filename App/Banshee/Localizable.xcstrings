@@ -59,6 +59,226 @@
         }
       }
     },
+    "error.data.keychain.failedToEncode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encountered an unexpected error when trying to encode data into local keychain."
+          }
+        }
+      }
+    },
+    "error.data.keychain.savedSessionCorrupted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login session corrupted please login again."
+          }
+        }
+      }
+    },
+    "error.data.keychain.unableToRetrieveToken" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to fetch data from local keychain."
+          }
+        }
+      }
+    },
+    "error.data.keychain.unableToSaveToken" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to save data to local keychain."
+          }
+        }
+      }
+    },
+    "error.data.settings.emptySettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No saved settings were found."
+          }
+        }
+      }
+    },
+    "error.database.constraintViolation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cached data constraints violated."
+          }
+        }
+      }
+    },
+    "error.database.databaseError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to access the data cache."
+          }
+        }
+      }
+    },
+    "error.database.databaseLocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The data cache is inaccessible."
+          }
+        }
+      }
+    },
+    "error.database.dataCorrupted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cached data is corrupted."
+          }
+        }
+      }
+    },
+    "error.database.diskFull" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to save cached data, no available storage space."
+          }
+        }
+      }
+    },
+    "error.database.migrationFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to migrate cached data."
+          }
+        }
+      }
+    },
+    "error.database.readOnlyDatabase" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot write to a read only database."
+          }
+        }
+      }
+    },
+    "error.network.auth.invalidCredentials" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid username or password provided."
+          }
+        }
+      }
+    },
+    "error.network.invalidResponseFormat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server returned data in an unexpected format, does the server need to update?"
+          }
+        }
+      }
+    },
+    "error.network.networkUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to connect to the network, check your internet connection."
+          }
+        }
+      }
+    },
+    "error.network.notFound" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to find the expected information."
+          }
+        }
+      }
+    },
+    "error.network.requestTimeout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The request took too long to complete, is your server down?"
+          }
+        }
+      }
+    },
+    "error.network.serverError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server had an internal error, please try again."
+          }
+        }
+      }
+    },
+    "error.network.unexpectedResponse" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server returned an unexpected response, does it need to be updated?"
+          }
+        }
+      }
+    },
+    "error.network.urlError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to verify the servers URL."
+          }
+        }
+      }
+    },
     "Podcasts" : {
 
     },
