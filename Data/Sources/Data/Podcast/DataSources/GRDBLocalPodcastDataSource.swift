@@ -17,7 +17,7 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract {
 
     // MARK: - Podcasts
 
-    public func getCachedPodcasts() async throws(LocalPodcastDataSourceError) -> [CachedPodcast]? {
+    public func getCachedPodcasts() async throws(CoreError) -> [CachedPodcast]? {
         do {
             return try await dbManager.dbQueue.read { db in
                 let records = try PodcastRecord.fetchAll(db)
@@ -26,13 +26,16 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract {
                 // Convert to Business DTOs (cached podcasts)
                 return records.map { $0.toCached() }
             }
-        } catch {
+        } catch let error as DatabaseError {
             logger.error("Failed to fetch cached podcasts", for: error)
-            throw mapDatabaseError(error)
+            throw error.toCoreError(for: .podcasts)
+        } catch {
+            logger.error("Encountered an unexpected error when retrieving cached podcasts", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
     }
 
-    public func savePodcasts(_ podcasts: [Podcast]) async throws(LocalPodcastDataSourceError) {
+    public func savePodcasts(_ podcasts: [Podcast]) async throws(CoreError) {
         do {
             let cachedAt = Date()
             try await dbManager.dbQueue.write { db in
@@ -42,15 +45,18 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract {
                 }
             }
             logger.info("Saved \(podcasts.count) podcasts to cache")
-        } catch {
+        } catch let error as DatabaseError {
             logger.error("Failed to save podcasts to cache", for: error)
-            throw mapDatabaseError(error)
+            throw error.toCoreError(for: .podcasts)
+        } catch {
+            logger.error("Encountered an unexpected error when retrieving cached podcasts", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
     }
 
     // MARK: - Podcast Details with Episodes
 
-    public func getCachedPodcast(id: UUID) async throws(LocalPodcastDataSourceError) -> CachedPodcast? {
+    public func getCachedPodcast(id: UUID) async throws(CoreError) -> CachedPodcast? {
         do {
             return try await dbManager.dbQueue.read { db in
                 guard let podcastRecord = try PodcastRecord.fetchOne(db, key: id.uuidString) else {
@@ -87,13 +93,16 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract {
                 // Return as CachedPodcast with original cached timestamp
                 return CachedPodcast(podcast: podcastWithEpisodes, cachedAt: cachedPodcast.cachedAt)
             }
+        } catch let error as DatabaseError {
+            logger.error("Failed to fetch podcast with id: \(id)", for: error)
+            throw error.toCoreError(for: .podcasts)
         } catch {
-            logger.error("Failed to fetch cached podcast \(id)", for: error)
-            throw mapDatabaseError(error)
+            logger.error("Encountered an unexpected error when retrieving cached podcast with id: \(id)", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
     }
 
-    public func savePodcastWithEpisodes(_ podcast: Podcast) async throws(LocalPodcastDataSourceError) {
+    public func savePodcastWithEpisodes(_ podcast: Podcast) async throws(CoreError) {
         do {
             let cachedAt = Date()
             try await dbManager.dbQueue.write { db in
@@ -125,18 +134,21 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract {
                 }
             }
             logger.info("Saved podcast \(podcast.id) with \(podcast.episodes?.count ?? 0) episodes")
+        } catch let error as DatabaseError {
+            logger.error("Failed to save a podcast", for: error)
+            throw error.toCoreError(for: .podcasts)
         } catch {
-            logger.error("Failed to save podcast with episodes", for: error)
-            throw mapDatabaseError(error)
+            logger.error("Encountered an unexpected error when saving a podcast", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
     }
 
     // MARK: - Audio Progress
 
-    public func getCachedProgress(for episodeId: UUID) async throws(LocalPodcastDataSourceError) -> AudioProgress? {
+    public func getCachedProgress(for episodeID: UUID) async throws(CoreError) -> AudioProgress? {
         do {
             return try await dbManager.dbQueue.read { db in
-                guard let record = try AudioProgressRecord.fetchOne(db, key: episodeId.uuidString) else {
+                guard let record = try AudioProgressRecord.fetchOne(db, key: episodeID.uuidString) else {
                     return nil
                 }
 
@@ -149,29 +161,35 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract {
 
                 return cachedProgress.toCore()
             }
+        } catch let error as DatabaseError {
+            logger.error("Failed to fetch progress for episode with id: \(episodeID)", for: error)
+            throw error.toCoreError(for: .podcasts)
         } catch {
-            logger.error("Failed to fetch cached progress for episode \(episodeId)", for: error)
-            throw mapDatabaseError(error)
+            logger.error("Encountered an unexpected error when retrieving progress for episode with id: \(episodeID)", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
     }
 
-    public func saveProgress(_ progress: AudioProgress, for episodeId: UUID) async throws(LocalPodcastDataSourceError) {
+    public func saveProgress(_ progress: AudioProgress, for episodeID: UUID) async throws(CoreError) {
         do {
             try await dbManager.dbQueue.write { db in
                 let cachedProgress = CachedAudioProgress(progress: progress, cachedAt: Date())
-                let record = AudioProgressRecord(from: cachedProgress, episodeId: episodeId)
+                let record = AudioProgressRecord(from: cachedProgress, episodeId: episodeID)
                 try record.save(db)
             }
-            logger.info("Saved progress for episode \(episodeId)")
+            logger.info("Saved progress for episode \(episodeID)")
+        } catch let error as DatabaseError {
+            logger.error("Failed to fetch save progress for episode with id: \(episodeID)", for: error)
+            throw error.toCoreError(for: .podcasts)
         } catch {
-            logger.error("Failed to save progress for episode \(episodeId)", for: error)
-            throw mapDatabaseError(error)
+            logger.error("Encountered an unexpected error when saving progress for episode with id: \(episodeID)", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
     }
 
     // MARK: - Cache Management
 
-    public func clearCache() async throws(LocalPodcastDataSourceError) {
+    public func clearCache() async throws(CoreError) {
         do {
             try await dbManager.dbQueue.write { db in
                 // Delete in order to respect foreign key constraints
@@ -180,45 +198,28 @@ public final class GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract {
                 try PodcastRecord.deleteAll(db)
             }
             logger.info("Cleared all podcast cache")
+        }  catch let error as DatabaseError {
+            logger.error("Failed to clear cached data", for: error)
+            throw error.toCoreError(for: .podcasts)
         } catch {
-            logger.error("Failed to clear cache", for: error)
-            throw mapDatabaseError(error)
+            logger.error("Encountered an unexpected error when clearing cached data", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
     }
 
-    public func clearPodcastCache(id: UUID) async throws(LocalPodcastDataSourceError) {
+    public func clearPodcastCache(id: UUID) async throws(CoreError) {
         do {
             try await dbManager.dbQueue.write { db in
                 // Cascade delete will handle episodes and progress
                 try PodcastRecord.deleteOne(db, key: id.uuidString)
             }
             logger.info("Cleared cache for podcast \(id)")
+        }  catch let error as DatabaseError {
+            logger.error("Failed to clear cache for podcast with id: \(id)", for: error)
+            throw error.toCoreError(for: .podcasts)
         } catch {
-            logger.error("Failed to clear cache for podcast \(id)", for: error)
-            throw mapDatabaseError(error)
+            logger.error("Encountered an unexpected error when deleting podcast with id: \(id)", for: error)
+            throw CoreError.unexpected(layer: .data, feature: .podcasts)
         }
-    }
-
-    // MARK: - Error Mapping
-
-    /// Maps GRDB errors to specific LocalPodcastDataSourceError cases
-    private func mapDatabaseError(_ error: Error) -> LocalPodcastDataSourceError {
-        if let dbError = error as? DatabaseError {
-            switch dbError.resultCode {
-            case .SQLITE_FULL, .SQLITE_IOERR:
-                return .diskFull
-            case .SQLITE_BUSY, .SQLITE_LOCKED:
-                return .databaseLocked
-            case .SQLITE_CONSTRAINT:
-                return .constraintViolation
-            case .SQLITE_READONLY:
-                return .readOnlyDatabase
-            case .SQLITE_CORRUPT, .SQLITE_NOTADB:
-                return .dataCorruption
-            default:
-                return .databaseError
-            }
-        }
-        return .databaseError
     }
 }

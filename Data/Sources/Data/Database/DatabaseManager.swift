@@ -78,7 +78,7 @@ public final class DatabaseManager: @unchecked Sendable {
                 t.primaryKey("episodeId", .text)
                     .references("episode", onDelete: .cascade)
                 t.column("isCompleted", .boolean).notNull()
-                t.column("duration", .integer).notNull()
+                t.column("watchTime", .integer).notNull()
                 t.column("startedOn", .datetime).notNull()
                 t.column("lastUpdated", .datetime).notNull()
                 t.column("cachedAt", .datetime).notNull()

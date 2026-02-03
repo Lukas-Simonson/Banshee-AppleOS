@@ -9,7 +9,7 @@ struct AudioProgressRecord: Codable, FetchableRecord, PersistableRecord, Sendabl
 
     let episodeId: String
     let isCompleted: Bool
-    let duration: Int
+    let watchTime: Int
     let startedOn: Date
     let lastUpdated: Date
     let cachedAt: Date
@@ -22,7 +22,7 @@ struct AudioProgressRecord: Codable, FetchableRecord, PersistableRecord, Sendabl
         let progress = cachedProgress.progress
         self.episodeId = episodeId.uuidString
         self.isCompleted = progress.isCompleted
-        self.duration = progress.duration
+        self.watchTime = progress.watchTime
         self.startedOn = progress.startedOn
         self.lastUpdated = progress.lastUpdated
         self.cachedAt = cachedProgress.cachedAt
@@ -33,7 +33,7 @@ struct AudioProgressRecord: Codable, FetchableRecord, PersistableRecord, Sendabl
         CachedAudioProgress(
             progress: AudioProgress(
                 isCompleted: isCompleted,
-                duration: duration,
+                watchTime: watchTime,
                 startedOn: startedOn,
                 lastUpdated: lastUpdated
             ),

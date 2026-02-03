@@ -47,10 +47,10 @@ public actor EpisodePlayer: EpisodePlayerContract {
         self.audio.delegate = self
         
         Task {
-            if let savedQueue = localQueue.get() {
+            if let queue = localQueue.get() {
                 do {
-                    try await enqueue(savedQueue, startPlaying: false)
-                } catch let error as EpisodePlayerError {
+                    try await enqueue(queue, startPlaying: false)
+                } catch let error as CoreError {
                     await playerStateFlow.emit(.error(error))
                 }
             }
@@ -58,7 +58,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
     }
     
     // Player Management
-    public func enqueue(_ newQueue: AudioQueue, startPlaying: Bool = true) async throws(EpisodePlayerError) {
+    public func enqueue(_ newQueue: AudioQueue, startPlaying: Bool = true) async throws(CoreError) {
         logger.info("Filling queue with \(newQueue.count) episodes.")
         self.queue = newQueue
         
@@ -71,8 +71,8 @@ public actor EpisodePlayer: EpisodePlayerContract {
         guard let server = await serverProvider.server,
               let token = await serverProvider.token,
               let url = URL(string: "\(server)/api/episodes/\(current)/audio")
-        else { throw EpisodePlayerError.userNotAuthenticated }
-        
+        else { throw CoreError.notAuthenticated(layer: .business, feature: .audio) }
+
         await playerStateFlow.emit(.loading(size: newQueue.count))
         
         async let fetchEpisode = remote.episode(with: current, baseURL: server, token: token.token)
@@ -84,35 +84,35 @@ public actor EpisodePlayer: EpisodePlayerContract {
                 title: episode.title,
                 author: newQueue.podcastName,
                 imageURL: episode.imageURL ?? newQueue.podcastImageURL,
-                current: episode.progress?.duration ?? 0,
+                current: episode.progress?.watchTime ?? 0,
                 duration: episode.duration ?? 1,
                 queueSize: newQueue.count,
                 queuePosition: newQueue.position + 1, // +1 to offset zero indexed
                 mode: startPlaying ? .playing : .paused
             )
-            
+
             if let progress = episode.progress {
-                await audio.seek(to: progress.duration)
+                if progress.isCompleted {
+                    await seek(to: 0) // Seek to start, and sync progress.
+                } else {
+                    await audio.seek(to: progress.watchTime)
+                }
             }
-            
+
             // Persist queue to local storage.
             localQueue.save(newQueue)
-            
+
             await playerStateFlow.emit(newState)
             await audio.setMedia(with: AudioData(image: nil, title: episode.title))
-            
+
             if startPlaying {
                 await audio.play()
             }
+        } catch let error as CoreError {
+            await playerStateFlow.emit(.error(error))
         } catch {
-            logger.error("Error playing episode", for: error)
-            
-            if let e = error as? CoreError {
-                await playerStateFlow.emit(.error(e))
-            } else {
-                await playerStateFlow.emit(.error(EpisodePlayerError.unexpectedError))
-                logger.error("Received a non-CoreError when playing audio", for: error)
-            }
+            logger.error("Received an unexpected error when playing audio", for: error)
+            await playerStateFlow.emit(.error(CoreError.unexpected(layer: .business, feature: .audio)))
         }
     }
     
@@ -141,7 +141,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
             async let updateLocal = local.updateProgress(
                 episodeID: currentEpisodeId,
                 isCompleted: isCompleted,
-                duration: currentTime
+                watchTime: currentTime
             )
             
             async let updateRemote = remote.updateProgress(
@@ -149,7 +149,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
                 baseURL: server,
                 token: token.token,
                 isCompleted: isCompleted,
-                duration: currentTime
+                watchTime: currentTime
             )
             
             try await (updateLocal, updateRemote)
@@ -203,6 +203,7 @@ extension EpisodePlayer: AudioServiceDelegateContract {
     
     nonisolated public func playerDidFinish(_ time: Int) {
         Task {
+            logger.info("Finished playing current item.")
             await syncProgressNow(currentTime: time, isCompleted: true)
             
             let queue = await self.queue

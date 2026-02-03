@@ -57,7 +57,7 @@ final class PodcastListVM {
             
             do {
                 try await self.repository.refresh(force: false)
-            } catch let error as PodcastRepositoryError {
+            } catch let error as CoreError {
                 navigator.showError(error)
             }
             

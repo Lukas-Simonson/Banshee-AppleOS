@@ -4,19 +4,19 @@ import NoticeMe
 import SwiftUI
 
 struct ErrorNotice: Noticeable {
-
+    
     @NoticeCancellation var cancellation
-
+    
     var noticeInfo = NoticeInfo(
         alignment: .top,
         duration: .seconds(5),
         transition: .scale(scale: 0, anchor: .top)
     )
-
+    
     var error: CoreError
-
+    
     var body: some View {
-        BruteNotice("Error: \(error.errorCode)", systemImage: "exclamationmark.triangle.fill", fill: Color.red) {
+        BruteNotice("Error: \(error.errorCode, format: .number.grouping(.never))", systemImage: "exclamationmark.triangle.fill", fill: Color.red) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(error.errorDescription ?? error.localizedDescription)
             }
@@ -30,9 +30,8 @@ struct ErrorNotice: Noticeable {
     
     @Previewable @State var manager = NoticeManager()
     
-    NoticeHandler(manager) {
-        Button("Error") {
-            manager.queueNotice(ErrorNotice(error: AuthRepositoryError.unableToClearSession))
-        }
+    Button("Error") {
+        manager.queueNotice(ErrorNotice(error: CoreError.diskFull(layer: .app, feature: .audio)))
     }
+    .handleNotices(from: manager)
 }

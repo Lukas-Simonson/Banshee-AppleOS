@@ -22,16 +22,28 @@ public final class UserDefaultsLocalSettingsDataSource: LocalSettingsDataSourceC
         self.defaults = defaults
     }
     
-    public func saveSettings(_ settings: Settings) async throws(LocalSettingsDataSourceError) {
+    public func saveSettings(_ settings: Settings) async throws(CoreError) {
         self.theme = settings.theme
     }
     
-    public func readSettings() async throws(LocalSettingsDataSourceError) -> Settings {
-        guard let theme else { throw LocalSettingsDataSourceError.empty }
+    public func readSettings() async throws(CoreError) -> Settings {
+        guard let theme else { throw CoreError.emptySettings }
         return Settings(theme: theme)
     }
     
     private enum Keys {
         static let theme = "com.bansheeaudio.settings.theme"
+    }
+}
+
+extension CoreError {
+    static var emptySettings: CoreError {
+        CoreError(
+            layer: .data,
+            feature: .settings,
+            code: 50,
+            localizedKey: "error.data.settings.emptySettings",
+            logMessage: "No saved settings were found."
+        )
     }
 }

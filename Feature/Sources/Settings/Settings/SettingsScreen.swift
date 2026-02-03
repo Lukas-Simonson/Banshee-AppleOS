@@ -13,7 +13,8 @@ public struct SettingsScreen: View {
             settings: Binding(
                 get: { viewModel.settings },
                 set: { viewModel.updateSettings($0) }
-            )
+            ),
+            onLogout: viewModel.logout
         )
     }
 }

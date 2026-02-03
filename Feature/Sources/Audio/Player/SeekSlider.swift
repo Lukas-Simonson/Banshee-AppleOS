@@ -25,6 +25,9 @@ struct SeekSlider: View {
             ZStack(alignment: .leading) {
                 track
                 activeTrack(width: max(0, geometry.size.width))
+                    .mask {
+                        track
+                    }
                 // thumb(width: geometry.size.width)
             }
             .gesture(
@@ -100,7 +103,7 @@ struct SeekSlider: View {
     
     private func activeTrackWidth(totalWidth: CGFloat) -> CGFloat {
         let usableWidth = totalWidth - thumbSize
-        return usableWidth * normalizedValue()
+        return max(0, usableWidth * normalizedValue())
     }
     
     private func updateDragValue(location: CGFloat, width: CGFloat) {
@@ -115,14 +118,14 @@ struct SeekSlider: View {
 }
 
 #Preview {
-    @Previewable @State var value = 10
+    @Previewable @State var value = 22
     
     VStack {
         Text(value, format: .number)
         
         SeekSlider(
             value: $value,
-            in: 0...10
+            in: 0...10000
         )
     }
 }

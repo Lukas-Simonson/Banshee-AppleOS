@@ -30,16 +30,11 @@ public final class SettingsRepository: SettingsRepositoryContract {
     }
     
     // MARK: - Settings Management
-    public func update(_ settings: Settings) async throws(SettingsRepositoryError) {
-        do {
-            logger.info("Recieved request to update settings: \(settings)")
-            try await local.saveSettings(settings)
-            logger.info("Emitting new settings: \(settings)")
-            await settingsFlow.emit(settings)
-        } catch {
-            logger.warning("Unable to save settings locally", for: error)
-            throw SettingsRepositoryError.unableToSave
-        }
+    public func update(_ settings: Settings) async throws(CoreError) {
+        logger.info("Received request to update settings: \(settings)")
+        try await local.saveSettings(settings)
+        logger.info("Emitting new settings: \(settings)")
+        await settingsFlow.emit(settings)
     }
     
     private func load() {

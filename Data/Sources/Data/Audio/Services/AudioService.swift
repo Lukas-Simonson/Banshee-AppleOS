@@ -26,6 +26,9 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
                 options: ["AVURLAssetHTTPHeaderFieldsKey": headers]
             )
         )
+        
+        // Remove observer watching for end of audio.
+        disableDidPlayToEnd()
     
         lock.withLock {
             // Create or update current player.
@@ -157,7 +160,7 @@ extension AudioService {
     }
     
     private func enableDidPlayToEnd() {
-        guard endObserver == nil, let item = player?.currentItem else { return }
+        guard let item = player?.currentItem else { return }
         endObserver = NotificationCenter.default.addObserver(
             forName: AVPlayerItem.didPlayToEndTimeNotification,
             object: item,
@@ -170,6 +173,17 @@ extension AudioService {
                 delegate.playerDidFinish(Int(player.currentTime().seconds))
                 self?.endObserver = nil
             }
+        )
+    }
+    
+    private func disableDidPlayToEnd() {
+        guard let endObserver, let item = player?.currentItem
+        else { endObserver = nil; return }
+        
+        NotificationCenter.default.removeObserver(
+            endObserver,
+            name: AVPlayerItem.didPlayToEndTimeNotification,
+            object: item
         )
     }
 }

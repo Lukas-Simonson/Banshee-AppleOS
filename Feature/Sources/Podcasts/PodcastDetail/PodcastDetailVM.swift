@@ -50,7 +50,7 @@ final class PodcastDetailVM {
                         ),
                         startPlaying: true
                     )
-                } catch let error as EpisodePlayerError {
+                } catch let error as CoreError {
                     logger.error("Failed to play episode", for: error)
                     navigator.showError(error)
                 }
