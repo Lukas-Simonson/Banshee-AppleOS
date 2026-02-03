@@ -16,7 +16,7 @@ struct ErrorNotice: Noticeable {
     var error: CoreError
     
     var body: some View {
-        BruteNotice("Error: \(error.errorCode)", systemImage: "exclamationmark.triangle.fill", fill: Color.red) {
+        BruteNotice("Error: \(error.errorCode, format: .number.grouping(.never))", systemImage: "exclamationmark.triangle.fill", fill: Color.red) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(error.errorDescription ?? error.localizedDescription)
             }
