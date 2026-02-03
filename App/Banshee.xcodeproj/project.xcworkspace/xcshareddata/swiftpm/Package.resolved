@@ -1,5 +1,5 @@
 {
-  "originHash" : "a608afe61ee10e708d3903734ac1a2071b042773831f482c0117b01584375268",
+  "originHash" : "f93fbbfe88349546c88630144e620f71f3fc972500b28fb2c5de999576e45a3d",
   "pins" : [
     {
       "identity" : "brute",
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Lukas-Simonson/NoticeMe",
       "state" : {
-        "revision" : "576b60d7464e4a1925143d17534c1fc7d05e0da4",
-        "version" : "1.1.3"
+        "revision" : "8e26b1ccd35d7ea1afa6d6d4058b6181c7531cd4",
+        "version" : "2.0.0"
       }
     },
     {

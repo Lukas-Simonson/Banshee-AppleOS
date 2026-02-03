@@ -52,6 +52,7 @@ final class PlayerVM {
                     // Hide Player & Show Error
                     self.state = nil
                     navigator.showError(e)
+                    logger.error("\(e.logMessage)", for: e)
                 }
             }
         }

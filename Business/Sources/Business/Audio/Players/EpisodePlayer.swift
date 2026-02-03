@@ -92,7 +92,11 @@ public actor EpisodePlayer: EpisodePlayerContract {
             )
 
             if let progress = episode.progress {
-                await audio.seek(to: progress.watchTime)
+                if progress.isCompleted {
+                    await seek(to: 0) // Seek to start, and sync progress.
+                } else {
+                    await audio.seek(to: progress.watchTime)
+                }
             }
 
             // Persist queue to local storage.
@@ -199,6 +203,7 @@ extension EpisodePlayer: AudioServiceDelegateContract {
     
     nonisolated public func playerDidFinish(_ time: Int) {
         Task {
+            logger.info("Finished playing current item.")
             await syncProgressNow(currentTime: time, isCompleted: true)
             
             let queue = await self.queue
