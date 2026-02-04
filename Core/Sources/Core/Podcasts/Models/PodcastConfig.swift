@@ -1,6 +1,6 @@
 import Foundation
 
-public struct PodcastConfig {
+public struct PodcastConfig: Sendable {
     public var title: String?
     public var imageURL: URL?
     public var description: String?

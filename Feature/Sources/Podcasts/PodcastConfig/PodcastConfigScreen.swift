@@ -14,9 +14,7 @@ public struct PodcastConfigScreen: View {
             isLoading: viewModel.isLoading,
             podcast: viewModel.podcast,
             config: $viewModel.config,
-            onSave: {
-                fatalError("On Save not implemented")
-            },
+            onSave: viewModel.save,
             onNavigateBack: viewModel.navigateBack
         )
     }

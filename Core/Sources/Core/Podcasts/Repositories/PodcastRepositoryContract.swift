@@ -12,4 +12,7 @@ public protocol PodcastRepositoryContract: Sendable {
     
     /// Fetches config details about a podcast.
     func config(for podcast: Podcast) async throws(CoreError) -> (Podcast, PodcastConfig)
+    
+    /// Updates config details for a podcast.
+    func update(_ config: PodcastConfig) async throws(CoreError)
 }

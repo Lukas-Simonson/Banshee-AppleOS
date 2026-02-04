@@ -8,6 +8,17 @@ public struct PodcastConfigDTO: Codable {
     public let podcastID: UUID
 }
 
+extension PodcastConfig {
+    func toDTO() -> PodcastConfigDTO {
+        PodcastConfigDTO(
+            title: title,
+            imageURL: imageURL,
+            description: description,
+            podcastID: podcastID
+        )
+    }
+}
+
 extension PodcastDTO {
     func toCoreWithConfig() -> (Podcast, PodcastConfig) {
         let config = PodcastConfig(

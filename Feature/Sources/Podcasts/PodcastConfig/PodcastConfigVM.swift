@@ -45,5 +45,20 @@ final class PodcastConfigVM {
         }
     }
     
+    public func save() {
+        isLoading = true
+        
+        Task {
+            defer { isLoading = false }
+            
+            do {
+                try await repository.update(config)
+                navigator.navigateBack()
+            } catch let error as CoreError {
+                navigator.showError(error)
+            }
+        }
+    }
+    
     public func navigateBack() { navigator.navigateBack() }
 }
