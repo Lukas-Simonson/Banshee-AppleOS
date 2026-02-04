@@ -31,16 +31,23 @@ struct PodcastCard: View {
 
 #Preview {
     BruteStyle {
-        PodcastCard(
-            podcast: Podcast(
-                id: UUID(),
-                title: "Dungeons and Daddies",
-                link: nil,
-                language: "en",
-                imageURL: nil,
-                description: "Haha funny"
-            ),
-            onTap: { }
-        )
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150, maximum: 200), spacing: 16)]) {
+                ForEach(0..<8) { _ in
+                    PodcastCard(
+                        podcast: Podcast(
+                            id: UUID(),
+                            title: "Dungeons and Daddies",
+                            link: nil,
+                            language: "en",
+                            imageURL: nil,
+                            description: "Haha funny"
+                        ),
+                        onTap: { }
+                    )
+                }
+            }
+            .padding()
+        }
     }
 }

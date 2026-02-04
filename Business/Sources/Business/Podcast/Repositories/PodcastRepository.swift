@@ -111,4 +111,13 @@ public final class PodcastRepository: PodcastRepositoryContract {
             }
         }
     }
+    
+    public func config(for podcast: Podcast) async throws(CoreError) -> (Podcast, PodcastConfig) {
+        // get config from API
+        guard let token = await serverProvider.token,
+              let server = await serverProvider.server
+        else { throw CoreError.notAuthenticated(layer: .business, feature: .podcasts) }
+        
+        return try await remote.getConfig(podcastID: podcast.id, baseURL: server, token: token.token)
+    }
 }

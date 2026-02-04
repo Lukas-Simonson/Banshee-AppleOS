@@ -9,4 +9,7 @@ public protocol PodcastRepositoryContract: Sendable {
 
     /// Fetches extra details about a podcast, including its episodes.
     func details(for podcast: Podcast, refresh: Bool) -> AsyncResultSequence<Podcast, CoreError>
+    
+    /// Fetches config details about a podcast.
+    func config(for podcast: Podcast) async throws(CoreError) -> (Podcast, PodcastConfig)
 }
