@@ -16,30 +16,46 @@ struct PodcastConfigView: View {
     @Binding var config: PodcastConfig
     
     let onSave: () -> Void
+    let onNavigateBack: () -> Void
     
-    init(isLoading: Bool, podcast: Podcast, config: Binding<PodcastConfig>, onSave: @escaping () -> Void) {
+    init(
+        isLoading: Bool,
+        podcast: Podcast,
+        config: Binding<PodcastConfig>,
+        onSave: @escaping () -> Void,
+        onNavigateBack: @escaping () -> Void,
+    ) {
         self.isLoading = isLoading
         self.podcast = podcast
         self.imageURL = config.wrappedValue.imageURL?.absoluteString ?? ""
         self._config = config
         self.onSave = onSave
+        self.onNavigateBack = onNavigateBack
     }
     
     var body: some View {
         BruteStyle {
-            if isLoading {
-                LoadingScreen()
-            } else {
-                ScrollView {
-                    VStack(spacing: context.dimen.paddingMedium) {
-                        titleSection
-                        imageURLSection
-                        descriptionSection
-                        saveButton
+            VStack(spacing: 0) {
+                TopAppBar(
+                    title: "Podcast Config",
+                    leading: { NavigateBackButton(onNavigateBack) }
+                )
+                
+                if isLoading {
+                    LoadingScreen()
+                } else {
+                    ScrollView {
+                        VStack(spacing: context.dimen.paddingMedium) {
+                            titleSection
+                            imageURLSection
+                            descriptionSection
+                            saveButton
+                        }
+                        .padding()
                     }
-                    .padding()
                 }
             }
+            .navigationBarBackButtonHidden()
         }
     }
     
@@ -135,6 +151,7 @@ extension PodcastConfigView {
             description: "Haha funny",
         ),
         config: $config,
-        onSave: {  }
+        onSave: {  },
+        onNavigateBack: {  },
     )
 }

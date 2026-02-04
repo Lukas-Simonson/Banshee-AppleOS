@@ -13,6 +13,10 @@ extension PodcastCoordinator: PodcastNavigationContract {
     func navigateToDetail(for podcast: Podcast) {
         path.append(PodcastDetailDestination(podcast: podcast))
     }
+    
+    func navigateToEditConfig(for podcast: Podcast) {
+        path.append(EditPodcastConfigDestination(podcast: podcast))
+    }
 
     func navigateBack() {
         path.removeLast()
@@ -23,6 +27,11 @@ extension PodcastCoordinator: PodcastNavigationContract {
     }
     
     struct PodcastDetailDestination: Identifiable, Destination {
+        var id: UUID { podcast.id }
+        let podcast: Podcast
+    }
+    
+    struct EditPodcastConfigDestination: Identifiable, Destination {
         var id: UUID { podcast.id }
         let podcast: Podcast
     }
@@ -40,6 +49,9 @@ extension PodcastCoordinator {
                 PodcastListScreen(app.scaffold.podcast())
                     .navigationDestination(for: PodcastDetailDestination.self) { destination in
                         PodcastDetailScreen(app.scaffold.podcast(), podcast: destination.podcast)
+                    }
+                    .navigationDestination(for: EditPodcastConfigDestination.self) { destination in
+                        PodcastConfigScreen(app.scaffold.podcast(), podcast: destination.podcast)
                     }
             }
         }
