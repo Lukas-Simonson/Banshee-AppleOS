@@ -3,6 +3,8 @@ import Foundation
 
 public protocol PodcastNavigationContract {
     func navigateToDetail(for podcast: Podcast)
+    
+    func navigateToEditConfig(for podcast: Podcast)
 
     func navigateBack()
 

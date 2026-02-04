@@ -70,5 +70,7 @@ final class PodcastDetailVM {
         }
     }
     
+    public func navigateToEditConfig() { navigator.navigateToEditConfig(for: podcast) }
+    
     public func navigateBack() { navigator.navigateBack() }
 }

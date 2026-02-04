@@ -6,23 +6,20 @@ import SwiftUI
 struct PodcastDetailView: View {
     
     @Environment(\.bruteContext) private var context
+    @Environment(\.userRole) private var userRole
     
     let podcast: Podcast
     let isLoading: Bool
     
     let onPlay: (Episode) -> Void
+    let onEditConfig: () -> Void
     let onRefresh: @Sendable () async -> Void
     let onNavigateBack: () -> Void
     
     var body: some View {
         BruteStyle {
             VStack(spacing: 0) {
-                TopAppBar(
-                    title: podcast.title,
-                    leading: {
-                        NavigateBackButton(onNavigateBack)
-                    }
-                )
+                topAppBar
                 
                 if isLoading {
                     LoadingIndicator().frame(maxHeight: .infinity)
@@ -38,6 +35,29 @@ struct PodcastDetailView: View {
                     .navigationBarBackButtonHidden()
                 }
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var topAppBar: some View {
+        if userRole == .admin {
+            TopAppBar(
+                title: podcast.title,
+                leading: {
+                    NavigateBackButton(onNavigateBack)
+                },
+                trailing: {
+                    Button("Settings", systemImage: "gearshape.fill", action: onEditConfig)
+                        .buttonStyle(.icon(size: .medium))
+                }
+            )
+        } else {
+            TopAppBar(
+                title: podcast.title,
+                leading: {
+                    NavigateBackButton(onNavigateBack)
+                }
+            )
         }
     }
     
@@ -96,7 +116,9 @@ struct PodcastDetailView: View {
         ),
         isLoading: false,
         onPlay: { _ in },
+        onEditConfig: {  },
         onRefresh: {  },
         onNavigateBack: {  }
     )
+    .environment(\.userRole, .user)
 }
