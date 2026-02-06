@@ -14,10 +14,11 @@ public struct GRDBLocalEpisodeDataSource: LocalEpisodeDataSourceContract {
         self.logger = logger
     }
     
-    public func observeEpisodes(with podcastID: UUID) async throws(CoreError) -> AsyncSequence<[CachedEpisode], any Error> {
+    public func observeEpisodes(with podcastID: UUID, order: Episode.Order) async throws(CoreError) -> AsyncSequence<[CachedEpisode], any Error> {
         ValueObservation.tracking { db in
             try EpisodeRecord
                 .filter(EpisodeRecord.Columns.podcastID == podcastID)
+                .order { convertEpisodeOrder(order: order, request: $0) }
                 .including(optional: EpisodeRecord.progress)
                 .asRequest(of: EpisodeRecord.Info.self)
                 .fetchAll(db)
@@ -49,6 +50,17 @@ public struct GRDBLocalEpisodeDataSource: LocalEpisodeDataSourceContract {
                     try record.upsert(db)
                 }
             }
+        }
+    }
+    
+    private func convertEpisodeOrder(order: Episode.Order, request: QueryInterfaceRequest<EpisodeRecord>.DatabaseComponents) -> [SQLOrderingTerm] {
+        switch order {
+            case .title: [request.title.asc]
+            case .date: [request.pubDate.asc]
+            case .seasonEpisode: [
+                request.season.ascNullsLast,
+                request.episode.ascNullsLast
+            ]
         }
     }
 }

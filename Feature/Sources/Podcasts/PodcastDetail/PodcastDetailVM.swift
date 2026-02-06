@@ -102,7 +102,7 @@ final class PodcastDetailVM {
         
         Task { [weak self] in
             guard let podcast = self?.podcast,
-                  let stream = self?.episodeRepository.observeEpisodes(of: podcast)
+                  let stream = self?.episodeRepository.observeEpisodes(of: podcast, order: .seasonEpisode)
             else { return }
             
             do {

@@ -18,10 +18,10 @@ public struct EpisodeRepository: EpisodeRepositoryContract {
         self.remote = remote
     }
     
-    public func observeEpisodes(of podcast: Podcast) -> AsyncResultSequence<[Episode], CoreError> {
+    public func observeEpisodes(of podcast: Podcast, order: Episode.Order) -> AsyncResultSequence<[Episode], CoreError> {
         ColdFlow { emit in
             do {
-                let observer = try await local.observeEpisodes(with: podcast.id)
+                let observer = try await local.observeEpisodes(with: podcast.id, order: order)
                 for try await update in observer {
                     guard !Task.isCancelled else { return }
                     await emit(.success(update.map{ $0.toCore() }))
@@ -55,7 +55,7 @@ public struct EpisodeRepository: EpisodeRepositoryContract {
 }
 
 public protocol LocalEpisodeDataSourceContract: Sendable {
-    func observeEpisodes(with podcastID: UUID) async throws(CoreError) -> AsyncSequence<[CachedEpisode], any Error>
+    func observeEpisodes(with podcastID: UUID, order: Episode.Order) async throws(CoreError) -> AsyncSequence<[CachedEpisode], any Error>
     
     func episodes(with podcastID: UUID) async throws(CoreError) -> [CachedEpisode]
     
