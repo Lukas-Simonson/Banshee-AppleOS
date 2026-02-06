@@ -78,6 +78,17 @@ public extension CoreError {
             logMessage: "Unable to connect to the server"
         )
     }
+    
+    /// Invalid / Unknown ID, code 03
+    static func unknownOrInvalidID<T>(for type: T.Type, layer: Layer, feature: Feature) -> CoreError {
+        CoreError(
+            layer: layer,
+            feature: feature,
+            code: 3,
+            localizedKey: "error.core.unexpected",
+            logMessage: "Unknown or Invalid id provided for type: \(type)"
+        )
+    }
 }
 
 // MARK: - Network Errors

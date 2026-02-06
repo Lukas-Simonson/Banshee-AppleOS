@@ -7,7 +7,7 @@ final class PodcastDetailVM {
     // MARK: - Dependencies
     private let logger: Logger
     private let navigator: PodcastNavigationContract
-    private let repository: PodcastRepositoryContract
+    private let repository: PodcastsRepositoryContract
     private let player: EpisodePlayerContract
     
     // MARK: - State

@@ -32,8 +32,8 @@ final class PodcastScaffold: PodcastScaffoldContract {
     }
 
     @Single
-    func repository() -> PodcastRepositoryContract {
-        PodcastRepository(
+    func repository() -> PodcastsRepositoryContract {
+        PodcastsRepository(
             logger: logger(),
             serverProvider: AppCoordinator.shared,
             remote: CobwebRemotePodcastDataSource(logger: logger()),

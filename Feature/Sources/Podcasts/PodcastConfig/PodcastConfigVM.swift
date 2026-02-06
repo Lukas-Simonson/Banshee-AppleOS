@@ -8,7 +8,7 @@ final class PodcastConfigVM {
     // MARK: - Dependencies
     private let logger: Logger
     private let navigator: PodcastNavigationContract
-    private let repository: PodcastRepositoryContract
+    private let repository: PodcastsRepositoryContract
     
     // MARK: - State
     private(set) var isLoading = true
