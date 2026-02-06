@@ -40,7 +40,8 @@ public extension CoreError {
         case audio = 00_01_00
         case auth = 00_02_00
         case podcasts = 00_03_00
-        case settings = 00_04_00
+        case episodes = 00_04_00
+        case settings = 00_05_00
     }
 }
 
@@ -76,6 +77,17 @@ public extension CoreError {
             code: 2,
             localizedKey: "error.core.serverUnreachable",
             logMessage: "Unable to connect to the server"
+        )
+    }
+    
+    /// Invalid / Unknown ID, code 03
+    static func unknownOrInvalidID<T>(for type: T.Type, layer: Layer, feature: Feature) -> CoreError {
+        CoreError(
+            layer: layer,
+            feature: feature,
+            code: 3,
+            localizedKey: "error.core.unexpected",
+            logMessage: "Unknown or Invalid id provided for type: \(type)"
         )
     }
 }

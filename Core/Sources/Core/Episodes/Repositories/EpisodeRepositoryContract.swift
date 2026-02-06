@@ -1,8 +1,7 @@
 import Foundation
 
 public protocol EpisodeRepositoryContract: Sendable {
+    func observeEpisodes(of podcast: Podcast) -> AsyncResultSequence<[Episode], CoreError>
     
-    var episode: Episode { get async }
-    var episodeStream: AsyncSequence<Episode, Never> { get }
-    
+    func refreshEpisodes(of podcast: Podcast, force: Bool) async throws(CoreError)
 }

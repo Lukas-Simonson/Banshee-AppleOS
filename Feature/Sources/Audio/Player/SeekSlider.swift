@@ -28,7 +28,6 @@ struct SeekSlider: View {
                     .mask {
                         track
                     }
-                // thumb(width: geometry.size.width)
             }
             .gesture(
                 DragGesture(minimumDistance: 0)

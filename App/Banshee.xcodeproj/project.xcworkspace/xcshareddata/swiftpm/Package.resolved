@@ -1,5 +1,5 @@
 {
-  "originHash" : "f93fbbfe88349546c88630144e620f71f3fc972500b28fb2c5de999576e45a3d",
+  "originHash" : "ae194f916c45ff34d6ce9a6ed03b6b888725549e03bcd15832da0a76020ea2cd",
   "pins" : [
     {
       "identity" : "brute",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Lukas-Simonson/Overflow",
       "state" : {
-        "revision" : "ace04f3e40b01fde9bde5c27d55935812fb2c0f5",
-        "version" : "1.1.1"
+        "revision" : "0e258a8116c89f637d5dd66b2b1b9eb498e4ddf6",
+        "version" : "1.1.2"
       }
     },
     {

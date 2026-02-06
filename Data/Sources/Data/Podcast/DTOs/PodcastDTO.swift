@@ -9,6 +9,7 @@ struct PodcastDTO: Codable {
     let imageURL: URL?
     let description: String
     
+    let config: PodcastConfigDTO?
     let episodes: [EpisodeDTO]?
 }
 

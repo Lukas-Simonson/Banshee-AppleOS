@@ -17,8 +17,8 @@ final class PodcastListVM {
     init(_ scaffold: PodcastScaffoldContract) {
         self.logger = scaffold.logger()
         self.navigator = scaffold.navigator()
-        self.repository = scaffold.repository()
-        
+        self.repository = scaffold.podcastRepository()
+    
         observePodcasts()
     }
     
@@ -27,9 +27,9 @@ final class PodcastListVM {
         navigator.navigateToDetail(for: podcast)
     }
     
-    public func refresh() async {
+    public func refresh(force: Bool) async {
         do {
-            try await repository.refresh(force: true)
+            try await repository.refreshPodcasts(force: force)
         } catch let error {
             navigator.showError(error)
         }
@@ -38,30 +38,18 @@ final class PodcastListVM {
     // MARK: - Private Methods
     private func observePodcasts() {
         Task { [weak self] in
-            self?.loadPodcasts()
-            guard let stream = self?.repository.podcastsStream else { return }
+            Task { await self?.refresh(force: false) }
             
-            for await podcasts in stream {
-                guard let self else { break }
-                self.podcasts = podcasts
-            }
-        }
-    }
-    
-    private func loadPodcasts() {
-        Task {
-            guard await repository.podcasts.isEmpty
-            else { return }
-            logger.info("Fetching")
-            isLoading = true
+            guard let stream = self?.repository.observePodcasts() else { return }
             
             do {
-                try await self.repository.refresh(force: false)
+                for await podcasts in stream {
+                    guard let self else { break }
+                    self.podcasts = try podcasts.get()
+                }
             } catch let error as CoreError {
-                navigator.showError(error)
+                self?.navigator.showError(error)
             }
-            
-            isLoading = false
         }
     }
 }

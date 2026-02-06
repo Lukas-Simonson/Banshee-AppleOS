@@ -19,32 +19,21 @@ public final class GRDBLocalPlayerDataSource: LocalPlayerDataSourceContract {
         isCompleted: Bool,
         watchTime: Int
     ) async throws(CoreError) {
-        do {
+        try await CoreError.catchDatabase(performing: "updating audio progress for episode with id: \(episodeID)", logger: logger, feature: .audio) {
             let cachedAt = Date()
             try await dbManager.dbQueue.write { db in
                 let current = try AudioProgressRecord
-                    .fetchOne(db, key: episodeID.uuidString)?
-                    .toCached()
-                    .toCore()
+                    .fetchOne(db, key: episodeID)
                 
-                let new = AudioProgress(
+                try AudioProgress(
                     isCompleted: isCompleted,
                     watchTime: watchTime,
                     startedOn: current?.startedOn ?? cachedAt,
                     lastUpdated: cachedAt
                 )
-                
-                try AudioProgressRecord(
-                    from: CachedAudioProgress(progress: new, cachedAt: cachedAt),
-                    episodeId: episodeID
-                ).save(db)
+                .toRecord(with: episodeID)
+                .save(db)
             }
-        } catch let error as DatabaseError {
-            logger.error("Encountered error when updating progress for episode with id: \(episodeID)", for: error)
-            throw error.toCoreError(for: .audio)
-        } catch {
-            logger.error("Encountered an unexpected error when updating progress for episode with id: \(episodeID)", for: error)
-            throw CoreError.unexpected(layer: .data, feature: .audio)
         }
     }
 }

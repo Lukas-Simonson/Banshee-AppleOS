@@ -16,8 +16,9 @@ struct RootView: View {
         BruteStyle {
             if app.isCheckingSession {
                 LoadingScreen()
-            } else if app.session != nil {
+            } else if let session = app.session {
                 BottomNavigation(app: app)
+                    .environment(\.userRole, session.user.role)
             } else {
                 LoginScreen(app.scaffold.auth())
             }
