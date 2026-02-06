@@ -53,19 +53,7 @@ public final class DatabaseManager: @unchecked Sendable {
             try EpisodeRecord.Migration.create(db)
 
             // Audio Progress table
-            try db.create(table: "audioProgress") { t in
-                t.primaryKey("episodeId", .text)
-                    .references("episode", onDelete: .cascade)
-                t.column("isCompleted", .boolean).notNull()
-                t.column("watchTime", .integer).notNull()
-                t.column("startedOn", .datetime).notNull()
-                t.column("lastUpdated", .datetime).notNull()
-                t.column("cachedAt", .datetime).notNull()
-            }
-
-            // Indexes for common queries
-            try db.create(index: "episode_podcastId", on: "episode", columns: ["podcastId"])
-            try db.create(index: "podcast_cachedAt", on: "podcast", columns: ["cachedAt"])
+            try AudioProgressRecord.Migration.create(db)
         }
 
         return migrator

@@ -19,7 +19,7 @@ struct EpisodeRecord: Sendable {
 
 extension EpisodeRecord: CachedEpisode {
     func isExpired() -> Bool {
-        expiresOn > .now
+        expiresOn < .now
     }
     
     func toCore() -> Episode {
@@ -37,11 +37,32 @@ extension EpisodeRecord: CachedEpisode {
     }
 }
 
-extension EpisodeRecord: Codable, FetchableRecord, PersistableRecord {
+extension Episode {
+    func toRecord(with podcastID: UUID) -> EpisodeRecord {
+        EpisodeRecord(
+            id: id,
+            title: title,
+            pubDate: pubDate,
+            description: description,
+            imageURL: imageURL,
+            season: season,
+            episode: episode,
+            duration: duration,
+            expiresOn: .now + EpisodeRecord.expiration,
+            podcastID: podcastID
+        )
+    }
+}
+
+extension EpisodeRecord: Codable, FetchableRecord, PersistableRecord, TableRecord {
     static let databaseTableName = "episode"
     
     static let podcast = belongsTo(PodcastRecord.self)
     static let progress = hasOne(AudioProgressRecord.self)
+    
+    enum Columns: String, ColumnExpression {
+        case id, title, pubDate, description, imageURL, season, episode, duration, expiresOn, podcastID
+    }
     
     enum Migration {
         static func create(_ db: Database) throws {
@@ -59,6 +80,31 @@ extension EpisodeRecord: Codable, FetchableRecord, PersistableRecord {
                     .notNull()
                     .references("podcast", onDelete: .cascade)
             }
+        }
+    }
+}
+
+extension EpisodeRecord {
+    struct Info: Codable, FetchableRecord, CachedEpisode {
+        let episodeRecord: EpisodeRecord
+        let audioProgress: AudioProgressRecord?
+        
+        func isExpired() -> Bool {
+            episodeRecord.isExpired()
+        }
+        
+        func toCore() -> Episode {
+            Episode(
+                id: episodeRecord.id,
+                title: episodeRecord.title,
+                pubDate: episodeRecord.pubDate,
+                description: episodeRecord.description,
+                imageURL: episodeRecord.imageURL,
+                season: episodeRecord.season,
+                episode: episodeRecord.episode,
+                duration: episodeRecord.duration,
+                progress: audioProgress?.toCore()
+            )
         }
     }
 }

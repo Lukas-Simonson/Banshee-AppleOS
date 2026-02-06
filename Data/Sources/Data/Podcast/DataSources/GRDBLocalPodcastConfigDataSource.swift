@@ -20,21 +20,21 @@ public struct GRDBLocalPodcastConfigDataSource: LocalPodcastConfigDataSourceCont
                 var assignments = [ColumnAssignment]()
                 
                 if let title = config.title {
-                    assignments.append(Column("title").set(to: title))
+                    assignments.append(PodcastRecord.Columns.title.set(to: title))
                 }
                 
                 if let image = config.imageURL?.absoluteString {
-                    assignments.append(Column("imageURL").set(to: image))
+                    assignments.append(PodcastRecord.Columns.imageURL.set(to: image))
                 }
                 
                 if let description = config.description {
-                    assignments.append(Column("description").set(to: description))
+                    assignments.append(PodcastRecord.Columns.description.set(to: description))
                 }
                 
                 guard !assignments.isEmpty else { return }
                 
                 try PodcastRecord
-                    .filter(Column("id") == config.podcastID.uuidString)
+                    .filter(PodcastRecord.Columns.id == config.podcastID)
                     .updateAll(db, assignments)
                 
             }

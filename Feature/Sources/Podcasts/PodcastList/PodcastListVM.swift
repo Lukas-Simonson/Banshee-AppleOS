@@ -10,7 +10,6 @@ final class PodcastListVM {
     private let repository: PodcastRepositoryContract
     
     // MARK: - State
-    private var observationTask: Task<Void, any Error>!
     private(set) var podcasts = [Podcast]()
     private(set) var isLoading = false
     

@@ -17,12 +17,11 @@ public struct GRDBLocalEpisodeDataSource: LocalEpisodeDataSourceContract {
     public func observeEpisodes(with podcastID: UUID) async throws(CoreError) -> AsyncSequence<[CachedEpisode], any Error> {
         ValueObservation.tracking { db in
             try EpisodeRecord
-                .filter(Column("podcastId") == podcastID.uuidString)
+                .filter(EpisodeRecord.Columns.podcastID == podcastID)
                 .including(optional: EpisodeRecord.progress)
                 .asRequest(of: EpisodeRecord.Info.self)
                 .fetchAll(db)
         }
-        .map { records in records.map { $0.toCached() } }
         .values(in: dbManager.dbQueue)
     }
     
@@ -34,18 +33,17 @@ public struct GRDBLocalEpisodeDataSource: LocalEpisodeDataSourceContract {
         ) {
             try await dbManager.dbQueue.read { db in
                 return try EpisodeRecord
-                    .filter(Column("podcastID") == podcastID.uuidString)
+                    .filter(EpisodeRecord.Columns.podcastID == podcastID)
                     .including(optional: EpisodeRecord.progress)
                     .asRequest(of: EpisodeRecord.Info.self)
                     .fetchAll(db)
             }
-            .map { $0.toCached() }
         }
     }
     
-    public func upsert(_ episodes: [Core.Episode], with podcastID: UUID) async throws(CoreError) {
+    public func upsert(_ episodes: [Episode], with podcastID: UUID) async throws(CoreError) {
         try await CoreError.catchDatabase(performing: "upserting episodes", logger: logger, feature: .episodes) {
-            let records = episodes.map { EpisodeRecord(from: CachedEpisode(episode: $0), podcastID: podcastID) }
+            let records = episodes.map { $0.toRecord(with: podcastID) }
             try await dbManager.dbQueue.write { db in
                 for record in records {
                     try record.upsert(db)

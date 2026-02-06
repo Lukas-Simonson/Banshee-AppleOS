@@ -15,7 +15,7 @@ struct PodcastRecord: Sendable {
 
 extension PodcastRecord: CachedPodcast {
     func isExpired() -> Bool {
-        expiresOn > .now
+        expiresOn < .now
     }
     
     func toCore() -> Podcast {
@@ -30,10 +30,28 @@ extension PodcastRecord: CachedPodcast {
     }
 }
 
-extension PodcastRecord: Codable, FetchableRecord, PersistableRecord {
+extension Podcast {
+    func toRecord() -> PodcastRecord {
+        PodcastRecord(
+            id: id,
+            title: title,
+            link: link,
+            language: language,
+            imageURL: imageURL,
+            description: description,
+            expiresOn: .now + PodcastRecord.expiration
+        )
+    }
+}
+
+extension PodcastRecord: Codable, FetchableRecord, PersistableRecord, TableRecord {
     static let databaseTableName = "podcast"
     
     static let episodes = hasMany(EpisodeRecord.self)
+    
+    enum Columns: String, ColumnExpression {
+        case id, title, link, language, imageURL, description, expiresOn
+    }
     
     enum Migration {
         static func create(_ db: Database) throws {

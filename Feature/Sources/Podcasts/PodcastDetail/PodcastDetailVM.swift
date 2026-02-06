@@ -65,10 +65,10 @@ final class PodcastDetailVM {
         defer { isLoading = false }
         
         do {
-            async let updatePodcast = podcastRepository.refreshPodcast(with: podcast.id, force: force)
+            // async let updatePodcast = podcastRepository.refreshPodcast(with: podcast.id, force: force)
             async let updateEpisodes = episodeRepository.refreshEpisodes(of: podcast, force: force)
             
-            try await (updatePodcast, updateEpisodes)
+            try await (updateEpisodes)
         } catch let error as CoreError {
             navigator.showError(error)
         } catch {
