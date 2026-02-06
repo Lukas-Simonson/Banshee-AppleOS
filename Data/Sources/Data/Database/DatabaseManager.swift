@@ -47,31 +47,10 @@ public final class DatabaseManager: @unchecked Sendable {
 
         migrator.registerMigration("v1_initial") { db in
             // Podcasts table
-            try db.create(table: "podcast") { t in
-                t.primaryKey("id", .text).notNull()
-                t.column("title", .text).notNull()
-                t.column("link", .text)
-                t.column("language", .text).notNull()
-                t.column("imageURL", .text)
-                t.column("description", .text).notNull()
-                t.column("cachedAt", .datetime).notNull()
-            }
+            try PodcastRecord.Migration.create(db)
 
             // Episodes table
-            try db.create(table: "episode") { t in
-                t.primaryKey("id", .text).notNull()
-                t.column("podcastId", .text)
-                    .notNull()
-                    .references("podcast", onDelete: .cascade)
-                t.column("title", .text).notNull()
-                t.column("pubDate", .datetime).notNull()
-                t.column("description", .text).notNull()
-                t.column("imageURL", .text)
-                t.column("season", .text)
-                t.column("episode", .integer)
-                t.column("duration", .integer)
-                t.column("cachedAt", .datetime).notNull()
-            }
+            try EpisodeRecord.Migration.create(db)
 
             // Audio Progress table
             try db.create(table: "audioProgress") { t in
