@@ -8,7 +8,7 @@ final class PodcastConfigVM {
     // MARK: - Dependencies
     private let logger: Logger
     private let navigator: PodcastNavigationContract
-    private let repository: PodcastsRepositoryContract
+    private let repository: PodcastConfigRepositoryContract
     
     // MARK: - State
     private(set) var isLoading = true
@@ -19,7 +19,7 @@ final class PodcastConfigVM {
     public init(_ scaffold: PodcastScaffoldContract, podcast: Podcast) {
         self.logger = scaffold.logger()
         self.navigator = scaffold.navigator()
-        self.repository = scaffold.repository()
+        self.repository = scaffold.podcastConfigRepository()
                 
         self.podcast = podcast
         
@@ -52,7 +52,7 @@ final class PodcastConfigVM {
             defer { isLoading = false }
             
             do {
-                try await repository.update(config)
+                try await repository.update(config, for: podcast)
                 navigator.navigateBack()
             } catch let error as CoreError {
                 navigator.showError(error)

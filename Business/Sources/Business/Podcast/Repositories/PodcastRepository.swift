@@ -8,10 +8,10 @@ public struct PodcastRepository: PodcastRepositoryContract {
     // MARK: - Dependencies
     private let logger: Logger
     private let serverProvider: ServerProviderContract
-    private let local: _LocalPodcastDataSourceContract
-    private let remote: _RemotePodcastDataSourceContract
+    private let local: LocalPodcastDataSourceContract
+    private let remote: RemotePodcastDataSourceContract
     
-    public init(logger: Logger, serverProvider: ServerProviderContract, local: _LocalPodcastDataSourceContract, remote: _RemotePodcastDataSourceContract) {
+    public init(logger: Logger, serverProvider: ServerProviderContract, local: LocalPodcastDataSourceContract, remote: RemotePodcastDataSourceContract) {
         self.logger = logger
         self.serverProvider = serverProvider
         self.local = local
@@ -92,21 +92,4 @@ extension PodcastRepository {
         let refreshed = try await remote.podcasts(baseURL: server, token: token)
         try await local.upsert(refreshed)
     }
-}
-
-public protocol _LocalPodcastDataSourceContract: Sendable {
-    
-    func podcast(with id: UUID) async throws(CoreError) -> CachedPodcast?
-    
-    func observePodcast(with id: UUID) async throws(CoreError) -> AsyncSequence<CachedPodcast?, any Error>
-    
-    func podcasts() async throws(CoreError) -> [CachedPodcast]
-    
-    func observePodcasts() async throws(CoreError) -> AsyncSequence<[CachedPodcast], any Error>
-    
-    func upsert(_ podcasts: [Podcast]) -> [CachedPodcast]
-}
-
-public protocol _RemotePodcastDataSourceContract: Sendable {
-    func podcasts(baseURL: String, token: String) async throws(CoreError) -> [Podcast]
 }

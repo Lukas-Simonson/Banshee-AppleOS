@@ -12,6 +12,7 @@ public struct PodcastDetailScreen: View {
     public var body: some View {
         PodcastDetailView(
             podcast: viewModel.podcast,
+            episodes: viewModel.episodes,
             isLoading: viewModel.isLoading,
             onPlay: viewModel.play,
             onEditConfig: viewModel.navigateToEditConfig,

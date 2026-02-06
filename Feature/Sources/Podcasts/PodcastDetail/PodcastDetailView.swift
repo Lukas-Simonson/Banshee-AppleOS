@@ -9,6 +9,7 @@ struct PodcastDetailView: View {
     @Environment(\.userRole) private var userRole
     
     let podcast: Podcast
+    let episodes: [Episode]
     let isLoading: Bool
     
     let onPlay: (Episode) -> Void
@@ -70,23 +71,20 @@ struct PodcastDetailView: View {
                 VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
                     Text(podcast.title)
                         .font(context.font.title)
-                    Text("\(podcast.episodes?.count ?? 0) episodes")
+                    Text("\(episodes.count) episodes")
                         .font(context.font.caption)
                 }
             }
         )
     }
     
-    @ViewBuilder
     private var episodeDetails: some View {
-        if let episodes = podcast.episodes {
-            ForEach(episodes) { episode in
-                EpisodeCard(
-                    episode: episode,
-                    fallbackImageURL: podcast.imageURL,
-                    onPlay: { onPlay(episode) }
-                )
-            }
+        ForEach(episodes) { episode in
+            EpisodeCard(
+                episode: episode,
+                fallbackImageURL: podcast.imageURL,
+                onPlay: { onPlay(episode) }
+            )
         }
     }
 }
@@ -99,21 +97,21 @@ struct PodcastDetailView: View {
             link: nil,
             language: "en",
             imageURL: URL(string: "https://assets.pippa.io/shows/61b7633a16956271a5e9503b/show-cover.jpg"),
-            description: "Haha funny",
-            episodes: [
-                Episode(
-                    id: UUID(),
-                    title: "A Man And His Handshake",
-                    pubDate: .distantPast,
-                    description: "The dads do a thing",
-                    imageURL: nil,
-                    season: "1",
-                    episode: 1,
-                    duration: nil,
-                    progress: nil
-                )
-            ]
+            description: "Haha funny"
         ),
+        episodes: [
+            Episode(
+                id: UUID(),
+                title: "A Man And His Handshake",
+                pubDate: .distantPast,
+                description: "The dads do a thing",
+                imageURL: nil,
+                season: "1",
+                episode: 1,
+                duration: nil,
+                progress: nil
+            )
+        ],
         isLoading: false,
         onPlay: { _ in },
         onEditConfig: {  },

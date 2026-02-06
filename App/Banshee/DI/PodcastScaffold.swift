@@ -23,21 +23,30 @@ final class PodcastScaffold: PodcastScaffoldContract {
         app.podcastCoordinator()
     }
 
-    @Single
-    func localDataSource() -> LocalPodcastDataSourceContract {
-        GRDBLocalPodcastDataSource(
-            dbManager: app.databaseManager(),
-            logger: logger()
-        )
-    }
-
-    @Single
-    func repository() -> PodcastsRepositoryContract {
-        PodcastsRepository(
+    func podcastRepository() -> PodcastRepositoryContract {
+        PodcastRepository(
             logger: logger(),
             serverProvider: AppCoordinator.shared,
-            remote: CobwebRemotePodcastDataSource(logger: logger()),
-            local: localDataSource()
+            local: GRDBLocalPodcastDataSource(dbManager: app.databaseManager(), logger: logger()),
+            remote: CobwebRemotePodcastDataSource(logger: logger())
+        )
+    }
+    
+    func podcastConfigRepository() -> PodcastConfigRepositoryContract {
+        PodcastConfigRepository(
+            logger: logger(),
+            serverProvider: AppCoordinator.shared,
+            local: GRDBLocalPodcastConfigDataSource(dbManager: app.databaseManager(), logger: logger()),
+            remote: CobwebRemotePodcastConfigDataSource(logger: logger())
+        )
+    }
+    
+    func episodeRepository() -> EpisodeRepositoryContract {
+        EpisodeRepository(
+            logger: logger(),
+            serverProvider: AppCoordinator.shared,
+            local: GRDBLocalEpisodeDataSource(dbManager: app.databaseManager(), logger: logger()),
+            remote: CobwebRemoteEpisodeDataSource(logger: logger())
         )
     }
     

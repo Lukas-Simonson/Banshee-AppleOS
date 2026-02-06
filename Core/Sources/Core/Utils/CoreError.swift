@@ -40,7 +40,8 @@ public extension CoreError {
         case audio = 00_01_00
         case auth = 00_02_00
         case podcasts = 00_03_00
-        case settings = 00_04_00
+        case episodes = 00_04_00
+        case settings = 00_05_00
     }
 }
 

@@ -22,13 +22,13 @@ struct EpisodeRecord: Codable, FetchableRecord, PersistableRecord, Sendable {
     static let podcast = belongsTo(PodcastRecord.self)
 
     // Relationship to progress
-    static let progress = hasOne(AudioProgressRecord.self)
+    static let progress = hasOne(AudioProgressRecord.self, using: ForeignKey(["episodeId"]))
 
     /// Creates a record from a Business layer cached DTO.
-    init(from cachedEpisode: CachedEpisode, podcastId: UUID) {
+    init(from cachedEpisode: CachedEpisode, podcastID: UUID) {
         let episode = cachedEpisode.episode
         self.id = episode.id.uuidString
-        self.podcastId = podcastId.uuidString
+        self.podcastId = podcastID.uuidString
         self.title = episode.title
         self.pubDate = episode.pubDate
         self.description = episode.description
@@ -73,5 +73,27 @@ struct EpisodeRecord: Codable, FetchableRecord, PersistableRecord, Sendable {
             ),
             cachedAt: cachedAt
         )
+    }
+    
+    struct Info: Codable, FetchableRecord {
+        var episodeRecord: EpisodeRecord
+        var audioProgress: AudioProgressRecord?
+        
+        func toCached() -> CachedEpisode {
+            CachedEpisode(
+                episode: Episode(
+                    id: UUID(uuidString: episodeRecord.id)!,
+                    title: episodeRecord.title,
+                    pubDate: episodeRecord.pubDate,
+                    description: episodeRecord.description,
+                    imageURL: episodeRecord.imageURL.flatMap { URL(string: $0) },
+                    season: episodeRecord.season,
+                    episode: episodeRecord.episode,
+                    duration: episodeRecord.duration,
+                    progress: audioProgress?.toCached().progress
+                ),
+                cachedAt: episodeRecord.cachedAt
+            )
+        }
     }
 }

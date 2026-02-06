@@ -10,16 +10,16 @@ extension CoreError {
         feature: Feature,
         _ action: () async throws -> Void
     ) async throws(CoreError) {
-        try await catchDatabase(performing: performing, logger: logger, feature: feature) {
+        try await catchDatabase(performing: performing, logger: logger, feature: feature, action: {
             try await action()
-        }
+        })
     }
     
     static func catchDatabase<T>(
         performing: String,
         logger: Logger,
         feature: Feature,
-        _ action: () async throws -> T
+        action: () async throws -> T
     ) async throws(CoreError) -> T {
         do {
             return try await action()
