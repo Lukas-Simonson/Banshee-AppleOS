@@ -8,7 +8,7 @@ final class PodcastDetailVM {
     private let logger: Logger
     private let navigator: PodcastNavigationContract
     private let podcastRepository: PodcastRepositoryContract
-    private let episodeRepository: EpisodeRepositoryContract
+    private let episodeListInteractor: EpisodeListInteractorContract
     private let player: EpisodePlayerContract
     
     // MARK: - State
@@ -17,17 +17,25 @@ final class PodcastDetailVM {
     private(set) var isLoading = false
     private(set) var isStartingPlayback = false
     
+    var sortOrder: Episode.Order {
+        get { episodeListInteractor.order }
+        set { episodeListInteractor.updateOrder(newValue) }
+    }
+    
+    private var episodeObservation: Task<Void, any Error>?
+    
     // MARK: - Initialization
     public init(_ scaffold: PodcastScaffoldContract, podcast: Podcast) {
         self.logger = scaffold.logger()
         self.navigator = scaffold.navigator()
         self.podcastRepository = scaffold.podcastRepository()
-        self.episodeRepository = scaffold.episodeRepository()
+        self.episodeListInteractor = scaffold.episodeListInteractor()
         self.player = scaffold.player()
         
         self.podcast = podcast
         
         observePodcastAndEpisodes()
+        episodeListInteractor.stream(podcast: podcast)
     }
     
     // MARK: - Actions
@@ -66,7 +74,7 @@ final class PodcastDetailVM {
         
         do {
             // async let updatePodcast = podcastRepository.refreshPodcast(with: podcast.id, force: force)
-            async let updateEpisodes = episodeRepository.refreshEpisodes(of: podcast, force: force)
+            async let updateEpisodes = episodeListInteractor.refresh(force: force)
             
             try await (updateEpisodes)
         } catch let error as CoreError {
@@ -82,8 +90,10 @@ final class PodcastDetailVM {
     
     // MARK: - Private Methods
     
-    public func observePodcastAndEpisodes() {
+    private func observePodcastAndEpisodes() {
         Task { await self.refresh() }
+        
+        observeEpisodes()
         
         Task { [weak self] in
             guard let podcast = self?.podcast,
@@ -99,19 +109,15 @@ final class PodcastDetailVM {
                 self?.navigator.showError(error)
             }
         }
-        
-        Task { [weak self] in
-            guard let podcast = self?.podcast,
-                  let stream = self?.episodeRepository.observeEpisodes(of: podcast, order: .seasonEpisode)
-            else { return }
-            
-            do {
-                for await update in stream {
-                    guard let self else { break }
-                    self.episodes = try update.get()
-                }
-            } catch let error as CoreError {
-                self?.navigator.showError(error)
+    }
+    
+    private func observeEpisodes() {
+        episodeObservation?.cancel()
+        episodeObservation = Task { [weak self] in
+            guard let stream = self?.episodeListInteractor.episodeStream else { return }
+            for await update in stream {
+                guard let self, !Task.isCancelled else { break }
+                self.episodes = update
             }
         }
     }

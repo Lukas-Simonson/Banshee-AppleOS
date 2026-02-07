@@ -6,11 +6,14 @@ import SwiftUI
 struct PodcastDetailView: View {
     
     @Environment(\.bruteContext) private var context
-    @Environment(\.userRole) private var userRole
+    
+    @State private var showSettings = false
     
     let podcast: Podcast
     let episodes: [Episode]
     let isLoading: Bool
+    
+    @Binding var order: Episode.Order
     
     let onPlay: (Episode) -> Void
     let onEditConfig: () -> Void
@@ -23,7 +26,7 @@ struct PodcastDetailView: View {
                 topAppBar
                 
                 if isLoading {
-                    LoadingIndicator().frame(maxHeight: .infinity)
+                    LoadingScreen()
                 } else {
                     ScrollView {
                         LazyVStack(spacing: context.dimen.paddingMedium) {
@@ -36,30 +39,33 @@ struct PodcastDetailView: View {
                     .navigationBarBackButtonHidden()
                 }
             }
+            .sheet(isPresented: $showSettings) {
+                PodcastDetailSettingsPopup(
+                    order: $order,
+                    onEditConfig: {
+                        showSettings = false
+                        onEditConfig()
+                    }
+                )
+                .autoDetent()
+            }
         }
     }
     
     @ViewBuilder
     private var topAppBar: some View {
-        if userRole == .admin {
-            TopAppBar(
-                title: podcast.title,
-                leading: {
-                    NavigateBackButton(onNavigateBack)
-                },
-                trailing: {
-                    Button("Settings", systemImage: "gearshape.fill", action: onEditConfig)
-                        .buttonStyle(.icon(size: .medium))
+        TopAppBar(
+            title: podcast.title,
+            leading: {
+                NavigateBackButton(onNavigateBack)
+            },
+            trailing: {
+                Button("Options", systemImage: "gearshape.fill") {
+                    showSettings = !showSettings
                 }
-            )
-        } else {
-            TopAppBar(
-                title: podcast.title,
-                leading: {
-                    NavigateBackButton(onNavigateBack)
-                }
-            )
-        }
+                .buttonStyle(.icon(size: .medium))
+            }
+        )
     }
     
     private var podcastDetails: some View {
@@ -113,10 +119,11 @@ struct PodcastDetailView: View {
             )
         ],
         isLoading: false,
+        order: .constant(.title),
         onPlay: { _ in },
         onEditConfig: {  },
         onRefresh: {  },
         onNavigateBack: {  }
     )
-    .environment(\.userRole, .user)
+    .environment(\.userRole, .admin)
 }

@@ -94,7 +94,7 @@ extension TopAppBar {
     
     public init(
         title: String,
-        leading: @escaping () -> Leading
+        @ViewBuilder leading: @escaping () -> Leading
     ) where Trailing == EmptyView {
         self.title = title
         self.mode = .leadingAndTitle
@@ -104,7 +104,7 @@ extension TopAppBar {
     
     public init(
         title: String,
-        trailing: @escaping () -> Trailing
+        @ViewBuilder trailing: @escaping () -> Trailing
     ) where Leading == EmptyView {
         self.title = title
         self.mode = .trailingAndTitle
@@ -114,8 +114,8 @@ extension TopAppBar {
     
     public init(
         title: String,
-        leading: @escaping () -> Leading,
-        trailing: @escaping () -> Trailing,
+        @ViewBuilder leading: @escaping () -> Leading,
+        @ViewBuilder trailing: @escaping () -> Trailing,
     ) {
         self.title = title
         self.mode = .all
