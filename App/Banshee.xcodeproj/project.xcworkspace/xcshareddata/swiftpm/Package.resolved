@@ -1,5 +1,5 @@
 {
-  "originHash" : "ae194f916c45ff34d6ce9a6ed03b6b888725549e03bcd15832da0a76020ea2cd",
+  "originHash" : "f93fbbfe88349546c88630144e620f71f3fc972500b28fb2c5de999576e45a3d",
   "pins" : [
     {
       "identity" : "brute",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/Lukas-Simonson/Brute",
       "state" : {
         "branch" : "main",
-        "revision" : "0b443aa055eb9b344bc7aa1482c79481b0edd526"
+        "revision" : "f75569279c08a724068d4e2d2ee3dbc2997e615f"
       }
     },
     {

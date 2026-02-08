@@ -50,6 +50,13 @@ final class PodcastScaffold: PodcastScaffoldContract {
         )
     }
     
+    func episodeListInteractor() -> EpisodeListInteractorContract {
+        EpisodeListInteractor(
+            repository: episodeRepository(),
+            storage: UserDefaultsKeyValueStore(defaults: app.defaults())
+        )
+    }
+    
     func player() -> any EpisodePlayerContract {
         app.player()
     }

@@ -33,3 +33,11 @@ public struct Episode: Identifiable, Sendable {
         self.progress = progress
     }
 }
+
+extension Episode {
+    public enum Order: Codable, Sendable {
+        case title
+        case date
+        case seasonEpisode
+    }
+}

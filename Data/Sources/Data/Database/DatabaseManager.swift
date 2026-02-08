@@ -32,6 +32,7 @@ public final class DatabaseManager: @unchecked Sendable {
             create: true
         )
         let directoryURL = appSupportURL.appendingPathComponent("Banshee", isDirectory: true)
+        print(directoryURL)
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         return directoryURL.appendingPathComponent("banshee.sqlite").path
     }

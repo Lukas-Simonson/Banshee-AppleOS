@@ -14,6 +14,7 @@ public struct PodcastDetailScreen: View {
             podcast: viewModel.podcast,
             episodes: viewModel.episodes,
             isLoading: viewModel.isLoading,
+            order: $viewModel.sortOrder,
             onPlay: viewModel.play,
             onEditConfig: viewModel.navigateToEditConfig,
             onRefresh: { await viewModel.refresh(force: true) },
