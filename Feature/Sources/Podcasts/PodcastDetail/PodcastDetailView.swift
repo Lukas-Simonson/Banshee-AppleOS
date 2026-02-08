@@ -36,9 +36,9 @@ struct PodcastDetailView: View {
                         .padding(context.dimen.paddingMedium)
                     }
                     .refreshable(action: onRefresh)
-                    .navigationBarBackButtonHidden()
                 }
             }
+            .navigationBarBackButtonHidden()
             .sheet(isPresented: $showSettings) {
                 PodcastDetailSettingsPopup(
                     order: $order,
