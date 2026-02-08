@@ -1,4 +1,5 @@
 import Core
+import Foundation
 import Logging
 import Observation
 
@@ -32,6 +33,16 @@ final class PodcastListVM {
             try await repository.refreshPodcasts(force: force)
         } catch let error {
             navigator.showError(error)
+        }
+    }
+    
+    public func addPodcast(fromRSS rssURL: URL) {
+        Task {
+            do {
+                try await repository.addPodcast(fromRSS: rssURL)
+            } catch let error as CoreError {
+                navigator.showError(error)
+            }
         }
     }
     

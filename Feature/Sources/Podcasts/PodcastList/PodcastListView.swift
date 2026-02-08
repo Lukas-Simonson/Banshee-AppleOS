@@ -6,21 +6,48 @@ import SwiftUI
 struct PodcastListView: View {
     
     @Environment(\.bruteContext) private var context
+    @Environment(\.userRole) private var userRole
+    
+    @State private var showSettings = false
     
     let podcasts: [Podcast]
     let isLoading: Bool
     
     let onTapPodcast: (Podcast) -> Void
     let onRefresh: @Sendable () async -> Void
+    let onAddFeed: (URL) -> Void
     
     var body: some View {
         BruteStyle {
-            if isLoading {
-                LoadingIndicator()
-            } else if podcasts.isEmpty {
-                noPodcasts
-            } else {
-                podcastGrid
+            VStack(spacing: 0) {
+                if userRole == .admin {
+                    TopAppBar(
+                        title: "Podcasts",
+                        trailing: {
+                            Button("Settings", systemImage: "gearshape.fill") {
+                                showSettings = true
+                            }
+                            .buttonStyle(.icon(size: .medium))
+                        }
+                    )
+                }
+                
+                if isLoading {
+                    LoadingIndicator()
+                } else if podcasts.isEmpty {
+                    noPodcasts
+                } else {
+                    podcastGrid
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                PodcastListSettingsPopup(
+                    onAddFeed: { url in
+                        onAddFeed(url)
+                        showSettings = false
+                    }
+                )
+                .autoDetent()
             }
         }
     }
@@ -56,27 +83,28 @@ struct PodcastListView: View {
 
 #Preview {
     PodcastListView(
-//        podcasts: [
-//            Podcast(
-//                id: UUID(),
-//                title: "Dungeons and Daddies",
-//                link: nil,
-//                language: "en",
-//                imageURL: URL(string: "https://assets.pippa.io/shows/61b7633a16956271a5e9503b/show-cover.jpg"),
-//                description: "Haha funny"
-//            ),
-//            Podcast(
-//                id: UUID(),
-//                title: "The Adventure Zone",
-//                link: nil,
-//                language: "en",
-//                imageURL: URL(string: "https://maximumfun.org/wp-content/uploads/2019/03/Adventure-Zone-The-Season-9-Royale-400x400.jpg"),
-//                description: "Haha funny"
-//            ),
-//        ],
-        podcasts: [],
+        podcasts: [
+            Podcast(
+                id: UUID(),
+                title: "Dungeons and Daddies",
+                link: nil,
+                language: "en",
+                imageURL: URL(string: "https://assets.pippa.io/shows/61b7633a16956271a5e9503b/show-cover.jpg"),
+                description: "Haha funny"
+            ),
+            Podcast(
+                id: UUID(),
+                title: "The Adventure Zone",
+                link: nil,
+                language: "en",
+                imageURL: URL(string: "https://maximumfun.org/wp-content/uploads/2019/03/Adventure-Zone-The-Season-9-Royale-400x400.jpg"),
+                description: "Haha funny"
+            ),
+        ],
         isLoading: false,
         onTapPodcast: { _ in },
-        onRefresh: { }
+        onRefresh: { },
+        onAddFeed: { _ in }
     )
+    .environment(\.userRole, .admin)
 }

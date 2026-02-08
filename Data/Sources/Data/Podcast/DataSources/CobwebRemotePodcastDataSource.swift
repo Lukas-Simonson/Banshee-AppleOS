@@ -24,4 +24,18 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
                 .map { $0.toCore() }
         }
     }
+    
+    public func registerFeed(from rssURL: URL, baseURL: String, token: String) async throws(CoreError) -> Podcast {
+        try await CoreError.catchNetwork(performing: "Registering RSS feed", logger: logger, feature: .podcasts) {
+            try await Cobweb.URL.using(baseURL: baseURL)
+                .path("/api/podcasts/feeds")
+                .post()
+                .withHeaders(.bearer(token), .contentType(value: "application/json"))
+                .withBody(["url": rssURL])
+                .response()
+                .withStatusCoreError(expecting: 200, feature: .podcasts)
+                .body(as: PodcastDTO.self)
+                .toCore()
+        }
+    }
 }

@@ -14,7 +14,8 @@ public struct PodcastListScreen: View {
             podcasts: viewModel.podcasts,
             isLoading: viewModel.isLoading,
             onTapPodcast: viewModel.selectPodcast,
-            onRefresh: { await viewModel.refresh(force: true) }
+            onRefresh: { await viewModel.refresh(force: true) },
+            onAddFeed: viewModel.addPodcast
         )
     }
 }
