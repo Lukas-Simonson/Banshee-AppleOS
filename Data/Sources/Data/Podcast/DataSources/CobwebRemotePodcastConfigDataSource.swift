@@ -32,12 +32,12 @@ public struct CobwebRemotePodcastConfigDataSource: RemotePodcastConfigDataSource
             try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/podcasts/\(config.podcastID)/config")
                 .query(.item(key: "config", value: "include"))
-                .post()
+                .put()
                 .also { logger.info("Sending request to POST /api/podcasts/\(config.podcastID)/config") }
                 .withHeaders(.bearer(token), .contentType(value: "application/json"))
                 .withBody(config.toDTO())
                 .response()
-                .withStatusCoreError(expecting: 200, feature: .podcasts)
+                .withStatusCoreError(expecting: 202, feature: .podcasts)
         }
     }
 }

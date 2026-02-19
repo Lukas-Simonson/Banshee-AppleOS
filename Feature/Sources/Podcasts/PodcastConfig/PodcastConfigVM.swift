@@ -41,6 +41,7 @@ final class PodcastConfigVM {
             } catch let error as CoreError {
                 navigator.navigateBack()
                 navigator.showError(error)
+                logger.error("Error while loading podcast config", for: error)
             }
         }
     }
@@ -56,6 +57,7 @@ final class PodcastConfigVM {
                 navigator.navigateBack()
             } catch let error as CoreError {
                 navigator.showError(error)
+                logger.error("Error while saving podcast config", for: error)
             }
         }
     }
