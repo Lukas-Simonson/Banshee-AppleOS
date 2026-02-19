@@ -5,7 +5,7 @@ public protocol RemotePlayerDataSourceContract: Sendable {
     func episode(with id: UUID, baseURL: String, token: String) async throws(CoreError) -> Episode
 
     func updateProgress(
-        episodeId: UUID,
+        episodeID: UUID,
         baseURL: String,
         token: String,
         isCompleted: Bool,
