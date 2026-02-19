@@ -38,12 +38,11 @@ extension PodcastRepository {
     }
     
     public func refreshPodcasts(force: Bool) async throws(CoreError) {
-        if !force {
-            let cached = try await local.podcasts()
-            if let first = cached.first, !first.isExpired() {
-                logger.info("Attempted to refresh unexpired podcasts")
-                return
-            }
+        let cached = try await local.podcasts()
+        
+        if !force, let first = cached.first, !first.isExpired() {
+            logger.info("Attempted to refresh unexpired podcasts")
+            return
         }
         
         guard let token = await serverProvider.token?.token,
@@ -51,6 +50,19 @@ extension PodcastRepository {
         else { throw CoreError.notAuthenticated(layer: .business, feature: .podcasts) }
         
         let refreshed = try await remote.podcasts(baseURL: server, token: token)
+        
+        var removed = [UUID]()
+        
+        // Diff podcasts to remove ones that are no longer on the server.
+        for index in cached.indices.reversed() {
+            let podcast = cached[index].toCore()
+            if !refreshed.contains(where: { $0.id == podcast.id }) {
+                removed.append(podcast.id)
+            }
+        }
+        
+        // Delete remaining cached podcasts, as they are no longer on the server.
+        try await local.deletePodcasts(withIDs: removed)
         try await local.upsert(refreshed)
     }
 }
