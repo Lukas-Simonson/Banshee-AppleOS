@@ -103,7 +103,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
             localQueue.save(newQueue)
 
             await playerStateFlow.emit(newState)
-            await audio.setMedia(with: AudioData(image: nil, title: episode.title))
+            await audio.setMedia(with: AudioData(image: nil, title: episode.title, watchTime: episode.progress?.watchTime, totalDuration: episode.duration ?? 0))
 
             if startPlaying {
                 await audio.play()

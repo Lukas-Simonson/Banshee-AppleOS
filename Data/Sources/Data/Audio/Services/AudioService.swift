@@ -1,11 +1,14 @@
 import AVFoundation
 import Business
 import Foundation
+import MediaPlayer
 
 final public class AudioService: AudioServiceContract, @unchecked Sendable {
-
+    
     // Private State
-    private var session: AVAudioSession = .sharedInstance()
+    private let session: AVAudioSession = .sharedInstance()
+    private let commandCenter = RemoteCommandService()
+    private var audioInfo = AudioInfoService()
     private var player: AVPlayer? = nil
     private var timeObserver: Any? = nil
     private var endObserver: Any? = nil
@@ -29,7 +32,7 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
         
         // Remove observer watching for end of audio.
         disableDidPlayToEnd()
-    
+        
         lock.withLock {
             // Create or update current player.
             if let player {
@@ -46,31 +49,36 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
     }
     
     public func setMedia(with data: AudioData) {
-        
+        audioInfo.update(with: data)
     }
     
     public func play() {
-        if let player {
-            player.play()
-            delegate?.playerDidResume()
-        }
+        guard let player else { return }
+
+        player.play()
+        delegate?.playerDidPause()
+        
+        let seconds = Int(player.currentTime().seconds)
+        audioInfo.update(duration: seconds, rate: player.rate)
     }
     
     public func pause() {
-        if let player {
-            player.pause()
-            delegate?.playerDidPause()
-        }
+        guard let player else { return }
+
+        player.pause()
+        delegate?.playerDidPause()
+        
+        let seconds = Int(player.currentTime().seconds)
+        audioInfo.update(duration: seconds, rate: player.rate)
     }
     
     public func stop() {
-        if let player {
-            lock.withLock {
-                player.pause()
-                player.seek(to: .zero, toleranceBefore: .zero, toleranceAfter: .zero)
-                delegate?.playerDidStop()
-            }
-        }
+        guard let player else { return }
+        
+        player.pause()
+        player.seek(to: .zero, toleranceBefore: .zero, toleranceAfter: .zero)
+        delegate?.playerDidStop()
+        audioInfo.update(duration: 0, rate: 0)
     }
     
     public func skipForward() async {
@@ -82,7 +90,9 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
             toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1)
         )
         
-        delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
+        let seconds = Int(player.currentTime().seconds)
+        delegate?.playerDidUpdateTimePlayed(seconds)
+        audioInfo.update(duration: seconds, rate: player.rate)
     }
     
     public func skipBackward() async {
@@ -94,7 +104,9 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
             toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1)
         )
         
-        delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
+        let seconds = Int(player.currentTime().seconds)
+        delegate?.playerDidUpdateTimePlayed(seconds)
+        audioInfo.update(duration: seconds, rate: player.rate)
     }
     
     public func seek(to time: Int) async {
@@ -106,7 +118,9 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
             toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1)
         )
         
-        delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
+        let seconds = Int(player.currentTime().seconds)
+        delegate?.playerDidUpdateTimePlayed(seconds)
+        audioInfo.update(duration: seconds, rate: player.rate)
     }
 }
 
