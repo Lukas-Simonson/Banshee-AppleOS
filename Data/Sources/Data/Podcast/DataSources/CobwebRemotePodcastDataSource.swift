@@ -33,7 +33,7 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
                 .withHeaders(.bearer(token), .contentType(value: "application/json"))
                 .withBody(["url": rssURL])
                 .response()
-                .withStatusCoreError(expecting: 200, feature: .podcasts)
+                .withStatusCoreError(expecting: 201, feature: .podcasts)
                 .body(as: PodcastDTO.self)
                 .toCore()
         }
