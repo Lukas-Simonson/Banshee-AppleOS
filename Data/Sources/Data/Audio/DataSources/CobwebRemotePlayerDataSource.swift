@@ -16,6 +16,7 @@ public struct CobwebRemotePlayerDataSource: RemotePlayerDataSourceContract {
         try await CoreError.catchNetwork(performing: "fetching episode", logger: logger, feature: .audio) {
             try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/episodes/\(id)")
+                .query(.item(key: "includeProgress", value: true))
                 .get()
                 .also { logger.info("Making request to /api/episodes/\(id)") }
                 .withHeaders(.bearer(token))

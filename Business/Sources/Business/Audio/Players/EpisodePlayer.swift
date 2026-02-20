@@ -75,11 +75,8 @@ public actor EpisodePlayer: EpisodePlayerContract {
 
         await playerStateFlow.emit(.loading(size: newQueue.count))
         
-        async let fetchEpisode = remote.episode(with: current, baseURL: server, token: token.token)
-        async let loadAudio = audio.start(url, token: token.token)
-        
         do {
-            let (episode, _) = try await (fetchEpisode, loadAudio)
+            let episode = try await remote.episode(with: current, baseURL: server, token: token.token)
             let newState = AudioPlayerState(
                 title: episode.title,
                 author: newQueue.podcastName,
@@ -88,8 +85,12 @@ public actor EpisodePlayer: EpisodePlayerContract {
                 duration: episode.duration ?? 1,
                 queueSize: newQueue.count,
                 queuePosition: newQueue.position + 1, // +1 to offset zero indexed
-                mode: startPlaying ? .playing : .paused
+                mode: startPlaying ? .loading : .paused
             )
+            
+            await playerStateFlow.emit(newState)
+            
+            let loadAudio = try await audio.start(url, token: token.token)
 
             if let progress = episode.progress {
                 if progress.isCompleted {
@@ -102,10 +103,10 @@ public actor EpisodePlayer: EpisodePlayerContract {
             // Persist queue to local storage.
             localQueue.save(newQueue)
 
-            await playerStateFlow.emit(newState)
             await audio.setMedia(with: AudioData(image: nil, title: episode.title, watchTime: episode.progress?.watchTime, totalDuration: episode.duration ?? 0))
 
             if startPlaying {
+                await audio.awaitReadyToPlay()
                 await audio.play()
             }
         } catch let error as CoreError {
@@ -215,8 +216,9 @@ extension EpisodePlayer: AudioServiceDelegateContract {
         }
     }
     
-    nonisolated public func playerDidEncounterError(_ error: Error?) {
+    nonisolated public func playerDidEncounterError(_ error: Error) {
         // TODO: Handle somehow
+        logger.error("Player encountered an error", for: error)
     }
 }
 
@@ -226,11 +228,16 @@ extension EpisodePlayer {
     
     public func pause() async { await audio.pause() }
     
-    public func stop() async { await audio.stop() }
+    public func stop() async { await audio.stop(notify: true) }
     
     public func next() async {
         do {
             guard let next = queue?.next() else { return }
+            await audio.stop(notify: false)
+            
+            if let state = await self.playerState {
+                await syncProgressNow(currentTime: state.current, isCompleted: false)
+            }
             
             try await enqueue(
                 next,

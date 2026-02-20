@@ -1,6 +1,7 @@
 import Foundation
 
 public struct CoreError: LocalizedError {
+    public let id = UUID()
     public let errorCode: UInt16
     public let localizedKey: LocalizedStringResource
     public let logMessage: String

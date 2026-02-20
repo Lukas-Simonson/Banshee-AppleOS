@@ -8,9 +8,10 @@ public protocol AudioServiceContract: AnyObject, Sendable {
     
     func play() async
     func pause() async
-    func stop() async
+    func stop(notify: Bool) async
     func skipForward() async
     func skipBackward() async
     
     func seek(to time: Int) async
+    func awaitReadyToPlay() async
 }
