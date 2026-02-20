@@ -13,80 +13,35 @@ public struct CobwebRemotePlayerDataSource: RemotePlayerDataSourceContract {
     }
     
     public func episode(with id: UUID, baseURL: String, token: String) async throws(CoreError) -> Episode {
-        do {
-            let response = try await Cobweb.URL.using(baseURL: baseURL)
+        try await CoreError.catchNetwork(performing: "fetching episode", logger: logger, feature: .audio) {
+            try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/episodes/\(id)")
                 .get()
                 .also { logger.info("Making request to /api/episodes/\(id)") }
                 .withHeaders(.bearer(token))
                 .response()
-
-            switch try response.statusCode {
-                case 200: break
-                case 401: throw CoreError.unauthorized(layer: .data, feature: .audio)
-                case 404: throw CoreError.resourceNotFound(layer: .data, feature: .audio)
-                case 500...599: throw CoreError.serverError(layer: .data, feature: .audio)
-                default: throw CoreError.unexpectedResponse(
-                    layer: .data,
-                    feature: .audio,
-                    code: try response.statusCode
-                )
-            }
-
-            return try response.body(as: EpisodeDTO.self, JSONDecoder().withISO8601()).toCore()
-        } catch let error as CoreError {
-            throw error
-        } catch let error as Cobweb.URL.URLError {
-            logger.error("Unable to create URL", for: error)
-            throw CoreError.urlError(layer: .data, feature: .auth)
-        } catch let error as Cobweb.HTTP.Request.ResponseError {
-            logger.error("Server Verification failed with response error", for: error)
-            throw CoreError.invalidResponseFormat(layer: .data, feature: .auth)
-        } catch {
-            logger.error("Unknown error found during server verification", for: error)
-            throw CoreError.unexpected(layer: .data, feature: .auth)
+                .withStatusCoreError(expecting: 200, feature: .audio)
+                .body(as: EpisodeDTO.self, JSONDecoder().withISO8601())
+                .toCore()
         }
     }
 
     public func updateProgress(
-        episodeId: UUID,
+        episodeID: UUID,
         baseURL: String,
         token: String,
         isCompleted: Bool,
         watchTime: Int
     ) async throws(CoreError) {
-        do {
-            let response = try await Cobweb.URL.using(baseURL: baseURL)
-                .path("/api/episodes/\(episodeId)/progress")
-                .post()
-                .also { logger.info("Syncing progress for episode \(episodeId): \(watchTime)s") }
+        try await CoreError.catchNetwork(performing: "Syncing episode progress", logger: logger, feature: .audio) {
+            try await Cobweb.URL.using(baseURL: baseURL)
+                .path("/api/episodes/\(episodeID)/progress")
+                .put()
+                .also { logger.info("Syncing progress for episode \(episodeID), watchTime: \(watchTime)") }
                 .withBody(ProgressUpdateRequest(isCompleted: isCompleted, watchTime: watchTime))
-                .withHeaders(.contentType(value: "application/json"))
-                .withHeaders(.bearer(token))
+                .withHeaders(.contentType(value: "application/json"), .bearer(token))
                 .response()
-            
-            switch try response.statusCode {
-                case 202: break
-                case 401: throw CoreError.unauthorized(layer: .data, feature: .audio)
-                case 404: throw CoreError.resourceNotFound(layer: .data, feature: .audio)
-                case 500...599: throw CoreError.serverError(layer: .data, feature: .audio)
-                default: throw CoreError.unexpectedResponse(
-                    layer: .data,
-                    feature: .audio,
-                    code: try response.statusCode
-                )
-            }
-        } catch let error as CoreError {
-            throw error
-        } catch let error as Cobweb.URL.URLError {
-            logger.error("Unable to create URL", for: error)
-            throw CoreError.urlError(layer: .data, feature: .auth)
-        } catch let error as Cobweb.HTTP.Request.ResponseError {
-            logger.error("Server Verification failed with response error", for: error)
-            throw CoreError.invalidResponseFormat(layer: .data, feature: .auth)
-        } catch {
-            logger.error("Unknown error found during server verification", for: error)
-            throw CoreError.unexpected(layer: .data, feature: .auth)
+                .withStatusCoreError(expecting: 202, feature: .audio)
         }
     }
 }

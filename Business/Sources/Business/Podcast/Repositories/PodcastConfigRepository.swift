@@ -33,7 +33,7 @@ public struct PodcastConfigRepository: PodcastConfigRepositoryContract {
         
         try await remote.postConfig(config, baseURL: server, token: token)
         
-        // Provide default values for non-overidden config values.
+        // Provide default values for non-overridden config values.
         try await local.updatePodcast(
             with: PodcastConfig(
                 title: config.title ?? podcast.title,

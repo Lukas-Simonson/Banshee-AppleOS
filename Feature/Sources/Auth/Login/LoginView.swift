@@ -23,7 +23,7 @@ struct LoginView: View {
                     .keyboardType(.URL)
                     .textContentType(.URL)
                 
-                TextField("Username", text: $username)
+                TextField("Email / Username", text: $username)
                     .textContentType(.username)
                 
                 SecureField("Password", text: $password)

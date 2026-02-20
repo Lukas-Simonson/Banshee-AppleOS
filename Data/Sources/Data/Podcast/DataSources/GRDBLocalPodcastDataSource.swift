@@ -54,4 +54,14 @@ public struct GRDBLocalPodcastDataSource: LocalPodcastDataSourceContract {
             }
         }
     }
+    
+    public func deletePodcasts(withIDs ids: [UUID]) async throws(CoreError) {
+        try await CoreError.catchDatabase(performing: "deleting podcasts", logger: logger, feature: .podcasts) {
+            try await dbManager.dbQueue.write { db in
+                try PodcastRecord
+                    .filter { ids.contains($0.id) }
+                    .deleteAll(db)
+            }
+        }
+    }
 }

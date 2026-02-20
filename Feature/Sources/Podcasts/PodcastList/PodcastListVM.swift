@@ -41,6 +41,7 @@ final class PodcastListVM {
             do {
                 try await repository.addPodcast(fromRSS: rssURL)
             } catch let error as CoreError {
+                logger.error("Failed adding rss feed", for: error)
                 navigator.showError(error)
             }
         }

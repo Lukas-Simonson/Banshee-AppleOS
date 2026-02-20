@@ -43,6 +43,7 @@ final class LoginVM {
                 logger.info("Login successful, navigating to home!")
                 navigator.navigateHome()
             } catch let error as CoreError {
+                logger.error("Failed to login", for: error)
                 navigator.showError(error)
             }
         }

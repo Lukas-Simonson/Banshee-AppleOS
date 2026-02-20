@@ -12,4 +12,6 @@ public protocol LocalPodcastDataSourceContract: Sendable {
     func observePodcasts() async throws(CoreError) -> AsyncSequence<[CachedPodcast], any Error>
     
     func upsert(_ podcasts: [Podcast]) async throws(CoreError)
+    
+    func deletePodcasts(withIDs ids: [UUID]) async throws(CoreError)
 }
