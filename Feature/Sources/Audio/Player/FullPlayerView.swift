@@ -38,10 +38,14 @@ struct FullPlayerView: View {
                 }
                 
                 VStack(spacing: context.dimen.paddingSmall) {
-                    SeekSlider(
-                        value: $current,
-                        in: 0...(state?.duration ?? 1)
-                    )
+                    if state?.mode == .loading {
+                        ProgressView()
+                    } else {
+                        SeekSlider(
+                            value: $current,
+                            in: 0...(state?.duration ?? 1)
+                        )
+                    }
                     
                     HStack {
                         Text(state?.current ?? 0, format: .timeInterval)
@@ -77,6 +81,7 @@ struct FullPlayerView: View {
                     )
                     .buttonStyle(.icon(size: .large))
                     
+                    
                     Button("Next", systemImage: "forward.end.fill", action: onNext)
                         .disabled(!(state?.hasNext ?? false))
                     
@@ -102,6 +107,7 @@ struct FullPlayerView: View {
                 )
             }
             .padding(context.dimen.paddingMedium)
+            .disabled(state?.mode != .playing && state?.mode != .paused)
         }
     }
 }

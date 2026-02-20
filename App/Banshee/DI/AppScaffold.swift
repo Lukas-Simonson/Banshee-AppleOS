@@ -5,6 +5,7 @@ import Data
 import Foundation
 import Logging
 import Scaffold
+import SharedUI
 
 
 final class AppScaffold {
@@ -43,7 +44,8 @@ final class AppScaffold {
                 dbManager: databaseManager(),
                 logger: Logger(label: "com.bansheeaudio.playback")
             ),
-            localQueue: UserDefaultsLocalQueueDataSource(defaults: defaults())
+            localQueue: UserDefaultsLocalQueueDataSource(defaults: defaults()),
+            images: ImageCache.shared
         )
     }
     
@@ -78,3 +80,4 @@ final class AppScaffold {
 }
 
 extension UserDefaults: @retroactive @unchecked Sendable {}
+extension ImageCache: @retroactive ImageDataSourceContract {}

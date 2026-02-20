@@ -5,5 +5,5 @@ public protocol AudioServiceDelegateContract {
     func playerDidStop()
     
     func playerDidFinish(_ time: Int)
-    func playerDidEncounterError(_ error: Error?)
+    func playerDidEncounterError(_ error: Error)
 }

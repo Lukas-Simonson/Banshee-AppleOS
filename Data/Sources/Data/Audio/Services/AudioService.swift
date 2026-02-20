@@ -1,11 +1,14 @@
 import AVFoundation
 import Business
 import Foundation
+import MediaPlayer
 
 final public class AudioService: AudioServiceContract, @unchecked Sendable {
-
+    
     // Private State
-    private var session: AVAudioSession = .sharedInstance()
+    private let session: AVAudioSession = .sharedInstance()
+    private var commandCenter = RemoteCommandService()
+    private var audioInfo = AudioInfoService()
     private var player: AVPlayer? = nil
     private var timeObserver: Any? = nil
     private var endObserver: Any? = nil
@@ -27,54 +30,117 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
             )
         )
         
-        // Remove observer watching for end of audio.
-        disableDidPlayToEnd()
-    
-        lock.withLock {
+        try lock.withLock {
+            // Remove observer watching for end of audio.
+            disableDidPlayToEnd()
+            
             // Create or update current player.
             if let player {
                 player.replaceCurrentItem(with: item)
             } else {
                 player = AVPlayer(playerItem: item)
             }
+            
+            try activateAudioSession()
+            activateInterruptionHandling()
+            enableDurationUpdates()
+            enableDidPlayToEnd()
         }
-        
-        try activateAudioSession()
-        activateInterruptionHandling()
-        enableDurationUpdates()
-        enableDidPlayToEnd()
     }
     
     public func setMedia(with data: AudioData) {
+        lock.lock()
+        defer { lock.unlock() }
         
+        audioInfo.update(with: data)
+        
+        commandCenter.enable(.play) { [weak self] _ in
+            self?.play()
+            return .success
+        }
+        
+        commandCenter.enable(.pause) { [weak self] _ in
+            self?.pause()
+            return .success
+        }
+        
+        commandCenter.enable(.skipForward) { [weak self] _ in
+            guard let self, let player = lock.withLock({ self.player }) else { return .noSuchContent }
+            
+            player.seek(
+                to: player.currentTime() + CMTime(seconds: 15, preferredTimescale: 1),
+                toleranceBefore: CMTime(seconds: 1, preferredTimescale: 1),
+                toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1),
+                completionHandler: { [weak self] _ in
+                    guard let self else { return }
+                    let seconds = Int(player.currentTime().seconds)
+                    delegate?.playerDidUpdateTimePlayed(seconds)
+                    audioInfo.update(duration: seconds, rate: player.rate)
+                }
+            )
+            
+            return .success
+        }
+        
+        commandCenter.enable(.skipBackward) { [weak self] _ in
+            guard let self, let player = lock.withLock({ self.player }) else { return .noSuchContent }
+            
+            player.seek(
+                to: player.currentTime() - CMTime(seconds: 15, preferredTimescale: 1),
+                toleranceBefore: CMTime(seconds: 1, preferredTimescale: 1),
+                toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1),
+                completionHandler: { [weak self] _ in
+                    guard let self else { return }
+                    let seconds = Int(player.currentTime().seconds)
+                    delegate?.playerDidUpdateTimePlayed(seconds)
+                    audioInfo.update(duration: seconds, rate: player.rate)
+                }
+            )
+            
+            return .success
+        }
     }
     
     public func play() {
-        if let player {
+        lock.withLock {
+            guard let player else { return }
+        
             player.play()
             delegate?.playerDidResume()
+            
+            let seconds = Int(player.currentTime().seconds)
+            audioInfo.update(duration: seconds, rate: player.rate)
         }
     }
     
     public func pause() {
-        if let player {
+        lock.withLock {
+            guard let player else { return }
+
             player.pause()
             delegate?.playerDidPause()
+            
+            let seconds = Int(player.currentTime().seconds)
+            audioInfo.update(duration: seconds, rate: player.rate)
         }
     }
     
-    public func stop() {
-        if let player {
-            lock.withLock {
-                player.pause()
-                player.seek(to: .zero, toleranceBefore: .zero, toleranceAfter: .zero)
+    public func stop(notify: Bool) {
+        lock.withLock {
+            guard let player else { return }
+
+            player.pause()
+            player.seek(to: .zero, toleranceBefore: .zero, toleranceAfter: .zero)
+            audioInfo.update(duration: 0, rate: 0)
+            
+            if notify {
                 delegate?.playerDidStop()
             }
         }
     }
     
     public func skipForward() async {
-        guard let player else { return }
+        guard let player = lock.withLock({ self.player }) else { return }
         
         await player.seek(
             to: player.currentTime() + CMTime(seconds: 15, preferredTimescale: 1),
@@ -82,11 +148,15 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
             toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1)
         )
         
-        delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
+        lock.withLock {
+            let seconds = Int(player.currentTime().seconds)
+            delegate?.playerDidUpdateTimePlayed(seconds)
+            audioInfo.update(duration: seconds, rate: player.rate)
+        }
     }
     
     public func skipBackward() async {
-        guard let player else { return }
+        guard let player = lock.withLock({ self.player }) else { return }
         
         await player.seek(
             to: player.currentTime() - CMTime(seconds: 15, preferredTimescale: 1),
@@ -94,11 +164,15 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
             toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1)
         )
         
-        delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
+        lock.withLock {
+            let seconds = Int(player.currentTime().seconds)
+            delegate?.playerDidUpdateTimePlayed(seconds)
+            audioInfo.update(duration: seconds, rate: player.rate)
+        }
     }
     
     public func seek(to time: Int) async {
-        guard let player else { return }
+        guard let player = lock.withLock({ self.player }) else { return }
         
         await player.seek(
             to: CMTime(value: Int64(time), timescale: 1),
@@ -106,7 +180,25 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
             toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1)
         )
         
-        delegate?.playerDidUpdateTimePlayed(Int(player.currentTime().seconds))
+        lock.withLock {
+            let seconds = Int(player.currentTime().seconds)
+            delegate?.playerDidUpdateTimePlayed(seconds)
+            audioInfo.update(duration: seconds, rate: player.rate)
+        }
+    }
+    
+    public func awaitReadyToPlay() async {
+        guard let player = lock.withLock { self.player }, player.status != .readyToPlay else { return }
+        
+        await withCheckedContinuation { cont in
+            var observation: NSKeyValueObservation!
+            observation = player.observe(\.status) { player, _ in
+                if player.status == .readyToPlay {
+                    observation.invalidate()
+                    cont.resume()
+                }
+            }
+        }
     }
 }
 
