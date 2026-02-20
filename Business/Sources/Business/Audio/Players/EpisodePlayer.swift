@@ -2,6 +2,7 @@ import Core
 import Foundation
 import Logging
 import Overflow
+import UIKit.UIImage
 
 public actor EpisodePlayer: EpisodePlayerContract {
     
@@ -12,6 +13,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
     private let remote: RemotePlayerDataSourceContract
     private let local: LocalPlayerDataSourceContract
     private let localQueue: LocalQueueDataSourceContract
+    private let images: ImageDataSourceContract
     
     private let playerStateFlow = MutableStateFlow<AudioPlayerState?>(initial: nil)
     private var queue: AudioQueue?
@@ -35,7 +37,8 @@ public actor EpisodePlayer: EpisodePlayerContract {
         serverProvider: ServerProviderContract,
         remote: RemotePlayerDataSourceContract,
         local: LocalPlayerDataSourceContract,
-        localQueue: LocalQueueDataSourceContract
+        localQueue: LocalQueueDataSourceContract,
+        images: ImageDataSourceContract
     ) {
         self.audio = audio
         self.logger = logger
@@ -43,6 +46,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
         self.remote = remote
         self.local = local
         self.localQueue = localQueue
+        self.images = images
         
         self.audio.delegate = self
         
@@ -103,7 +107,11 @@ public actor EpisodePlayer: EpisodePlayerContract {
             // Persist queue to local storage.
             localQueue.save(newQueue)
 
-            await audio.setMedia(with: AudioData(image: nil, title: episode.title, watchTime: episode.progress?.watchTime, totalDuration: episode.duration ?? 0))
+            let image: UIImage? = if let imageURL = episode.imageURL ?? newQueue.podcastImageURL {
+                try await self.images.getImage(at: imageURL)
+            } else { nil }
+            await audio.setMedia(with: AudioData(image: image, title: episode.title, watchTime: episode.progress?.watchTime, totalDuration: episode.duration ?? 0))
+            
 
             if startPlaying {
                 await audio.awaitReadyToPlay()
