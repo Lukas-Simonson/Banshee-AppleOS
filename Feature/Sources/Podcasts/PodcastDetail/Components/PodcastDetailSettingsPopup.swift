@@ -17,9 +17,9 @@ struct PodcastDetailSettingsPopup: View {
             VStack {
                 BruteSection("Sort Order") {
                     VStack(spacing: context.dimen.paddingSmall) {
-                        pickerRow(title: "Title", value: .title)
-                        pickerRow(title: "Date", value: .date)
-                        pickerRow(title: "Season / Episode", value: .seasonEpisode)
+                        pickerRow(title: "Title", orderType: .title)
+                        pickerRow(title: "Date", orderType: .date)
+                        pickerRow(title: "Season / Episode", orderType: .seasonEpisode)
                     }
                 }
                 
@@ -40,25 +40,62 @@ struct PodcastDetailSettingsPopup: View {
         }
     }
     
-    private func pickerRow(title: LocalizedStringResource, value: Episode.Order) -> some View {
-        Button(
-            action: { order = value },
-            label: {
-                HStack {
-                    Text(title)
-                    Spacer()
-                    if order == value {
-                        Image(systemName: "checkmark")
-                            .bold()
-                    }
-                }
+    private func pickerRow(title: LocalizedStringResource, orderType: OrderType) -> some View {
+        switch (order, orderType) {
+            case (.title(let asc), .title):
+                Button(
+                    action: { order = .title(asc: !asc) },
+                    label: { pickerRowLabel(title: title, selected: true, asc: asc) }
+                )
+            case (.date(let asc), .date):
+                Button(
+                    action: { order = .date(asc: !asc) },
+                    label: { pickerRowLabel(title: title, selected: true, asc: asc) }
+                )
+            case (.seasonEpisode(let asc), .seasonEpisode):
+                Button(
+                    action: { order = .seasonEpisode(asc: !asc) },
+                    label: { pickerRowLabel(title: title, selected: true, asc: asc) }
+                )
+            default:
+                Button(
+                    action: { order = orderType.ascending },
+                    label: { pickerRowLabel(title: title) }
+                )
+        }
+    }
+    
+    private func pickerRowLabel(title: LocalizedStringResource, selected: Bool = false, asc: Bool = true) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            if selected {
+                Image(systemName: asc ? "arrow.up" : "arrow.down")
+                    .bold()
+                    .transition(.symbolEffect)
+                    
             }
-        )
+        }
+        .contentTransition(.symbolEffect(.replace))
+    }
+
+    enum OrderType {
+        case title
+        case date
+        case seasonEpisode
+        
+        var ascending: Episode.Order {
+            switch self {
+                case .title: .title(asc: true)
+                case .date: .date(asc: true)
+                case .seasonEpisode: .seasonEpisode(asc: true)
+            }
+        }
     }
 }
 
 #Preview {
-    @Previewable @State var order = Episode.Order.title
+    @Previewable @State var order = Episode.Order.title(asc: true)
     
     PodcastDetailSettingsPopup(order: $order, onEditConfig: { })
 }

@@ -36,8 +36,8 @@ public struct Episode: Identifiable, Sendable {
 
 extension Episode {
     public enum Order: Codable, Sendable {
-        case title
-        case date
-        case seasonEpisode
+        case title(asc: Bool = true)
+        case date(asc: Bool = true)
+        case seasonEpisode(asc: Bool = true)
     }
 }
