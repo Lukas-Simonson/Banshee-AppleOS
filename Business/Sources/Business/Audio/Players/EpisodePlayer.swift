@@ -145,7 +145,7 @@ public actor EpisodePlayer: EpisodePlayerContract {
             )
             
             async let updateRemote = remote.updateProgress(
-                episodeId: currentEpisodeId,
+                episodeID: currentEpisodeId,
                 baseURL: server,
                 token: token.token,
                 isCompleted: isCompleted,

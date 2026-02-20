@@ -15,10 +15,9 @@ public struct CobwebRemoteAuthDataSource: RemoteAuthDataSourceContract {
     public func login(baseURL: String, username: String, password: String) async throws(CoreError) -> AuthSession {
         do {
             let response = try await Cobweb.URL.using(baseURL: baseURL)
-                .path("/api/auth/login").post()
-                .also { logger.info("Sending Request to POST /api/auth/login") }
-                .withBody(["username": username, "password": password])
-                .withHeaders(.contentType(value: "application/json"))
+                .path("/api/auth/login").get()
+                .also { logger.info("Sending Request to GET /api/auth/login") }
+                .withHeaders(.contentType(value: "application/json"), .basicAuth(username: username, password: password))
                 .response()
 
             switch try response.statusCode {

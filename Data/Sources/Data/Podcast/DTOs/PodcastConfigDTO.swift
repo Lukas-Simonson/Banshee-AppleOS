@@ -5,7 +5,6 @@ public struct PodcastConfigDTO: Codable {
     public let title: String?
     public let imageURL: URL?
     public let description: String?
-    public let podcastID: UUID
 }
 
 extension PodcastConfig {
@@ -14,7 +13,6 @@ extension PodcastConfig {
             title: title,
             imageURL: imageURL,
             description: description,
-            podcastID: podcastID
         )
     }
 }
