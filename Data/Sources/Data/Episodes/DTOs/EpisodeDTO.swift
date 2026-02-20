@@ -8,7 +8,7 @@ struct EpisodeDTO: Codable {
     let description: String
     let imageURL: URL?
     let season: String?
-    let episodeNumber: Int?
+    let episode: Int?
     let duration: Int?
     let progress: AudioProgressDTO?
 }
@@ -22,7 +22,7 @@ extension EpisodeDTO {
             description: description,
             imageURL: imageURL,
             season: season,
-            episode: episodeNumber,
+            episode: episode,
             duration: duration,
             progress: progress?.toCore()
         )

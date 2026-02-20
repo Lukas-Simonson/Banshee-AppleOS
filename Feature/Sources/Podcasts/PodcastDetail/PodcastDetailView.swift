@@ -119,7 +119,7 @@ struct PodcastDetailView: View {
             )
         ],
         isLoading: false,
-        order: .constant(.title),
+        order: .constant(.title(asc: true)),
         onPlay: { _ in },
         onEditConfig: {  },
         onRefresh: {  },

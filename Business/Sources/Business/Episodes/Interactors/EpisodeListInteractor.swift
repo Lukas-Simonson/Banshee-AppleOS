@@ -9,7 +9,7 @@ public final class EpisodeListInteractor: EpisodeListInteractorContract, @unchec
     private let storage: KeyValueStoreContract
     
     // MARK: - Shared State
-    public var order: Episode.Order = .title
+    public var order: Episode.Order = .title(asc: true)
     
     public var episodeStream: AsyncSequence<[Episode], Never> {
         flow

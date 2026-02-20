@@ -55,11 +55,14 @@ public struct GRDBLocalEpisodeDataSource: LocalEpisodeDataSourceContract {
     
     private func convertEpisodeOrder(order: Episode.Order, request: QueryInterfaceRequest<EpisodeRecord>.DatabaseComponents) -> [SQLOrderingTerm] {
         switch order {
-            case .title: [request.title.asc]
-            case .date: [request.pubDate.asc]
-            case .seasonEpisode: [
+            case .title(let asc): asc ? [request.title.asc] : [request.title.desc]
+            case .date(let asc): asc ? [request.pubDate.asc] : [request.pubDate.desc]
+            case .seasonEpisode(let asc): asc ? [
                 request.season.ascNullsLast,
                 request.episode.ascNullsLast
+            ] : [
+                request.season.desc,
+                request.episode.desc
             ]
         }
     }
