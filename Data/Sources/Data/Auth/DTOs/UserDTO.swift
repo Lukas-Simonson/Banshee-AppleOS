@@ -3,9 +3,11 @@ import Foundation
 
 struct UserDTO: Codable {
     let id: UUID
-    let role: String
+    let name: String
+    let email: String
     let username: String
-    let token: String
+    let role: String
+    let token: String?
 }
 
 extension UserDTO {
@@ -13,6 +15,8 @@ extension UserDTO {
         User(
             id: id,
             serverURL: url,
+            name: name,
+            email: email,
             username: username,
             role: User.Role(rawValue: role) ?? .user
         )

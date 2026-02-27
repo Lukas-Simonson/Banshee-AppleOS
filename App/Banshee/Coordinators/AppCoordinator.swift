@@ -19,8 +19,8 @@ final class AppCoordinator: Sendable {
     
     private(set) var settings: Settings = .default
     
-    /// Tracks which errors have been shown to prevent duplicate notices.
-    private var errorIDs = Set<UUID>()
+    /// Tracks which notices have been shown to prevent duplicate notices.
+    private var noticeIDs = Set<UUID>()
     
     init() {
         observeSession()
@@ -61,10 +61,15 @@ extension AppCoordinator: AuthNavigationContract, AudioNavigationContract {
     }
 
     func showError(_ error: CoreError) {
-        guard !errorIDs.contains(error.id) else { return }
-        
-        errorIDs.insert(error.id)
+        guard noticeIDs.insert(error.id).inserted else { return }
+
         notices.queueNotice(ErrorNotice(error: error))
+    }
+    
+    func showAlert(_ alert: CoreAlert) {
+        guard noticeIDs.insert(alert.id).inserted else { return }
+        
+        notices.queueNotice(AlertNotice(alert: alert), urgent: true)
     }
 }
 

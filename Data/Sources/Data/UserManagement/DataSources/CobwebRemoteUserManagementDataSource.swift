@@ -25,7 +25,7 @@ public struct CobwebRemoteUserManagementDataSource: RemoteUserManagementDataSour
                 .path("/api/auth/register")
                 .post()
                 .also { logger.info("Sending request to POST /api/auth/register") }
-                .withHeaders(.bearer(token))
+                .withHeaders(.bearer(token), .contentType(value: "application/json"))
                 .withBody([
                     "role": role.rawValue,
                     "name": name,

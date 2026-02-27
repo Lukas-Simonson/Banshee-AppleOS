@@ -8,6 +8,7 @@ struct UserRegistrationView: View {
     @Environment(\.bruteContext) private var context
     
     let role: User.Role
+    let isLoading: Bool
     
     @Binding var name: Validated<String>
     @Binding var username: Validated<String>
@@ -39,6 +40,7 @@ struct UserRegistrationView: View {
                     .textFieldStyle(.brute)
                 }
                 .onSubmit { selection = selection?.next }
+                .disabled(isLoading)
             }
         }
         .navigationBarBackButtonHidden()
@@ -48,6 +50,9 @@ struct UserRegistrationView: View {
         BruteSection("Name") {
             ValidatedField($name) { name in
                 TextField("Name", text: name, prompt: Text(verbatim: "Bastilla Gravewynd"))
+                    .keyboardType(.default)
+                    .textContentType(.name)
+                    .textInputAutocapitalization(.words)
                     .focused($selection, equals: .name)
             }
         }
@@ -57,6 +62,9 @@ struct UserRegistrationView: View {
         BruteSection("Email") {
             ValidatedField($email) { email in
                 TextField("Email", text: email, prompt: Text(verbatim: "bastilla@example.com"))
+                    .keyboardType(.emailAddress)
+                    .textContentType(.emailAddress)
+                    .textInputAutocapitalization(.never)
                     .focused($selection, equals: .email)
             }
         }
@@ -66,6 +74,9 @@ struct UserRegistrationView: View {
         BruteSection("Username") {
             ValidatedField($username) { username in
                 TextField("Username", text: username, prompt: Text(verbatim: "Bastilla123"))
+                    .keyboardType(.default)
+                    .textContentType(.username)
+                    .textInputAutocapitalization(.never)
                     .focused($selection, equals: .username)
             }
         }
@@ -75,6 +86,9 @@ struct UserRegistrationView: View {
         BruteSection("Password") {
             ValidatedField($password) { password in
                 SecureField("Password", text: password, prompt: Text(verbatim: "1-Secure-Password"))
+                    .keyboardType(.default)
+                    .textContentType(.password)
+                    .textInputAutocapitalization(.never)
                     .focused($selection, equals: .password)
             }
         }
@@ -82,8 +96,14 @@ struct UserRegistrationView: View {
     
     private var saveButton: some View {
         Button(action: onCreateUser) {
-            Text("Create \(role.rawValue.capitalized)")
-                .frame(maxWidth: .infinity)
+            HStack {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                }
+                Text("Create \(role.rawValue.capitalized)")
+            }
+            .frame(maxWidth: .infinity)
         }
     }
     
@@ -112,6 +132,7 @@ struct UserRegistrationView: View {
     
     UserRegistrationView(
         role: .admin,
+        isLoading: true,
         name: $name,
         username: $username,
         email: $email,

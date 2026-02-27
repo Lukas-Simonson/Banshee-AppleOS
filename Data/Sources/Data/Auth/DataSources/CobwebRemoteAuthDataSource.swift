@@ -35,7 +35,8 @@ public struct CobwebRemoteAuthDataSource: RemoteAuthDataSourceContract {
 
             return AuthSession(
                 user: user.toCore(at: baseURL),
-                token: AuthToken(token: user.token, createdAt: .now)
+                // The user.token SHOULD always be present.
+                token: AuthToken(token: user.token!, createdAt: .now)
             )
         } catch let error as CoreError {
             throw error

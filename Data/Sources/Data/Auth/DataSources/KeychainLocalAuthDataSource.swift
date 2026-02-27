@@ -41,6 +41,7 @@ public final class LocalAuthDataSource: LocalAuthDataSourceContract, @unchecked 
         }
         catch let error as DecodingError {
             logger.error("Unable to decode AuthSessionRecord", for: error)
+            try? await clearSession() // Logout user if the data is corrupted
             throw CoreError.savedSessionDataCorrupted
         }
         catch {

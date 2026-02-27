@@ -59,6 +59,17 @@ final class UserRegistrationVM {
                     username: username.value,
                     password: password.value
                 )
+                navigator.navigateBack()
+                navigator.showAlert(
+                    CoreAlert(
+                        title: "Created \(role.rawValue.capitalized)",
+                        message: "Successfully create a new \(role.rawValue).",
+                        actions: CoreAlert.Action(
+                            title: "Okay",
+                            action: { }
+                        )
+                    )
+                )
             } catch let error as CoreError {
                 navigator.showError(error)
                 logger.error("Error creating user:", for: error)

@@ -6,5 +6,7 @@ public protocol SettingsNavigationContract: Sendable {
     
     func navigateBack()
     
+    func showAlert(_ alert: CoreAlert)
+    
     func showError(_ error: CoreError)
 }

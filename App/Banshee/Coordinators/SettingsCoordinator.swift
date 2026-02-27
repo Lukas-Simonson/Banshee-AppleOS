@@ -19,6 +19,10 @@ extension SettingsCoordinator: SettingsNavigationContract {
         path.removeLast()
     }
     
+    func showAlert(_ alert: CoreAlert) {
+        AppCoordinator.shared.showAlert(alert)
+    }
+    
     func showError(_ error: CoreError) {
         AppCoordinator.shared.showError(error)
     }
