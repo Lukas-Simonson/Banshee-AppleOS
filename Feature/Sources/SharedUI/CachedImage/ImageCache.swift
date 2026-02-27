@@ -43,8 +43,6 @@ public final class ImageCache {
                 return tasks[url]!
             }.value
         }
-        
-        return try await cacheImage(at: url)
     }
     
     @concurrent @discardableResult

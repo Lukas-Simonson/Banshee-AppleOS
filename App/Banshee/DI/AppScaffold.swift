@@ -77,6 +77,11 @@ final class AppScaffold {
     func podcastCoordinator() -> PodcastCoordinator {
         PodcastCoordinator()
     }
+    
+    @Single
+    func settingsCoordinator() -> SettingsCoordinator {
+        SettingsCoordinator()
+    }
 }
 
 extension UserDefaults: @retroactive @unchecked Sendable {}

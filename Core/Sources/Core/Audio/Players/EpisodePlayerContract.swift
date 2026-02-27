@@ -3,7 +3,7 @@ import Foundation
 public protocol EpisodePlayerContract: Sendable {
     
     var playerState: AudioPlayerState? { get async }
-    var playerStateStream: AsyncSequence<AudioPlayerState?, Never> { get }
+    var playerStateStream: any AsyncSequence<AudioPlayerState?, Never> { get }
     
     // Player Controls
     func enqueue(_ audioQueue: AudioQueue, startPlaying: Bool) async throws(CoreError)

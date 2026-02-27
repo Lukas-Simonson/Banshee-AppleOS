@@ -14,7 +14,7 @@ struct PodcastDetailSettingsPopup: View {
     
     var body: some View {
         BruteStyle {
-            VStack {
+            VStack(spacing: context.dimen.paddingMedium) {
                 BruteSection("Sort Order") {
                     VStack(spacing: context.dimen.paddingSmall) {
                         pickerRow(title: "Title", orderType: .title)

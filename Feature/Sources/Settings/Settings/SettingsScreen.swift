@@ -14,6 +14,7 @@ public struct SettingsScreen: View {
                 get: { viewModel.settings },
                 set: { viewModel.updateSettings($0) }
             ),
+            onCreateUser: viewModel.navigateToCreateUser,
             onLogout: viewModel.logout
         )
     }

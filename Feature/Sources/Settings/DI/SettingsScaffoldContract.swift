@@ -4,6 +4,7 @@ import Logging
 public protocol SettingsScaffoldContract {
     func logger() -> Logger
     func navigator() -> SettingsNavigationContract
-    func repository() -> SettingsRepositoryContract
+    func settingsRepository() -> SettingsRepositoryContract
     func auth() -> AuthRepositoryContract
+    func userManagementRepository() -> UserManagementRepositoryContract
 }

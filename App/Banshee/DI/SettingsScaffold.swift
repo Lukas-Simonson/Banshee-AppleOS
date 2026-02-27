@@ -20,11 +20,11 @@ final class SettingsScaffold: SettingsScaffoldContract {
     }
     
     func navigator() -> SettingsNavigationContract {
-        AppCoordinator.shared
+        app.settingsCoordinator()
     }
 
     @Single
-    func repository() -> SettingsRepositoryContract {
+    func settingsRepository() -> SettingsRepositoryContract {
         SettingsRepository(
             logger: logger(),
             local: UserDefaultsLocalSettingsDataSource(
@@ -36,5 +36,13 @@ final class SettingsScaffold: SettingsScaffoldContract {
 
     func auth() -> any AuthRepositoryContract {
         app.auth().repository()
+    }
+    
+    func userManagementRepository() -> any UserManagementRepositoryContract {
+        UserManagementRepository(
+            logger: logger(),
+            serverProvider: AppCoordinator.shared,
+            remote: CobwebRemoteUserManagementDataSource(logger: logger())
+        )
     }
 }

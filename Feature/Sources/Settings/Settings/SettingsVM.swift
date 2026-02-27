@@ -17,7 +17,7 @@ final class SettingsVM {
     init(_ scaffold: SettingsScaffoldContract) {
         self.logger = scaffold.logger()
         self.navigator = scaffold.navigator()
-        self.repository = scaffold.repository()
+        self.repository = scaffold.settingsRepository()
         self.auth = scaffold.auth()
 
         settings = .default
@@ -33,6 +33,10 @@ final class SettingsVM {
                 navigator.showError(error)
             }
         }
+    }
+    
+    func navigateToCreateUser(_ role: User.Role) {
+        navigator.navigateToCreateUser(for: role)
     }
 
     func logout() {

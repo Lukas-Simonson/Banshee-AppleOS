@@ -6,11 +6,14 @@ import SwiftUI
 struct SettingsView: View {
     
     @Environment(\.bruteContext) private var context
+    @Environment(\.userRole) private var userRole
     
+    @State private var userType = User.Role.user
     @State private var sections = Sections()
     
     @Binding var settings: Settings
 
+    let onCreateUser: (User.Role) -> Void
     let onLogout: () -> Void
 
     var body: some View {
@@ -18,6 +21,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: context.dimen.paddingMedium) {
                     themeSelection
+                    adminSection
                     userSection
                 }
                 .padding(context.dimen.paddingMedium)
@@ -44,12 +48,36 @@ struct SettingsView: View {
             }
         }
     }
+    
+    @ViewBuilder
+    private var adminSection: some View {
+        if userRole == .admin {
+            DisclosureGroup("Admin", isExpanded: $sections.admin) {
+                VStack(spacing: context.dimen.paddingMedium) {
+                    BrutePicker(selection: $userType) {
+                        Text("User")
+                            .tag(User.Role.user)
+                        
+                        Text("Admin")
+                            .tag(User.Role.admin)
+                    }
+                    
+                    Button(action: { onCreateUser(userRole) }) {
+                        Text("Create \(userType.rawValue.capitalized)")
+                            .bold()
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension SettingsView {
     struct Sections {
         var theme = true
         var user = true
+        var admin = true
     }
 }
 
@@ -59,6 +87,8 @@ extension SettingsView {
     
     SettingsView(
         settings: $settings,
+        onCreateUser: { _ in },
         onLogout: {}
     )
+    .environment(\.userRole, .admin)
 }

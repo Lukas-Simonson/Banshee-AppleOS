@@ -21,18 +21,20 @@ struct BottomNavigation: View {
                 }
                 
                 Tab(value: AppCoordinator.MainTab.settings) {
-                    SettingsScreen(app.scaffold.settings())
-                        .toolbarVisibility(.hidden, for: .tabBar)
+                    SettingsCoordinator.Root(
+                        coordinator: app.scaffold.settingsCoordinator()
+                    )
+                    .toolbarVisibility(.hidden, for: .tabBar)
                 }
             }
             
             BruteDivider()
             
             PlayerView(app.scaffold.audio())
-            
             tabs
         }
         .background(context.color.background)
+        .ignoresSafeArea(.keyboard, edges: .all)
     }
     
     private var tabs: some View {

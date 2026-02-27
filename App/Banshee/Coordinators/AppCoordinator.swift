@@ -38,7 +38,7 @@ final class AppCoordinator: Sendable {
     
     private func observeSettings() {
         Task {
-            let repo = scaffold.settings().repository()
+            let repo = scaffold.settings().settingsRepository()
             self.settings = await repo.settings
             
             for await settings in repo.settingsStream {
@@ -55,7 +55,7 @@ extension AppCoordinator {
     }
 }
 
-extension AppCoordinator: AuthNavigationContract, AudioNavigationContract, SettingsNavigationContract {
+extension AppCoordinator: AuthNavigationContract, AudioNavigationContract {
     func navigateHome() {
         // Handled Automatically By Watching Stream
     }
