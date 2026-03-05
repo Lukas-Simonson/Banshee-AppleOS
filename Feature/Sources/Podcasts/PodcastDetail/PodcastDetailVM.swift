@@ -8,6 +8,7 @@ final class PodcastDetailVM {
     private let logger: Logger
     private let navigator: PodcastNavigationContract
     private let podcastRepository: PodcastRepositoryContract
+    private let episodeRepository: EpisodeRepositoryContract
     private let episodeListInteractor: EpisodeListInteractorContract
     private let player: EpisodePlayerContract
     
@@ -29,6 +30,7 @@ final class PodcastDetailVM {
         self.logger = scaffold.logger()
         self.navigator = scaffold.navigator()
         self.podcastRepository = scaffold.podcastRepository()
+        self.episodeRepository = scaffold.episodeRepository()
         self.episodeListInteractor = scaffold.episodeListInteractor()
         self.player = scaffold.player()
         
@@ -81,6 +83,17 @@ final class PodcastDetailVM {
             navigator.showError(error)
         } catch {
             logger.warning("Caught a non-core error", for: error)
+        }
+    }
+    
+    public func toggleCompletion(for episode: Episode) {
+        Task {
+            do {
+                try await episodeRepository.toggleEpisodeComplete(episode)
+            } catch let error as CoreError {
+                navigator.showError(error)
+                logger.error("Failed toggling completion", for: error)
+            }
         }
     }
     
