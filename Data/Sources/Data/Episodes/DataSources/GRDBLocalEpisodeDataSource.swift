@@ -53,6 +53,33 @@ public struct GRDBLocalEpisodeDataSource: LocalEpisodeDataSourceContract {
         }
     }
     
+    public func updateEpisodeCompletion(
+        with id: UUID,
+        isComplete: Bool
+    ) async throws(CoreError) {
+        try await CoreError.catchDatabase(performing: "updating audio progress for episode with id: \(id)", logger: logger, feature: .episodes) {
+            try await dbManager.dbQueue.write { db in
+                let current = try AudioProgressRecord
+                    .fetchOne(db, key: id)
+                
+                // If we are making it not-completed, delete the progress.
+                if !isComplete {
+                    try current?.delete(db)
+                    return
+                }
+                
+                try AudioProgress(
+                    isCompleted: isComplete,
+                    watchTime: current?.watchTime ?? 0,
+                    startedOn: current?.startedOn ?? .now,
+                    lastUpdated: current?.lastUpdated ?? .now
+                )
+                .toRecord(with: id)
+                .save(db)
+            }
+        }
+    }
+    
     private func convertEpisodeOrder(order: Episode.Order, request: QueryInterfaceRequest<EpisodeRecord>.DatabaseComponents) -> [SQLOrderingTerm] {
         switch order {
             case .title(let asc): asc ? [request.title.asc] : [request.title.desc]

@@ -11,6 +11,7 @@ struct EpisodeCard: View {
     let fallbackImageURL: URL?
     
     let onPlay: () -> Void
+    let onToggleComplete: () -> Void
     
     private var isCompleted: Bool {
         episode.progress?.isCompleted ?? false
@@ -22,9 +23,9 @@ struct EpisodeCard: View {
         if let duration = episode.duration {
             components.append(duration.formatted(.timeInterval))
         }
-
+        
         components.append(episode.pubDate.formatted(date: .numeric, time: .omitted))
-
+        
         if let season = episode.season {
             components.append("S: \(season)")
         }
@@ -75,16 +76,14 @@ struct EpisodeCard: View {
             Button("Play", systemImage: "play.fill", action: onPlay)
                 .buttonStyle(.icon(size: .small))
             
-            Button("Is Completed", systemImage: "checkmark") {
-                // TODO
-            }
-            .buttonStyle(
-                .icon(
-                    size: .small,
-                    background: isCompleted ? .green : context.color.neutralBackground,
-                    foreground: isCompleted ? .black : context.color.neutralForeground
+            Button("Is Completed", systemImage: "checkmark", action: onToggleComplete)
+                .buttonStyle(
+                    .icon(
+                        size: .small,
+                        background: isCompleted ? .green : context.color.neutralBackground,
+                        foreground: isCompleted ? .black : context.color.neutralForeground
+                    )
                 )
-            )
             
             Spacer()
             
@@ -130,7 +129,8 @@ struct EpisodeCard: View {
                     )
                 ),
                 fallbackImageURL: nil,
-                onPlay: { }
+                onPlay: { },
+                onToggleComplete: { }
             )
             .padding()
         }

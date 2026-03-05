@@ -10,6 +10,8 @@ public protocol PodcastScaffoldContract {
     
     func podcastConfigRepository() -> PodcastConfigRepositoryContract
     
+    func episodeRepository() -> EpisodeRepositoryContract
+    
     func episodeListInteractor() -> EpisodeListInteractorContract
     
     func player() -> EpisodePlayerContract

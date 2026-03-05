@@ -16,6 +16,7 @@ public struct PodcastDetailScreen: View {
             isLoading: viewModel.isLoading,
             order: $viewModel.sortOrder,
             onPlay: viewModel.play,
+            onToggleComplete: viewModel.toggleCompletion,
             onEditConfig: viewModel.navigateToEditConfig,
             onRefresh: { await viewModel.refresh(force: true) },
             onNavigateBack: viewModel.navigateBack

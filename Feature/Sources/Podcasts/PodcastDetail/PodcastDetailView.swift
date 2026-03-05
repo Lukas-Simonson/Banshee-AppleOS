@@ -16,6 +16,7 @@ struct PodcastDetailView: View {
     @Binding var order: Episode.Order
     
     let onPlay: (Episode) -> Void
+    let onToggleComplete: (Episode) -> Void
     let onEditConfig: () -> Void
     let onRefresh: @Sendable () async -> Void
     let onNavigateBack: () -> Void
@@ -89,7 +90,8 @@ struct PodcastDetailView: View {
             EpisodeCard(
                 episode: episode,
                 fallbackImageURL: podcast.imageURL,
-                onPlay: { onPlay(episode) }
+                onPlay: { onPlay(episode) },
+                onToggleComplete: { onToggleComplete(episode) }
             )
         }
     }
@@ -121,6 +123,7 @@ struct PodcastDetailView: View {
         isLoading: false,
         order: .constant(.title(asc: true)),
         onPlay: { _ in },
+        onToggleComplete: { _ in },
         onEditConfig: {  },
         onRefresh: {  },
         onNavigateBack: {  }

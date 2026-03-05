@@ -52,6 +52,22 @@ public struct EpisodeRepository: EpisodeRepositoryContract {
         let refreshed = try await remote.episodes(with: podcast.id, baseURL: server, token: token)
         try await local.upsert(refreshed, with: podcast.id)
     }
+    
+    public func toggleEpisodeComplete(_ episode: Episode) async throws(CoreError) {
+        
+        guard let token = await serverProvider.token?.token,
+              let server = await serverProvider.server
+        else { throw CoreError.notAuthenticated(layer: .business, feature: .episodes) }
+        
+        try await remote.updateEpisodeCompletion(
+            with: episode.id,
+            isComplete: !(episode.progress?.isCompleted ?? false),
+            baseURL: server,
+            token: token
+        )
+        
+        try await local.updateEpisodeCompletion(with: episode.id, isComplete: !(episode.progress?.isCompleted ?? false))
+    }
 }
 
 public protocol LocalEpisodeDataSourceContract: Sendable {
@@ -60,8 +76,12 @@ public protocol LocalEpisodeDataSourceContract: Sendable {
     func episodes(with podcastID: UUID) async throws(CoreError) -> [CachedEpisode]
     
     func upsert(_ episodes: [Episode], with podcastID: UUID) async throws(CoreError)
+    
+    func updateEpisodeCompletion(with id: UUID, isComplete: Bool) async throws(CoreError)
 }
 
 public protocol RemoteEpisodeDataSourceContract: Sendable {
     func episodes(with podcastID: UUID, baseURL: String, token: String) async throws(CoreError) -> [Episode]
+    
+    func updateEpisodeCompletion(with id: UUID, isComplete: Bool, baseURL: String, token: String) async throws(CoreError)
 }
