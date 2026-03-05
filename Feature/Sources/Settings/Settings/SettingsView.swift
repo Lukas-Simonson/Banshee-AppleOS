@@ -62,7 +62,7 @@ struct SettingsView: View {
                             .tag(User.Role.admin)
                     }
                     
-                    Button(action: { onCreateUser(userRole) }) {
+                    Button(action: { onCreateUser(userType) }) {
                         Text("Create \(userType.rawValue.capitalized)")
                             .bold()
                             .frame(maxWidth: .infinity)
