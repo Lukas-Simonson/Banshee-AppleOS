@@ -59,6 +59,7 @@ struct AlertNotice: Noticeable {
                                 .frame(maxWidth: .infinity)
                         }
                     )
+                    .buttonStyle(.brute)
                 }
             }
             .padding(context.dimen.paddingLarge)

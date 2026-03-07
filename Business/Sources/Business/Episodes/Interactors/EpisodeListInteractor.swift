@@ -1,17 +1,21 @@
 import Core
 import Foundation
+import Logging
 import Overflow
 
+@Observable
 public final class EpisodeListInteractor: EpisodeListInteractorContract, @unchecked Sendable {
     
     // MARK: - Dependencies
     private let repository: EpisodeRepositoryContract
     private let storage: KeyValueStoreContract
+    private let logger: Logger
     
     // MARK: - Shared State
-    public var order: Episode.Order = .title(asc: true)
+    public private(set) var order: Episode.Order = .title(asc: true)
+    public private(set) var scroll: UUID?
     
-    public var episodeStream: AsyncSequence<[Episode], Never> {
+    public var episodeStream: any AsyncSequence<[Episode], Never> {
         flow
     }
     
@@ -19,10 +23,13 @@ public final class EpisodeListInteractor: EpisodeListInteractorContract, @unchec
     private var flow = MutableStateFlow<[Episode]>(initial: [])
     private var podcast: Podcast?
     private var episodeObservation: Task<Void, Never>?
+    private var scrollDebounce: Debounce<UUID?>!
     
-    public init(repository: EpisodeRepositoryContract, storage: KeyValueStoreContract) {
+    public init(repository: EpisodeRepositoryContract, storage: KeyValueStoreContract, logger: Logger) {
         self.repository = repository
         self.storage = storage
+        self.logger = logger
+        scrollDebounce = Debounce(saveScroll, for: .seconds(1))
     }
     
     // MARK: - Actions
@@ -31,8 +38,15 @@ public final class EpisodeListInteractor: EpisodeListInteractorContract, @unchec
         guard let podcast else { return }
         
         self.order = newOrder
+        self.scroll = nil
+        storage.store(nil as UUID?, for: "\(podcast.id)/scroll")
         storage.store(newOrder, for: "\(podcast.id)/sort")
         observe()
+    }
+    
+    public func updateScroll(_ newScroll: UUID?) {
+        self.scroll = newScroll
+        scrollDebounce(newScroll)
     }
     
     public func stream(podcast: Podcast) {
@@ -65,6 +79,11 @@ public final class EpisodeListInteractor: EpisodeListInteractorContract, @unchec
                 for await update in stream {
                     guard let self, !Task.isCancelled else { break }
                     try await self.flow.emit(update.get())
+                    
+                    // Keep scroll
+                    if let newScroll = storage.value(for: "\(podcast.id)/scroll", ofType: UUID.self) {
+                        self.scroll = newScroll
+                    }
                 }
             } catch {
                 // TODO: Handle these errors
@@ -72,7 +91,16 @@ public final class EpisodeListInteractor: EpisodeListInteractorContract, @unchec
         }
     }
     
+    @Sendable
+    private func saveScroll(with id: UUID?) {
+        if let podcastID = podcast?.id {
+            logger.info("Updating persisted scroll for podcast with id: \(podcast?.id) to episode with id: \(id)")
+            storage.store(id, for: "\(podcastID)/scroll")
+        }
+    }
+    
     deinit {
         episodeObservation?.cancel()
+        scrollDebounce.cancel()
     }
 }

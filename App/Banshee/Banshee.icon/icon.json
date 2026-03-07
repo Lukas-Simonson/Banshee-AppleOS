@@ -1,0 +1,221 @@
+{
+  "fill" : {
+    "automatic-gradient" : "srgb:0.93333,0.90196,0.99608,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "glass" : true,
+          "image-name" : "icon-residue.svg",
+          "name" : "icon-residue",
+          "position" : {
+            "scale" : 1.5,
+            "translation-in-points" : [
+              0.015000000000100044,
+              -7.9500000000000455
+            ]
+          }
+        }
+      ],
+      "name" : "Residue",
+      "position" : {
+        "scale" : 1,
+        "translation-in-points" : [
+          2.4453125,
+          -37.546875
+        ]
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.5
+      }
+    },
+    {
+      "blur-material" : null,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "srgb:0.66275,0.52157,1.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "solid" : "extended-gray:1.00000,1.00000"
+              }
+            }
+          ],
+          "glass" : true,
+          "image-name" : "icon-waveform-color.svg",
+          "name" : "icon-waveform-color",
+          "position" : {
+            "scale" : 1.5,
+            "translation-in-points" : [
+              0.015000000000100044,
+              -7.9500000000000455
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "srgb:0.93333,0.90196,0.99608,1.00000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "solid" : "extended-gray:0.25000,1.00000"
+              }
+            }
+          ],
+          "glass" : true,
+          "image-name" : "icon-waveform-colorless.svg",
+          "name" : "icon-waveform-colorless",
+          "position" : {
+            "scale" : 1.5,
+            "translation-in-points" : [
+              0.015000000000100044,
+              -7.9500000000000455
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "name" : "WaveForm",
+      "position" : {
+        "scale" : 1,
+        "translation-in-points" : [
+          2.4453125,
+          -37.546875
+        ]
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.5
+      }
+    },
+    {
+      "blur-material" : null,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "srgb:0.66275,0.52157,1.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "solid" : "extended-gray:0.25000,1.00000"
+              }
+            }
+          ],
+          "glass" : true,
+          "image-name" : "icon-cups.svg",
+          "name" : "icon-cups",
+          "position" : {
+            "scale" : 1.5,
+            "translation-in-points" : [
+              0.015000000000100044,
+              -7.9500000000000455
+            ]
+          }
+        }
+      ],
+      "name" : "Cups",
+      "position" : {
+        "scale" : 1,
+        "translation-in-points" : [
+          2.4453125,
+          -37.546875
+        ]
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 1
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.5
+      }
+    },
+    {
+      "blur-material" : null,
+      "hidden" : false,
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill-specializations" : [
+            {
+              "value" : "automatic"
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "srgb:0.80784,0.71765,1.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "solid" : "extended-gray:0.50000,1.00000"
+              }
+            }
+          ],
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "icon-frame.svg",
+          "name" : "icon-frame",
+          "position" : {
+            "scale" : 1.5,
+            "translation-in-points" : [
+              0.015000000000100044,
+              -7.9500000000000455
+            ]
+          }
+        }
+      ],
+      "name" : "Frame",
+      "position" : {
+        "scale" : 1,
+        "translation-in-points" : [
+          2.4453125,
+          -37.546875
+        ]
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

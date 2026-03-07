@@ -1,4 +1,5 @@
 import Core
+import Foundation
 import Logging
 import Observation
 
@@ -21,6 +22,11 @@ final class PodcastDetailVM {
     var sortOrder: Episode.Order {
         get { episodeListInteractor.order }
         set { episodeListInteractor.updateOrder(newValue) }
+    }
+    
+    var scroll: UUID? {
+        get { episodeListInteractor.scroll }
+        set { episodeListInteractor.updateScroll(newValue) }
     }
     
     private var episodeObservation: Task<Void, any Error>?

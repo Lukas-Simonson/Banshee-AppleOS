@@ -15,6 +15,7 @@ public struct PodcastDetailScreen: View {
             episodes: viewModel.episodes,
             isLoading: viewModel.isLoading,
             order: $viewModel.sortOrder,
+            scroll: $viewModel.scroll,
             onPlay: viewModel.play,
             onToggleComplete: viewModel.toggleCompletion,
             onEditConfig: viewModel.navigateToEditConfig,

@@ -8,12 +8,14 @@ struct PodcastDetailView: View {
     @Environment(\.bruteContext) private var context
     
     @State private var showSettings = false
+    @State private var podcastDetailsID = UUID()
     
     let podcast: Podcast
     let episodes: [Episode]
     let isLoading: Bool
     
     @Binding var order: Episode.Order
+    @Binding var scroll: UUID?
     
     let onPlay: (Episode) -> Void
     let onToggleComplete: (Episode) -> Void
@@ -29,14 +31,23 @@ struct PodcastDetailView: View {
                 if isLoading {
                     LoadingScreen()
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: context.dimen.paddingMedium) {
-                            podcastDetails
-                            episodeDetails
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            LazyVStack(spacing: context.dimen.paddingMedium) {
+                                podcastDetails
+                                episodeDetails
+                            }
+                            .padding(.vertical, context.dimen.paddingMedium)
+                            .scrollTargetLayout()
                         }
-                        .padding(context.dimen.paddingMedium)
+                        .refreshable(action: onRefresh)
+                        .scrollPosition(id: $scroll, anchor: .bottom)
+                        .onChange(of: scroll) { oldValue, newValue in
+                            if newValue == nil {
+                                proxy.scrollTo(podcastDetailsID, anchor: .bottom)
+                            }
+                        }
                     }
-                    .refreshable(action: onRefresh)
                 }
             }
             .navigationBarBackButtonHidden()
@@ -83,6 +94,8 @@ struct PodcastDetailView: View {
                 }
             }
         )
+        .id(podcastDetailsID)
+        .padding(.horizontal, context.dimen.paddingMedium)
     }
     
     private var episodeDetails: some View {
@@ -93,11 +106,14 @@ struct PodcastDetailView: View {
                 onPlay: { onPlay(episode) },
                 onToggleComplete: { onToggleComplete(episode) }
             )
+            .id(episode.id)
+            .padding(.horizontal, context.dimen.paddingMedium)
         }
     }
 }
 
 #Preview {
+    
     PodcastDetailView(
         podcast: Podcast(
             id: UUID(),
@@ -122,6 +138,7 @@ struct PodcastDetailView: View {
         ],
         isLoading: false,
         order: .constant(.title(asc: true)),
+        scroll: .constant(nil),
         onPlay: { _ in },
         onToggleComplete: { _ in },
         onEditConfig: {  },

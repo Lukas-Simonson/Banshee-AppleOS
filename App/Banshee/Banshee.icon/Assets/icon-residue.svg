@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Residue" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1 {
+        opacity: .5;
+      }
+
+      .cls-2 {
+        opacity: .25;
+      }
+
+      .cls-3 {
+        fill: #7c3aed;
+      }
+    </style>
+  </defs>
+  <g class="cls-2">
+    <rect class="cls-3" x="452.27" y="456.53" width="12.8" height="21.33"/>
+  </g>
+  <g class="cls-2">
+    <rect class="cls-3" x="46.93" y="456.53" width="12.8" height="21.33"/>
+  </g>
+  <rect class="cls-3" x="42.67" y="409.6" width="21.33" height="51.2"/>
+  <g class="cls-1">
+    <rect class="cls-3" x="72.53" y="422.4" width="17.07" height="34.13"/>
+  </g>
+  <rect class="cls-3" x="448" y="409.6" width="21.33" height="51.2"/>
+  <g class="cls-1">
+    <rect class="cls-3" x="422.4" y="422.4" width="17.07" height="34.13"/>
+  </g>
+</svg>

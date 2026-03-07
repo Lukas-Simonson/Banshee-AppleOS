@@ -53,7 +53,8 @@ final class PodcastScaffold: PodcastScaffoldContract {
     func episodeListInteractor() -> EpisodeListInteractorContract {
         EpisodeListInteractor(
             repository: episodeRepository(),
-            storage: UserDefaultsKeyValueStore(defaults: app.defaults())
+            storage: UserDefaultsKeyValueStore(defaults: app.defaults()),
+            logger: logger(),
         )
     }
     

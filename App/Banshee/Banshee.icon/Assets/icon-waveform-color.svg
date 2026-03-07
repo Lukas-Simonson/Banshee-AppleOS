@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="WaveForm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #7c3aed;
+      }
+    </style>
+  </defs>
+  <g id="Color">
+    <rect class="cls-1" x="217.6" y="285.87" width="17.07" height="93.87"/>
+    <rect class="cls-1" x="277.33" y="264.53" width="17.07" height="119.47"/>
+  </g>
+</svg>
