@@ -41,7 +41,7 @@ struct PodcastDetailView: View {
                             .scrollTargetLayout()
                         }
                         .refreshable(action: onRefresh)
-                        .scrollPosition(id: $scroll, anchor: .bottom)
+                        .scrollPosition(id: $scroll, anchor: .center)
                         .onChange(of: scroll) { oldValue, newValue in
                             if newValue == nil {
                                 proxy.scrollTo(podcastDetailsID, anchor: .bottom)
