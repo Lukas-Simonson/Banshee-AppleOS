@@ -20,6 +20,7 @@ struct PodcastDetailView: View {
     let onPlay: (Episode) -> Void
     let onToggleComplete: (Episode) -> Void
     let onEditConfig: () -> Void
+    let onEditEpisodeConfig: (Episode) -> Void
     let onRefresh: @Sendable () async -> Void
     let onNavigateBack: () -> Void
     
@@ -104,7 +105,8 @@ struct PodcastDetailView: View {
                 episode: episode,
                 fallbackImageURL: podcast.imageURL,
                 onPlay: { onPlay(episode) },
-                onToggleComplete: { onToggleComplete(episode) }
+                onToggleComplete: { onToggleComplete(episode) },
+                onOptions: { onEditEpisodeConfig(episode) }
             )
             .id(episode.id)
             .padding(.horizontal, context.dimen.paddingMedium)
@@ -142,6 +144,7 @@ struct PodcastDetailView: View {
         onPlay: { _ in },
         onToggleComplete: { _ in },
         onEditConfig: {  },
+        onEditEpisodeConfig: { _ in },
         onRefresh: {  },
         onNavigateBack: {  }
     )

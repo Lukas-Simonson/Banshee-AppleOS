@@ -52,7 +52,7 @@ final class UserRegistrationVM {
         
         Task {
             do {
-                let user = try await repository.registerUser(
+                _ = try await repository.registerUser(
                     role: role,
                     name: name.value,
                     email: email.value,

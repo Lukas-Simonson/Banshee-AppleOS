@@ -3,17 +3,21 @@ import Core
 import SharedUI
 import SwiftUI
 
-struct PodcastConfigView: View {
+struct EpisodeConfigView: View {
     
     @Environment(\.bruteContext) private var context
     
     @State private var sections = Sections()
+    
     @State private var imageURL = ""
     @State private var imageURLError: String?
     
+    @State private var episodeNumber = ""
+    @State private var episodeNumberError: String?
+    
     let isLoading: Bool
-    let podcast: Podcast
-    @Binding var config: PodcastConfig
+    let episode: Episode
+    @Binding var config: EpisodeConfig
     
     let onSave: () -> Void
     let onNavigateBack: () -> Void
@@ -22,7 +26,7 @@ struct PodcastConfigView: View {
         BruteStyle {
             VStack(spacing: 0) {
                 TopAppBar(
-                    title: "Podcast Config",
+                    title: "Episode Config",
                     leading: { NavigateBackButton(onNavigateBack) }
                 )
                 
@@ -32,6 +36,8 @@ struct PodcastConfigView: View {
                     ScrollView {
                         VStack(spacing: context.dimen.paddingMedium) {
                             titleSection
+                            seasonSection
+                            episodeNumberSection
                             imageURLSection
                             descriptionSection
                             saveButton
@@ -42,13 +48,36 @@ struct PodcastConfigView: View {
             }
             .navigationBarBackButtonHidden()
         }
-        .onAppear { imageURL = config.imageURL?.absoluteString ?? "" }
     }
     
     private var titleSection: some View {
         DisclosureGroup("Title", isExpanded: $sections.title) {
-            TextField("\(podcast.title)", text: $config.title.nilEmptyBinding())
+            TextField("\(episode.title)", text: $config.title.nilEmptyBinding())
                 .textFieldStyle(.brute)
+        }
+    }
+    
+    private var seasonSection: some View {
+        DisclosureGroup("Season", isExpanded: $sections.title) {
+            TextField("\(episode.season ?? "")", text: $config.season.nilEmptyBinding())
+                .textFieldStyle(.brute)
+        }
+    }
+    
+    private var episodeNumberSection: some View {
+        DisclosureGroup("Episode Number", isExpanded: $sections.episodeNumber) {
+            VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
+                if let episodeNumberError {
+                    Text(episodeNumberError)
+                        .foregroundStyle(Color.red)
+                        .font(.footnote.bold())
+                }
+                
+                TextField("\(episode.episode == nil ? "None" : "\(episode.episode!)")", text: $episodeNumber)
+                    .textFieldStyle(.brute)
+                    .keyboardType(.numberPad)
+                    .textInputAutocapitalization(.never)
+            }
         }
     }
     
@@ -61,7 +90,7 @@ struct PodcastConfigView: View {
                         .font(.footnote.bold())
                 }
                 
-                TextField("\(podcast.imageURL?.absoluteString ?? "")", text: $imageURL)
+                TextField("\(episode.imageURL?.absoluteString ?? "")", text: $imageURL)
                     .textFieldStyle(.brute)
                     .keyboardType(.URL)
                     .textContentType(.URL)
@@ -72,7 +101,7 @@ struct PodcastConfigView: View {
     
     private var descriptionSection: some View {
         DisclosureGroup("Description", isExpanded: $sections.description) {
-            TextField("\(podcast.description)", text: $config.description.nilEmptyBinding(), axis: .vertical)
+            TextField("\(episode.description)", text: $config.description.nilEmptyBinding(), axis: .vertical)
                 .lineLimit(5...10)
                 .textFieldStyle(.brute)
         }
@@ -92,6 +121,17 @@ struct PodcastConfigView: View {
                     config.imageURL = nil
                 }
                 
+                if !episodeNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    guard let number = Int(episodeNumber) else {
+                        episodeNumberError = "Invalid number provided."
+                        return
+                    }
+                    
+                    config.episode = number
+                } else {
+                    config.episode = nil
+                }
+                
                 onSave()
             },
             label: {
@@ -102,9 +142,10 @@ struct PodcastConfigView: View {
     }
 }
 
-extension PodcastConfigView {
+extension EpisodeConfigView {
     struct Sections {
         var title = true
+        var episodeNumber = true
         var imageURL = true
         var description = true
     }
@@ -112,25 +153,23 @@ extension PodcastConfigView {
 
 #Preview {
     
-    @Previewable @State var config = PodcastConfig(
-        title: nil,
-        imageURL: URL(string: "https://duckduckgo.com"),
-        description: nil,
-        podcastID: UUID()
-    )
+    @Previewable @State var config = EpisodeConfig(episodeID: UUID())
     
-    PodcastConfigView(
+    EpisodeConfigView(
         isLoading: false,
-        podcast: Podcast(
+        episode: Episode(
             id: UUID(),
-            title: "Dungeons and Daddies",
-            link: nil,
-            language: "en",
-            imageURL: URL(string: "https://assets.pippa.io/shows/61b7633a16956271a5e9503b/show-cover.jpg"),
-            description: "Haha funny",
+            title: "A man and his handshake",
+            pubDate: .distantPast,
+            description: "The dads do a thing",
+            imageURL: URL(string: "https://duckduckgo.com"),
+            season: "1",
+            episode: 1,
+            duration: 1000,
+            progress: nil
         ),
         config: $config,
-        onSave: {  },
-        onNavigateBack: {  },
+        onSave: { },
+        onNavigateBack: { }
     )
 }

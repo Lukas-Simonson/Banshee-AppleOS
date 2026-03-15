@@ -2,6 +2,7 @@ import Core
 import Foundation
 import Observation
 import Podcasts
+import Episodes
 import SwiftUI
 
 @Observable
@@ -9,13 +10,17 @@ final class PodcastCoordinator {
     var path = NavigationPath()
 }
 
-extension PodcastCoordinator: PodcastNavigationContract {
+extension PodcastCoordinator: PodcastNavigationContract, EpisodeNavigationContract {
     func navigateToDetail(for podcast: Podcast) {
         path.append(PodcastDetailDestination(podcast: podcast))
     }
     
     func navigateToEditConfig(for podcast: Podcast) {
         path.append(EditPodcastConfigDestination(podcast: podcast))
+    }
+    
+    func navigateToEditConfig(for episode: Episode) {
+        path.append(EditEpisodeConfigDestination(episode: episode))
     }
 
     func navigateBack() {
@@ -35,6 +40,11 @@ extension PodcastCoordinator: PodcastNavigationContract {
         var id: UUID { podcast.id }
         let podcast: Podcast
     }
+    
+    struct EditEpisodeConfigDestination: Identifiable, Destination {
+        var id: UUID { episode.id }
+        let episode: Episode
+    }
 }
 
 extension PodcastCoordinator {
@@ -52,6 +62,9 @@ extension PodcastCoordinator {
                     }
                     .navigationDestination(for: EditPodcastConfigDestination.self) { destination in
                         PodcastConfigScreen(app.scaffold.podcast(), podcast: destination.podcast)
+                    }
+                    .navigationDestination(for: EditEpisodeConfigDestination.self) { destination in
+                        EpisodeConfigScreen(app.scaffold.episode(), episode: destination.episode)
                     }
             }
         }

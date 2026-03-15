@@ -69,19 +69,3 @@ public struct EpisodeRepository: EpisodeRepositoryContract {
         try await local.updateEpisodeCompletion(with: episode.id, isComplete: !(episode.progress?.isCompleted ?? false))
     }
 }
-
-public protocol LocalEpisodeDataSourceContract: Sendable {
-    func observeEpisodes(with podcastID: UUID, order: Episode.Order) async throws(CoreError) -> AsyncSequence<[CachedEpisode], any Error>
-    
-    func episodes(with podcastID: UUID) async throws(CoreError) -> [CachedEpisode]
-    
-    func upsert(_ episodes: [Episode], with podcastID: UUID) async throws(CoreError)
-    
-    func updateEpisodeCompletion(with id: UUID, isComplete: Bool) async throws(CoreError)
-}
-
-public protocol RemoteEpisodeDataSourceContract: Sendable {
-    func episodes(with podcastID: UUID, baseURL: String, token: String) async throws(CoreError) -> [Episode]
-    
-    func updateEpisodeCompletion(with id: UUID, isComplete: Bool, baseURL: String, token: String) async throws(CoreError)
-}

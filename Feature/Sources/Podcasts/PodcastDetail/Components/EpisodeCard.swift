@@ -12,6 +12,7 @@ struct EpisodeCard: View {
     
     let onPlay: () -> Void
     let onToggleComplete: () -> Void
+    let onOptions: () -> Void
     
     private var isCompleted: Bool {
         episode.progress?.isCompleted ?? false
@@ -87,7 +88,7 @@ struct EpisodeCard: View {
             
             Spacer()
             
-            Button("Options", systemImage: "ellipsis", action: {})
+            Button("Options", systemImage: "ellipsis", action: onOptions)
                 .buttonStyle(
                     .icon(
                         size: .small,
@@ -130,7 +131,8 @@ struct EpisodeCard: View {
                 ),
                 fallbackImageURL: nil,
                 onPlay: { },
-                onToggleComplete: { }
+                onToggleComplete: { },
+                onOptions: { }
             )
             .padding()
         }

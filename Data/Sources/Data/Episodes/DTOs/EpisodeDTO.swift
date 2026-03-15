@@ -11,6 +11,8 @@ struct EpisodeDTO: Codable {
     let episode: Int?
     let duration: Int?
     let progress: AudioProgressDTO?
+    
+    let config: EpisodeConfigDTO?
 }
 
 extension EpisodeDTO {

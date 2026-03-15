@@ -31,9 +31,8 @@ public struct CobwebRemotePodcastConfigDataSource: RemotePodcastConfigDataSource
         try await CoreError.catchNetwork(performing: "posting config for podcast with id: \(config.podcastID)", logger: logger, feature: .podcasts) {
             try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/podcasts/\(config.podcastID)/config")
-                .query(.item(key: "config", value: "include"))
                 .put()
-                .also { logger.info("Sending request to POST /api/podcasts/\(config.podcastID)/config") }
+                .also { logger.info("Sending request to PUT /api/podcasts/\(config.podcastID)/config") }
                 .withHeaders(.bearer(token), .contentType(value: "application/json"))
                 .withBody(config.toDTO())
                 .response()

@@ -81,14 +81,9 @@ final class PodcastDetailVM {
         defer { isLoading = false }
         
         do {
-            // async let updatePodcast = podcastRepository.refreshPodcast(with: podcast.id, force: force)
-            async let updateEpisodes = episodeListInteractor.refresh(force: force)
-            
-            try await (updateEpisodes)
-        } catch let error as CoreError {
-            navigator.showError(error)
+            try await episodeListInteractor.refresh(force: force)
         } catch {
-            logger.warning("Caught a non-core error", for: error)
+            navigator.showError(error)
         }
     }
     
@@ -102,6 +97,8 @@ final class PodcastDetailVM {
             }
         }
     }
+    
+    public func navigateToEditConfig(for episode: Episode) { navigator.navigateToEditConfig(for: episode) }
     
     public func navigateToEditConfig() { navigator.navigateToEditConfig(for: podcast) }
     
