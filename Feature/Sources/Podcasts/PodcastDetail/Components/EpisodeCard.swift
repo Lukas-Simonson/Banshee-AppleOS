@@ -6,6 +6,7 @@ import SwiftUI
 struct EpisodeCard: View {
     
     @Environment(\.bruteContext) private var context
+    @Environment(\.userRole) private var userRole
     
     let episode: Episode
     let fallbackImageURL: URL?
@@ -88,14 +89,16 @@ struct EpisodeCard: View {
             
             Spacer()
             
-            Button("Options", systemImage: "ellipsis", action: onOptions)
-                .buttonStyle(
-                    .icon(
-                        size: .small,
-                        background: context.color.neutralBackground,
-                        foreground: context.color.neutralForeground
+            if userRole == .admin {
+                Button("Options", systemImage: "ellipsis", action: onOptions)
+                    .buttonStyle(
+                        .icon(
+                            size: .small,
+                            background: context.color.neutralBackground,
+                            foreground: context.color.neutralForeground
+                        )
                     )
-                )
+            }
         }
         .font(context.font.header)
         .labelStyle(.iconOnly)

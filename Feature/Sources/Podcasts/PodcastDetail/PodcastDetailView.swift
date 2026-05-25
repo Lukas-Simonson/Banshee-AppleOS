@@ -8,6 +8,7 @@ struct PodcastDetailView: View {
     @Environment(\.bruteContext) private var context
     
     @State private var showSettings = false
+    @State private var episodeSettings: Episode?
     @State private var podcastDetailsID = UUID()
     
     let podcast: Podcast
@@ -62,6 +63,15 @@ struct PodcastDetailView: View {
                 )
                 .autoDetent()
             }
+            .sheet(item: $episodeSettings) { episode in
+                EpisodeSettingsPopup(
+                    onEditConfig: {
+                        episodeSettings = nil
+                        onEditEpisodeConfig(episode)
+                    }
+                )
+                .autoDetent()
+            }
         }
     }
     
@@ -106,7 +116,7 @@ struct PodcastDetailView: View {
                 fallbackImageURL: podcast.imageURL,
                 onPlay: { onPlay(episode) },
                 onToggleComplete: { onToggleComplete(episode) },
-                onOptions: { onEditEpisodeConfig(episode) }
+                onOptions: { episodeSettings = episode }
             )
             .id(episode.id)
             .padding(.horizontal, context.dimen.paddingMedium)
