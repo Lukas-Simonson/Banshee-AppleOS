@@ -71,6 +71,11 @@ final class AppScaffold {
         SettingsScaffold(app: self)
     }
     
+    @Shared
+    func episode() -> EpisodeScaffold {
+        EpisodeScaffold(app: self)
+    }
+ 
     // MARK: - Coordinators
     
     @Single

@@ -19,6 +19,7 @@ public struct PodcastDetailScreen: View {
             onPlay: viewModel.play,
             onToggleComplete: viewModel.toggleCompletion,
             onEditConfig: viewModel.navigateToEditConfig,
+            onEditEpisodeConfig: viewModel.navigateToEditConfig,
             onRefresh: { await viewModel.refresh(force: true) },
             onNavigateBack: viewModel.navigateBack
         )
