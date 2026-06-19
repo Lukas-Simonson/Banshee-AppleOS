@@ -49,6 +49,20 @@ public final class AuthRepository: AuthRepositoryContract {
         // Update subscribers
         await sessionFlow.emit(session)
     }
+    
+    public func setupAdmin(baseURL: String, name: String, email: String, username: String, password: String) async throws(CoreError) {
+        // Verify Server exists
+        try await remote.verifyServer(baseURL: baseURL)
+        
+        // Attempt to register the admin
+        let session = try await remote.setupAdmin(baseURL: baseURL, name: name, email: email, username: username, password: password)
+        
+        // Save session to local data source
+        try await local.saveSession(session)
+        
+        // Update subscribers
+        await sessionFlow.emit(session)
+    }
 
     public func logout() async throws(CoreError) {
         try await local.clearSession()
