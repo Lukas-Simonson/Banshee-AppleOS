@@ -1,0 +1,81 @@
+name: Bug report
+description: Report something that breaks. Reproduce it on the latest main before filing.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before you submit: search open **and closed** issues for duplicates, and confirm the bug reproduces on the latest `main`. Reports that fail either check get closed with a link to this notice.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I searched open and closed issues and found no duplicate.
+          required: true
+        - label: I reproduced this on the latest `main`.
+          required: true
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One sentence stating what breaks.
+      placeholder: Cart crashes when removing the last item
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: A numbered list a stranger can follow exactly. Vague steps get the `needs-repro` label and a 14-day clock.
+      placeholder: |
+        1. Log in as a standard user.
+        2. Add one item to the cart.
+        3. Click Remove.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened.
+      placeholder: The cart shows its empty state.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead. Paste the exact error message or attach a screenshot.
+      placeholder: |
+        The page goes blank. Console shows:
+        TypeError: Cannot read properties of undefined (reading 'id')
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Get the commit hash with `git rev-parse --short HEAD`.
+      placeholder: |
+        OS: macOS 15.2
+        Browser/runtime: Chrome 137 / Node 22.3
+        Commit: a1b2c3d
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Logs, screenshots, or context that helps. Optional.
+    validations:
+      required: false

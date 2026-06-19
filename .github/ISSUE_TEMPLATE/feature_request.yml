@@ -1,0 +1,52 @@
+name: Feature request
+description: Propose a change. State the problem before the solution.
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Requests that open with an implementation and never state the underlying problem get sent back. The maintainers may accept your problem and reject your solution; that counts as this template working as designed.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I searched open and closed issues and found no duplicate.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Who is affected, and what can they not do today? No solutions in this box.
+      placeholder: Students working offline lose their cart contents on refresh, so they re-enter everything after reconnecting.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Your idea, sketched in a paragraph. Mockups welcome.
+      placeholder: Persist the cart to localStorage on every change and rehydrate it on load.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: At least one other approach and why you set it aside.
+      placeholder: Server-side persistence would also work, but it requires auth changes and does nothing for logged-out users.
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Links, prior discussion, or context. Optional.
+    validations:
+      required: false
