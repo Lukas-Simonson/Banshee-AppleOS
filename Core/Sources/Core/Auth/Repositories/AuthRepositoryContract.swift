@@ -7,5 +7,6 @@ public protocol AuthRepositoryContract: Sendable {
     var sessionStream: any AsyncSequence<AuthSession?, Never> { get }
     
     func login(baseURL: String, username: String, password: String) async throws(CoreError)
+    func setupAdmin(baseURL: String, name: String, email: String, username: String, password: String) async throws(CoreError)
     func logout() async throws(CoreError)
 }

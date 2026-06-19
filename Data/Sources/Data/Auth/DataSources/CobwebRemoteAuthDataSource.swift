@@ -5,7 +5,7 @@ import Foundation
 import Logging
 
 public struct CobwebRemoteAuthDataSource: RemoteAuthDataSourceContract {
-    
+
     private let logger: Logger
     
     public init(logger: Logger) {
@@ -17,10 +17,34 @@ public struct CobwebRemoteAuthDataSource: RemoteAuthDataSourceContract {
             let user = try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/auth/login").get()
                 .also { logger.info("Sending Request to GET /api/auth/login") }
-                .withHeaders(.contentType(value: "application/json"), .basicAuth(username: username, password: password))
+                .withHeaders(.basicAuth(username: username, password: password))
                 .response()
                 .verifyStatusCode(isNot: 401, orThrow: CoreError.invalidCredentials)
                 .withStatusCoreError(expecting: 200, feature: .auth)
+                .body(as: UserDTO.self)
+            
+            return AuthSession(
+                user: user.toCore(at: baseURL),
+                token: AuthToken(token: user.token!, createdAt: .now)
+            )
+        }
+    }
+    
+    public func setupAdmin(baseURL: String, name: String, email: String, username: String, password: String) async throws(Core.CoreError) -> AuthSession {
+        try await CoreError.catchNetwork(performing: "setting up initial admin account", logger: logger, feature: .auth) {
+            let user = try await Cobweb.URL.using(baseURL: baseURL)
+                .path("/api/auth/setup").post()
+                .also { logger.info("Sending Request to POST /api/auth/setup") }
+                .withHeaders(.contentType(value: "application/json"))
+                .withBody([
+                    "role": "admin",
+                    "name": name,
+                    "email": email,
+                    "username": username,
+                    "password": password,
+                ])
+                .response()
+                .withStatusCoreError(expecting: 201, feature: .settings)
                 .body(as: UserDTO.self)
             
             return AuthSession(
