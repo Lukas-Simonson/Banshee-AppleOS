@@ -14,7 +14,8 @@ public struct LoginScreen: View {
             serverURL: $viewModel.serverURL,
             username: $viewModel.username,
             password: $viewModel.password,
-            onLogin: viewModel.login
+            onLogin: viewModel.login,
+            onSetupServer: viewModel.navigateToSetup
         )
     }
 }

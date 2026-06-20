@@ -48,5 +48,9 @@ final class LoginVM {
             }
         }
     }
+    
+    public func navigateToSetup() {
+        navigator.navigateToSetup()
+    }
 }
 

@@ -132,7 +132,7 @@ struct UserRegistrationView: View {
     
     UserRegistrationView(
         role: .admin,
-        isLoading: true,
+        isLoading: false,
         name: $name,
         username: $username,
         email: $email,

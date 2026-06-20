@@ -55,11 +55,7 @@ extension AppCoordinator {
     }
 }
 
-extension AppCoordinator: AuthNavigationContract, AudioNavigationContract {
-    func navigateHome() {
-        // Handled Automatically By Watching Stream
-    }
-
+extension AppCoordinator: AudioNavigationContract {
     func showError(_ error: CoreError) {
         guard noticeIDs.insert(error.id).inserted else { return }
 
