@@ -33,4 +33,5 @@ struct EpisodeSettingsPopup: View {
 
 #Preview {
     EpisodeSettingsPopup(onEditConfig: { })
+        .environment(\.userRole, .admin)
 }

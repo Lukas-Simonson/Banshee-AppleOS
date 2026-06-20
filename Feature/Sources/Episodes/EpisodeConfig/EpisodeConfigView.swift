@@ -58,7 +58,7 @@ struct EpisodeConfigView: View {
     }
     
     private var seasonSection: some View {
-        DisclosureGroup("Season", isExpanded: $sections.title) {
+        DisclosureGroup("Season", isExpanded: $sections.season) {
             TextField("\(episode.season ?? "")", text: $config.season.nilEmptyBinding())
                 .textFieldStyle(.brute)
         }
@@ -145,6 +145,7 @@ struct EpisodeConfigView: View {
 extension EpisodeConfigView {
     struct Sections {
         var title = true
+        var season = true
         var episodeNumber = true
         var imageURL = true
         var description = true

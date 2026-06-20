@@ -20,7 +20,9 @@ struct RootView: View {
                 BottomNavigation(app: app)
                     .environment(\.userRole, session.user.role)
             } else {
-                LoginScreen(app.scaffold.auth())
+                AuthCoordinator.Root(
+                    coordinator: app.scaffold.authCoordinator()
+                )
             }
         }
         .handleNotices(from: app.notices)

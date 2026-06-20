@@ -12,12 +12,17 @@ struct LoginView: View {
     @Binding var password: String
     
     let onLogin: () -> Void
+    let onSetupServer: () -> Void
     
     var body: some View {
         BruteStyle {
             BruteCard {
-                Text("Banshee")
-                    .font(context.font.title)
+                HStack {
+                    Text("Banshee")
+                        .font(context.font.title)
+                    Spacer()
+                    Button("Server Setup", action: onSetupServer)
+                }
                 
                 TextField("Server URL", text: $serverURL)
                     .keyboardType(.URL)
@@ -68,6 +73,9 @@ struct LoginView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 isLoading = false
             }
+        },
+        onSetupServer: {
+            
         }
     )
 }

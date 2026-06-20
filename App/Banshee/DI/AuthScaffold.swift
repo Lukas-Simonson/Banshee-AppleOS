@@ -20,7 +20,7 @@ final class AuthScaffold: AuthScaffoldContract {
     }
     
     func navigator() -> AuthNavigationContract {
-        AppCoordinator.shared
+        app.authCoordinator()
     }
     
     @Single

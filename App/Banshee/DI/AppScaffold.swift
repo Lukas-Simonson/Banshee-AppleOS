@@ -79,6 +79,11 @@ final class AppScaffold {
     // MARK: - Coordinators
     
     @Single
+    func authCoordinator() -> AuthCoordinator {
+        AuthCoordinator()
+    }
+    
+    @Single
     func podcastCoordinator() -> PodcastCoordinator {
         PodcastCoordinator()
     }
