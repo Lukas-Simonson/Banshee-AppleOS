@@ -108,12 +108,12 @@ extension PodcastRepository {
 
 // MARK: RSS Feed
 extension PodcastRepository {
-    public func addPodcast(fromRSS rssURL: URL) async throws(CoreError) {
+    public func addPodcast(fromRSS rssURL: URL, downloadMode: DownloadMode) async throws(CoreError) {
         guard let token = await serverProvider.token?.token,
               let server = await serverProvider.server
         else { throw CoreError.notAuthenticated(layer: .business, feature: .podcasts) }
         
-        let podcast = try await remote.registerFeed(from: rssURL, baseURL: server, token: token)
+        let podcast = try await remote.registerFeed(from: rssURL, downloadMode: downloadMode, baseURL: server, token: token)
         try await local.upsert([podcast])
     }
 }

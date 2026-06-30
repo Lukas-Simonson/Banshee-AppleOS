@@ -25,17 +25,28 @@ public struct CobwebRemotePodcastDataSource: RemotePodcastDataSourceContract {
         }
     }
     
-    public func registerFeed(from rssURL: URL, baseURL: String, token: String) async throws(CoreError) -> Podcast {
+    public func registerFeed(from rssURL: URL, downloadMode: DownloadMode, baseURL: String, token: String) async throws(CoreError) -> Podcast {
         try await CoreError.catchNetwork(performing: "Registering RSS feed", logger: logger, feature: .podcasts) {
             try await Cobweb.URL.using(baseURL: baseURL)
                 .path("/api/podcasts/feeds")
                 .post()
                 .withHeaders(.bearer(token), .contentType(value: "application/json"))
-                .withBody(["url": rssURL])
+                .withBody([
+                    "url": rssURL.absoluteString,
+                    "autoDownload": downloadModeString(for: downloadMode)
+                ])
                 .response()
                 .withStatusCoreError(expecting: 201, feature: .podcasts)
                 .body(as: PodcastDTO.self)
                 .toCore()
+        }
+    }
+    
+    private func downloadModeString(for mode: DownloadMode) -> String {
+        switch mode {
+            case .new: "new"
+            case .newAndExisting: "new_and_existing"
+            case .none: "none"
         }
     }
 }

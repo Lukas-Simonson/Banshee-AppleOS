@@ -36,10 +36,10 @@ final class PodcastListVM {
         }
     }
     
-    public func addPodcast(fromRSS rssURL: URL) {
+    public func addPodcast(fromRSS rssURL: URL, downloadMode: DownloadMode) {
         Task {
             do {
-                try await repository.addPodcast(fromRSS: rssURL)
+                try await repository.addPodcast(fromRSS: rssURL, downloadMode: downloadMode)
             } catch let error as CoreError {
                 logger.error("Failed adding rss feed", for: error)
                 navigator.showError(error)

@@ -15,7 +15,7 @@ struct PodcastListView: View {
     
     let onTapPodcast: (Podcast) -> Void
     let onRefresh: @Sendable () async -> Void
-    let onAddFeed: (URL) -> Void
+    let onAddFeed: (URL, DownloadMode) -> Void
     
     var body: some View {
         BruteStyle {
@@ -42,8 +42,8 @@ struct PodcastListView: View {
             }
             .sheet(isPresented: $showSettings) {
                 PodcastListSettingsPopup(
-                    onAddFeed: { url in
-                        onAddFeed(url)
+                    onAddFeed: { url, downloadMode in
+                        onAddFeed(url, downloadMode)
                         showSettings = false
                     }
                 )
@@ -104,7 +104,7 @@ struct PodcastListView: View {
         isLoading: false,
         onTapPodcast: { _ in },
         onRefresh: { },
-        onAddFeed: { _ in }
+        onAddFeed: { _, _ in }
     )
     .environment(\.userRole, .admin)
 }
