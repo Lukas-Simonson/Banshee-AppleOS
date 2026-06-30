@@ -9,8 +9,9 @@ struct PodcastListSettingsPopup: View {
     @Environment(\.userRole) private var userRole
     
     @State private var rssFeedURL: URL = URL(string: "//")!
+    @State private var downloadMode: DownloadMode = .new
     
-    let onAddFeed: (URL) -> Void
+    let onAddFeed: (URL, DownloadMode) -> Void
     
     var body: some View {
         BruteStyle {
@@ -24,9 +25,21 @@ struct PodcastListSettingsPopup: View {
                                 .textContentType(.URL)
                                 .textInputAutocapitalization(.never)
                             
+                            VStack(alignment: .leading, spacing: context.dimen.paddingSmall) {
+                                Text("Automatically Download:")
+                                BrutePicker(selection: $downloadMode) {
+                                    Text("New")
+                                        .tag(DownloadMode.new)
+                                    Text("New & Existing")
+                                        .tag(DownloadMode.newAndExisting)
+                                    Text("None")
+                                        .tag(DownloadMode.none)
+                                }
+                            }
+                            
                             Button(
                                 action: {
-                                    onAddFeed(rssFeedURL)
+                                    onAddFeed(rssFeedURL, downloadMode)
                                 },
                                 label: {
                                     Text("Add RSS Feed")
@@ -45,7 +58,7 @@ struct PodcastListSettingsPopup: View {
 
 #Preview {
     PodcastListSettingsPopup(
-        onAddFeed: { _ in }
+        onAddFeed: { _, _ in }
     )
     .environment(\.userRole, .admin)
 }

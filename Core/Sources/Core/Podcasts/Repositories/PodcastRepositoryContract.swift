@@ -7,5 +7,5 @@ public protocol PodcastRepositoryContract: Sendable {
     func refreshPodcast(with id: UUID, force: Bool) async throws(CoreError)
     func refreshPodcasts(force: Bool) async throws(CoreError)
     
-    func addPodcast(fromRSS rssURL: URL) async throws(CoreError)
+    func addPodcast(fromRSS rssURL: URL, downloadMode: DownloadMode) async throws(CoreError)
 }
