@@ -7,6 +7,7 @@ struct PodcastDetailView: View {
     
     @Environment(\.bruteContext) private var context
     
+    @State private var bulkSelect = false
     @State private var showSettings = false
     @State private var episodeSettings: Episode?
     @State private var podcastDetailsID = UUID()
@@ -15,6 +16,7 @@ struct PodcastDetailView: View {
     let episodes: [Episode]
     let isLoading: Bool
     
+    @Binding var selectedIDs: Set<UUID>
     @Binding var order: Episode.Order
     @Binding var scroll: UUID?
     
@@ -22,6 +24,7 @@ struct PodcastDetailView: View {
     let onToggleComplete: (Episode) -> Void
     let onEditConfig: () -> Void
     let onEditEpisodeConfig: (Episode) -> Void
+    let onBulkEpisodeConfig: () -> Void
     let onRefresh: @Sendable () async -> Void
     let onNavigateBack: () -> Void
     
@@ -49,6 +52,11 @@ struct PodcastDetailView: View {
                                 proxy.scrollTo(podcastDetailsID, anchor: .bottom)
                             }
                         }
+                        .safeAreaInset(edge: .bottom) {
+                            if bulkSelect {
+                                bulkEditBar
+                            }
+                        }
                     }
                 }
             }
@@ -59,6 +67,10 @@ struct PodcastDetailView: View {
                     onEditConfig: {
                         showSettings = false
                         onEditConfig()
+                    },
+                    onBulkEdit: {
+                        showSettings = false
+                        bulkSelect = true
                     }
                 )
                 .autoDetent()
@@ -111,20 +123,70 @@ struct PodcastDetailView: View {
     
     private var episodeDetails: some View {
         ForEach(episodes) { episode in
-            EpisodeCard(
-                episode: episode,
-                fallbackImageURL: podcast.imageURL,
-                onPlay: { onPlay(episode) },
-                onToggleComplete: { onToggleComplete(episode) },
-                onOptions: { episodeSettings = episode }
-            )
+            HStack(spacing: context.dimen.paddingSmall) {
+                if bulkSelect {
+                    Toggle(
+                        "",
+                        isOn: Binding(
+                            get: { selectedIDs.contains(episode.id) },
+                            set: { toggled in
+                                if toggled {
+                                    selectedIDs.insert(episode.id)
+                                } else {
+                                    selectedIDs.remove(episode.id)
+                                }
+                            }
+                        )
+                    )
+                    .accessibilityLabel("Select")
+                    .toggleStyle(.bruteCheckbox)
+                    .frame(height: 50, alignment: .center) // MARK: Needed due to a toggle height bug.
+                }
+                
+                EpisodeCard(
+                    episode: episode,
+                    isSelectionMode: bulkSelect,
+                    fallbackImageURL: podcast.imageURL,
+                    onPlay: { onPlay(episode) },
+                    onToggleComplete: { onToggleComplete(episode) },
+                    onOptions: { episodeSettings = episode }
+                )
+            }
             .id(episode.id)
             .padding(.horizontal, context.dimen.paddingMedium)
         }
+//        .animation(.default, value: bulkSelect)
+    }
+    
+    private var bulkEditBar: some View {
+        HStack {
+            Button(
+                action: {
+                    selectedIDs = []
+                    bulkSelect = false
+                },
+                label: {
+                    Text("Cancel")
+                        .frame(maxWidth: .infinity)
+                }
+            )
+            .buttonStyle(.brute(fill: .red))
+            
+            Button(
+                action: onBulkEpisodeConfig,
+                label: {
+                    Text("Edit \(selectedIDs.count) episodes?")
+                        .frame(maxWidth: .infinity)
+                }
+            )
+        }
+        .padding(context.dimen.paddingMedium)
     }
 }
 
 #Preview {
+    
+    @Previewable @State var selected = Set<UUID>()
     
     PodcastDetailView(
         podcast: Podcast(
@@ -137,7 +199,18 @@ struct PodcastDetailView: View {
         ),
         episodes: [
             Episode(
-                id: UUID(),
+                id: UUID(uuidString: "8E4ABF63-A63A-49E0-BAF6-A570F5D59818")!,
+                title: "A Man And His Handshake",
+                pubDate: .distantPast,
+                description: "The dads do a thing",
+                imageURL: nil,
+                season: "1",
+                episode: 1,
+                duration: nil,
+                progress: nil
+            ),
+            Episode(
+                id: UUID(uuidString: "8E4ABF63-A63A-49E0-BAF6-A570F5D59819")!,
                 title: "A Man And His Handshake",
                 pubDate: .distantPast,
                 description: "The dads do a thing",
@@ -149,12 +222,14 @@ struct PodcastDetailView: View {
             )
         ],
         isLoading: false,
+        selectedIDs: $selected,
         order: .constant(.title(asc: true)),
         scroll: .constant(nil),
         onPlay: { _ in },
         onToggleComplete: { _ in },
         onEditConfig: {  },
         onEditEpisodeConfig: { _ in },
+        onBulkEpisodeConfig: {  },
         onRefresh: {  },
         onNavigateBack: {  }
     )

@@ -9,6 +9,7 @@ struct EpisodeCard: View {
     @Environment(\.userRole) private var userRole
     
     let episode: Episode
+    let isSelectionMode: Bool
     let fallbackImageURL: URL?
     
     let onPlay: () -> Void
@@ -43,7 +44,9 @@ struct EpisodeCard: View {
         BruteCard {
             imageAndMetadata
             description
-            controls
+            if !isSelectionMode {
+                controls
+            }
             progress
         }
     }
@@ -132,6 +135,7 @@ struct EpisodeCard: View {
                         lastUpdated: .now
                     )
                 ),
+                isSelectionMode: true,
                 fallbackImageURL: nil,
                 onPlay: { },
                 onToggleComplete: { },

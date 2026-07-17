@@ -7,6 +7,8 @@ public protocol PodcastNavigationContract {
     func navigateToEditConfig(for podcast: Podcast)
     
     func navigateToEditConfig(for episode: Episode)
+    
+    func navigateToBulkEditConfig(episodeIDs: Set<UUID>)
 
     func navigateBack()
 

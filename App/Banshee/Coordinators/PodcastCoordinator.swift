@@ -22,6 +22,10 @@ extension PodcastCoordinator: PodcastNavigationContract, EpisodeNavigationContra
     func navigateToEditConfig(for episode: Episode) {
         path.append(EditEpisodeConfigDestination(episode: episode))
     }
+    
+    func navigateToBulkEditConfig(episodeIDs: Set<UUID>) {
+        path.append(BulkEpisodeConfigDestination(episodeIDs: episodeIDs))
+    }
 
     func navigateBack() {
         path.removeLast()
@@ -45,6 +49,10 @@ extension PodcastCoordinator: PodcastNavigationContract, EpisodeNavigationContra
         var id: UUID { episode.id }
         let episode: Episode
     }
+    
+    struct BulkEpisodeConfigDestination: Destination {
+        var episodeIDs: Set<UUID>
+    }
 }
 
 extension PodcastCoordinator {
@@ -65,6 +73,9 @@ extension PodcastCoordinator {
                     }
                     .navigationDestination(for: EditEpisodeConfigDestination.self) { destination in
                         EpisodeConfigScreen(app.scaffold.episode(), episode: destination.episode)
+                    }
+                    .navigationDestination(for: BulkEpisodeConfigDestination.self) { destination in
+                        BulkEpisodeConfigScreen(app.scaffold.episode(), episodeIDs: destination.episodeIDs)
                     }
             }
         }

@@ -11,6 +11,7 @@ struct PodcastDetailSettingsPopup: View {
     @Binding var order: Episode.Order
     
     let onEditConfig: () -> Void
+    let onBulkEdit: () -> Void
     
     var body: some View {
         BruteStyle {
@@ -25,13 +26,23 @@ struct PodcastDetailSettingsPopup: View {
                 
                 if userRole == .admin {
                     BruteSection("Admin") {
-                        Button(
-                            action: onEditConfig,
-                            label: {
-                                Text("Edit Podcast Config")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                        )
+                        VStack(spacing: context.dimen.paddingSmall) {
+                            Button(
+                                action: onEditConfig,
+                                label: {
+                                    Text("Edit Podcast Config")
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            )
+                            
+                            Button(
+                                action: onBulkEdit,
+                                label: {
+                                    Text("Bulk Edit Episodes")
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -97,5 +108,6 @@ struct PodcastDetailSettingsPopup: View {
 #Preview {
     @Previewable @State var order = Episode.Order.title(asc: true)
     
-    PodcastDetailSettingsPopup(order: $order, onEditConfig: { })
+    PodcastDetailSettingsPopup(order: $order, onEditConfig: { }, onBulkEdit: { })
+        .environment(\.userRole, .admin)
 }
