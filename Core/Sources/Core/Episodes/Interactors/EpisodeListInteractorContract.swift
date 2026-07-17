@@ -4,9 +4,11 @@ public protocol EpisodeListInteractorContract: AnyObject, Sendable {
     var order: Episode.Order { get }
     var scroll: UUID? { get }
     var episodeStream: any AsyncSequence<[Episode], Never> { get }
+    var selectedEpisodeIDs: Set<UUID> { get }
     
     func updateOrder(_ newOrder: Episode.Order)
     func updateScroll(_ newScroll: UUID?)
+    func updateSelected(_ newIDs: Set<UUID>)
     func refresh(force: Bool) async throws(CoreError)
     func stream(podcast: Podcast)
 }

@@ -29,6 +29,11 @@ final class PodcastDetailVM {
         set { episodeListInteractor.updateScroll(newValue) }
     }
     
+    var selected: Set<UUID> {
+        get { episodeListInteractor.selectedEpisodeIDs }
+        set { episodeListInteractor.updateSelected(newValue) }
+    }
+    
     private var episodeObservation: Task<Void, any Error>?
     
     // MARK: - Initialization
@@ -97,6 +102,8 @@ final class PodcastDetailVM {
             }
         }
     }
+    
+    public func navigateToBulkEditConfig() { navigator.navigateToBulkEditConfig(episodeIDs: selected) }
     
     public func navigateToEditConfig(for episode: Episode) { navigator.navigateToEditConfig(for: episode) }
     

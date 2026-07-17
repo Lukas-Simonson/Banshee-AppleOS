@@ -14,12 +14,14 @@ public struct PodcastDetailScreen: View {
             podcast: viewModel.podcast,
             episodes: viewModel.episodes,
             isLoading: viewModel.isLoading,
+            selectedIDs: $viewModel.selected,
             order: $viewModel.sortOrder,
             scroll: $viewModel.scroll,
             onPlay: viewModel.play,
             onToggleComplete: viewModel.toggleCompletion,
             onEditConfig: viewModel.navigateToEditConfig,
             onEditEpisodeConfig: viewModel.navigateToEditConfig,
+            onBulkEpisodeConfig: viewModel.navigateToBulkEditConfig,
             onRefresh: { await viewModel.refresh(force: true) },
             onNavigateBack: viewModel.navigateBack
         )

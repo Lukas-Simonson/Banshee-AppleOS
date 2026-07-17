@@ -42,4 +42,15 @@ public struct EpisodeConfigRepository: EpisodeConfigRepositoryContract {
             )
         )
     }
+    
+    public func update(_ config: BulkEpisodeConfig, for episodeIDs: Set<UUID>) async throws(CoreError) {
+        guard let token = await serverProvider.token?.token,
+              let server = await serverProvider.server
+        else { throw CoreError.notAuthenticated(layer: .business, feature: .episodes) }
+        
+        let episodes = try await remote.postBulkConfig(config, baseURL: server, token: token)
+        
+        // Update all episodes
+        try await local.updateEpisodes(episodes)
+    }
 }

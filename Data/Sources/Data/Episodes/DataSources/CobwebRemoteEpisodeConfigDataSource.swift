@@ -39,4 +39,19 @@ public struct CobwebRemoteEpisodeConfigDataSource: RemoteEpisodeConfigDataSource
                 .withStatusCoreError(expecting: 202, feature: .episodes)
         }
     }
+    
+    public func postBulkConfig(_ config: BulkEpisodeConfig, baseURL: String, token: String) async throws(CoreError) -> [Episode] {
+        try await CoreError.catchNetwork(performing: "posting bulk episode config", logger: logger, feature: .episodes) {
+            try await Cobweb.URL.using(baseURL: baseURL)
+                .path("/api/episodes/configs")
+                .put()
+                .also { logger.info("Sending request to PUT /api/episodes/configs") }
+                .withHeaders(.bearer(token), .contentType(value: "application/json"))
+                .withBody(config.toDTO())
+                .response()
+                .withStatusCoreError(expecting: 202, feature: .episodes)
+                .body(as: [EpisodeDTO].self, JSONDecoder().withISO8601())
+                .map { $0.toCore() }
+        }
+    }
 }

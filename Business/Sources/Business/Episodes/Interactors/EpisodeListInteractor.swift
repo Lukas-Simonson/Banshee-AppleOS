@@ -14,6 +14,7 @@ public final class EpisodeListInteractor: EpisodeListInteractorContract, @unchec
     // MARK: - Shared State
     public private(set) var order: Episode.Order = .title(asc: true)
     public private(set) var scroll: UUID?
+    public private(set) var selectedEpisodeIDs: Set<UUID> = []
     
     public var episodeStream: any AsyncSequence<[Episode], Never> {
         flow
@@ -33,6 +34,10 @@ public final class EpisodeListInteractor: EpisodeListInteractorContract, @unchec
     }
     
     // MARK: - Actions
+    
+    public func updateSelected(_ newIDs: Set<UUID>) {
+        selectedEpisodeIDs = newIDs
+    }
     
     public func updateOrder(_ newOrder: Episode.Order) {
         guard let podcast else { return }
