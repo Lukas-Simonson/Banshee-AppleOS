@@ -52,7 +52,9 @@ public actor EpisodePlayer: EpisodePlayerContract {
         
         Task {
             if let queue = localQueue.get() {
+                logger.info("Found last used queue with (\(queue.count) episodes.")
                 do {
+                    try await Task.sleep(for: .seconds(1)) // Race Condition Handling See Issue #25
                     try await enqueue(queue, startPlaying: false)
                 } catch let error as CoreError {
                     await playerStateFlow.emit(.error(error))
