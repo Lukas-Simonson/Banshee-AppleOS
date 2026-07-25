@@ -13,12 +13,15 @@ struct MiniPlayerView: View {
     let onPause: () -> Void
     
     var body: some View {
-        if let state {
-            switch state.mode {
-                case .playing, .paused, .loading: player(with: state)
-                default: EmptyView()
+        VStack {
+            if let state {
+                switch state.mode {
+                    case .playing, .paused, .loading: player(with: state)
+                    default: EmptyView()
+                }
             }
         }
+        .animation(.default, value: state == nil)
     }
     
     private func player(with state: AudioPlayerState) -> some View {
