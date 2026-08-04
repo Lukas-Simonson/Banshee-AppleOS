@@ -53,52 +53,7 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
         defer { lock.unlock() }
         
         audioInfo.update(with: data)
-        
-        commandCenter.enable(.play) { [weak self] _ in
-            self?.play()
-            return .success
-        }
-        
-        commandCenter.enable(.pause) { [weak self] _ in
-            self?.pause()
-            return .success
-        }
-        
-        commandCenter.enable(.skipForward) { [weak self] _ in
-            guard let self, let player = lock.withLock({ self.player }) else { return .noSuchContent }
-            
-            player.seek(
-                to: player.currentTime() + CMTime(seconds: 15, preferredTimescale: 1),
-                toleranceBefore: CMTime(seconds: 1, preferredTimescale: 1),
-                toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1),
-                completionHandler: { [weak self] _ in
-                    guard let self else { return }
-                    let seconds = Int(player.currentTime().seconds)
-                    delegate?.playerDidUpdateTimePlayed(seconds)
-                    audioInfo.update(duration: seconds, rate: player.rate)
-                }
-            )
-            
-            return .success
-        }
-        
-        commandCenter.enable(.skipBackward) { [weak self] _ in
-            guard let self, let player = lock.withLock({ self.player }) else { return .noSuchContent }
-            
-            player.seek(
-                to: player.currentTime() - CMTime(seconds: 15, preferredTimescale: 1),
-                toleranceBefore: CMTime(seconds: 1, preferredTimescale: 1),
-                toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1),
-                completionHandler: { [weak self] _ in
-                    guard let self else { return }
-                    let seconds = Int(player.currentTime().seconds)
-                    delegate?.playerDidUpdateTimePlayed(seconds)
-                    audioInfo.update(duration: seconds, rate: player.rate)
-                }
-            )
-            
-            return .success
-        }
+        enableCommandCenter()
     }
     
     public func play() {
@@ -106,6 +61,7 @@ final public class AudioService: AudioServiceContract, @unchecked Sendable {
             guard let player else { return }
         
             player.play()
+            enableCommandCenter()
             delegate?.playerDidResume()
             
             let seconds = Int(player.currentTime().seconds)
@@ -277,5 +233,53 @@ extension AudioService {
             name: AVPlayerItem.didPlayToEndTimeNotification,
             object: item
         )
+    }
+    
+    private func enableCommandCenter() {
+        commandCenter.enable(.play) { [weak self] _ in
+            self?.play()
+            return .success
+        }
+        
+        commandCenter.enable(.pause) { [weak self] _ in
+            self?.pause()
+            return .success
+        }
+        
+        commandCenter.enable(.skipForward) { [weak self] _ in
+            guard let self, let player = lock.withLock({ self.player }) else { return .noSuchContent }
+            
+            player.seek(
+                to: player.currentTime() + CMTime(seconds: 15, preferredTimescale: 1),
+                toleranceBefore: CMTime(seconds: 1, preferredTimescale: 1),
+                toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1),
+                completionHandler: { [weak self] _ in
+                    guard let self else { return }
+                    let seconds = Int(player.currentTime().seconds)
+                    delegate?.playerDidUpdateTimePlayed(seconds)
+                    audioInfo.update(duration: seconds, rate: player.rate)
+                }
+            )
+            
+            return .success
+        }
+        
+        commandCenter.enable(.skipBackward) { [weak self] _ in
+            guard let self, let player = lock.withLock({ self.player }) else { return .noSuchContent }
+            
+            player.seek(
+                to: player.currentTime() - CMTime(seconds: 15, preferredTimescale: 1),
+                toleranceBefore: CMTime(seconds: 1, preferredTimescale: 1),
+                toleranceAfter: CMTime(seconds: 1, preferredTimescale: 1),
+                completionHandler: { [weak self] _ in
+                    guard let self else { return }
+                    let seconds = Int(player.currentTime().seconds)
+                    delegate?.playerDidUpdateTimePlayed(seconds)
+                    audioInfo.update(duration: seconds, rate: player.rate)
+                }
+            )
+            
+            return .success
+        }
     }
 }
